@@ -34,6 +34,29 @@ function fetchHybridInstall() {
   HYBRID_INSTALL_DIR=$(pwd); export HYBRID_INSTALL_DIR
 }
 
+function gitClone() {
+  sudo apt update
+  sudo apt-get install git -y
+  git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
+  cd single-node-apigee-hybrid-install
+  WORK_DIR=$(pwd);export WORK_DIR
+}
+
+function installTools() {
+  sudo apt update
+  sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
+  sudo apt-get install jq -y
+  sudo apt-get install google-cloud-sdk-kpt -y
+
+  sudo apt-get install kubectl -y
+  sudo apt-get install wget -y
+
+  sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
+  tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
+
+  curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+}
+
 function dockerInstall() {
   sudo apt-get update
 
@@ -50,10 +73,16 @@ function dockerInstall() {
 
   sudo apt install --yes docker-ce
 
-  sudo usermod -aG docker "${USER}"
-  su - "${USER}"
+  # https://thatlinuxbox.com/blog/article.php/access-docker-after-install-without-logout
+  USERNAME=$(whoami)
+  sudo gpasswd -a "$USERNAME" docker
+  sudo grpconv
+  newgrp docker
+
+  docker images
 }
 
 #validate;
 #fetchHybridInstall;
+installTools;
 dockerInstall;
