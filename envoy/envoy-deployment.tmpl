@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: envoy-proxy
-        image: docker-registry:${DOCKER_REGISTRY_PORT}/apigee-hybrid/single-instance/envoy-proxy:v1
+        image: docker-registry:${DOCKER_REGISTRY_PORT}/apigee-hybrid/single-node/envoy-proxy:v1
         imagePullPolicy: IfNotPresent
         env:
         - name: "SERVICE_NAME"
