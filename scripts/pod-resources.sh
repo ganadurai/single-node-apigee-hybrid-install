@@ -16,7 +16,7 @@
 
 set -e
 
-KUBECTL="kubectl"
+KUBECTL="kubectl -n apigee"
 pods=$($KUBECTL get pods --no-headers -o custom-columns=NAME:.metadata.name)
 
 function usage() {
