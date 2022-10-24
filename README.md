@@ -1,4 +1,4 @@
-# Single Instance Hybrid Installation
+# Single Node Hybrid Installation
 
 This is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide) , focussed on executing the installation on a VM instance with minimal resources (validated for GCP e2-standard-4: 4vCPU, 16GB RAM). Note: This deployment model is just for testing/sandbox purposes, not recommended for production.
 

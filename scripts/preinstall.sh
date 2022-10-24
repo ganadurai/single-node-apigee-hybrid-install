@@ -34,7 +34,9 @@ function validate() {
 }
 
 validate;
+echo "Filling in resource values"
 fillResourceValues;
+echo "Moving resource overlays into Hybrid install source"
 moveResourcesSpecsToHybridInstall;
 
 echo "Updating datastore kustomization"
