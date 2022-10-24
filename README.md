@@ -176,6 +176,32 @@ Envoy proxy will serve the gateway to execute the proxies into the runtime pod.
     ```
 
 ## Tunning of pod resource requests
+
 If further customization of the resources on the pods is needed, adjust the values within the file $WORK_DIR/scripts/fill-resource-values.sh
 
+## Troubleshooting
+
+1. Verify the runtime pod has the proxy artifacts deployed and accessible within the pod
+    ```bash
+    RUNTIME_POD=$(kubectl -n ${APIGEE_NAMESPACE} get pods -l app=apigee-runtime --template \
+    '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+    kubectl -n apigee exec --stdin --tty -c apigee-runtime $RUNTIME_POD -- \
+    curl https://localhost:8443/hello-world -k -H 'Host: $DOMAIN'
+    ```
+    
+1. Verify the runtime pod service is accessible from within the envoy proxy pod
+    ```bash
+    ENVOY_POD=$(kubectl -n envoy-ns get pods -l app=envoy-proxy \
+    --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+    SERVICE_NAME=$(kubectl get svc -n ${APIGEE_NAMESPACE} -l env=eval,app=apigee-runtime \
+    --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+    kubectl -n envoy-ns exec --stdin --tty $ENVOY_POD -- \
+    curl https://${SERVICE_NAME}.${APIGEE_NAMESPACE}.svc.cluster.local:8443/hello-world -k -H 'Host: $DOMAIN'
+    ```
+    
+1. Confirm the pod status in the ${APIGEE_NAMESPACE} and envoy-ns namespaces
+    ```bash
+    kubectl -n ${APIGEE_NAMESPACE} get pods
+    kubectl -n envoy-ns get pods
+    ```
  
