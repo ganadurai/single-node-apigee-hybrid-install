@@ -1,6 +1,6 @@
 # A Single VM Hybrid Installation
 
-This is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide) focussed on executing the installation on a **single VM instance** with minimal resources (validated for GCP e2-standard-4: 4vCPU, 16GB RAM). Note: This deployment model is aimed to solve for testing and sandbox purposes, **not for production deployments**.
+This is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide) focussed on executing the installation on a **single VM instance** with minimal resources (validated for GCP e2-standard-4: 4vCPU, 16GB RAM, 20GB disk). Note: This deployment model is aimed to solve for testing and sandbox purposes, **not for production deployments**.
 
 ## Prerequisites
 
