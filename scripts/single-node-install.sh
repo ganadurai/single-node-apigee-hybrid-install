@@ -293,15 +293,25 @@ function hybridPostInstallValidation() {
 }
 
 function install() {
+  echo "Validation of variables";
   validate;
+  echo "Docker Installation";
   installDocker;
+  echo "Fetch Hybrid Install";
   fetchHybridInstall;
+  echo "Install the needed tools/libraries";
   installTools;
+  echo "Update /etc/hosts";
   insertEtcHosts;
+  echo "Start K3D cluster";
   startK3DCluster;
+  echo "Overlays prep for Install";
   hybridPreInstallOverlaysPrep;
+  echo "Hybrid Install";
   hybridInstall;
+  echo "Post Install";
   hybridPostInstallEnvoyIngressSetup;
+  echo "Validation of proxy execution";
   hybridPostInstallValidation;
 }
 
