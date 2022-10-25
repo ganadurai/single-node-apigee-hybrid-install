@@ -111,6 +111,9 @@ function installTools() {
 function installDocker() {
   which docker; RESULT=$?
   if [ $RESULT -ne 0 ]; then #docker is missing, adding it
+    echo "Installing Docker.."
+    sleep 2;
+    
     sudo apt-get update
 
     sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
