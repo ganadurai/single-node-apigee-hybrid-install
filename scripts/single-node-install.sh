@@ -37,7 +37,13 @@ function validate() {
   if [[ -z $WORK_DIR ]]; then
       echo "Environment variable WORK_DIR setting now..."
       WORK_DIR="$(pwd)/.."; export WORK_DIR;
-      echo "$WORK_DIR"
+      echo "WORK_DIR=$WORK_DIR"
+  fi
+
+  if [[ -z $APIGEE_NAMESPACE ]]; then
+      echo "Environment variable APIGEE_NAMESPACE setting now..."
+      APIGEE_NAMESPACE="apigee"; export APIGEE_NAMESPACE;
+      echo "APIGEE_NAMESPACE=$APIGEE_NAMESPACE"
   fi
 
   if [[ -z $ORG_NAME ]]; then
@@ -103,28 +109,37 @@ function installTools() {
 }
 
 function installDocker() {
-  sudo apt-get update
+  which docker; RESULT=$?
+  if [ $RESULT -ne 0 ]; then #docker is missing, adding it
+    sudo apt-get update
 
-  sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
+    sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
 
-  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 
-  sudo add-apt-repository "deb [arch=amd64] 
-  https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+    sudo add-apt-repository "deb [arch=amd64] 
+    https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 
-  sleep 20
+    echo "Waiting for 10s..."
+    sleep 10
 
-  sudo apt-get update
+    sudo apt-get update
 
-  sudo apt install --yes docker-ce
+    sudo apt install --yes docker-ce
 
-  # https://thatlinuxbox.com/blog/article.php/access-docker-after-install-without-logout
-  USERNAME=$(whoami)
-  sudo gpasswd -a "$USERNAME" docker
-  sudo grpconv
-  newgrp docker
-
-  docker images
+    # https://thatlinuxbox.com/blog/article.php/access-docker-after-install-without-logout
+    USERNAME=$(whoami)
+    sudo gpasswd -a "$USERNAME" docker
+    sudo grpconv
+    
+    #Switch to the new group and comeback to have $USER belonging to docker group
+    newgrp docker; 
+    exit; 
+    install;
+  else
+    echo "Docker exists.."
+    sleep 5
+  fi
 }
 
 function insertEtcHosts() {
@@ -217,8 +232,8 @@ function hybridInstall() {
 
   kubectl wait "apigeedatastore/default" \
     "apigeeredis/default" \
-    "apigeeenvironment/${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" \
-    "apigeeorganization/${ORGANIZATION_NAME}" \
+    "apigeeenvironment/${ORG_NAME}-${ENV_NAME}" \
+    "apigeeorganization/${ORG_NAME}" \
     "apigeetelemetry/apigee-telemetry" \
     -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=5s
   exit_code=$?
@@ -230,7 +245,7 @@ function hybridInstall() {
   fi
 }
 
-function hybridPostInstallEnvoyIngress() {
+function hybridPostInstallEnvoyIngressSetup() {
   cd "$WORK_DIR"/envoy
 
   #Extract the instance port for the docker-regitry
@@ -249,7 +264,8 @@ function hybridPostInstallEnvoyIngress() {
   localhost:"$DOCKER_REGISTRY_PORT"/apigee-hybrid/single-node/envoy-proxy:v1
 
   SERVICE_NAME=$(kubectl get svc -n "${APIGEE_NAMESPACE}" -l env=eval,app=apigee-runtime --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-  
+  export SERVICE_NAME;
+
   #Validate the substitutin variables
   if [[ -z $DOCKER_REGISTRY_PORT ]]; then
     echo "Instance port for the docker-regitry is not derived successfully, exiting.."
@@ -263,6 +279,9 @@ function hybridPostInstallEnvoyIngress() {
   envsubst < envoy-deployment.tmpl > envoy-deployment.yaml
 
   kubectl apply -f envoy-deployment.yaml
+
+  kubectl -n envoy-ns wait --for=jsonpath='{.status.phase}'=Running pod -l app=envoy-proxy --timeout=10s
+
 }
 
 function hybridPostInstallValidation() {
@@ -273,13 +292,17 @@ function hybridPostInstallValidation() {
   curl localhost:30080/apigee-hybrid-helloworld -H "Host: $DOMAIN"
 }
 
-validate;
-installDocker;
-fetchHybridInstall;
-installTools;
-insertEtcHosts;
-startK3DCluster;
-hybridPreInstallOverlaysPrep;
-hybridInstall;
-hybridPostInstallEnvoyIngressSetup;
-hybridPostInstallValidation;
+function install() {
+  validate;
+  installDocker;
+  fetchHybridInstall;
+  installTools;
+  insertEtcHosts;
+  startK3DCluster;
+  hybridPreInstallOverlaysPrep;
+  hybridInstall;
+  hybridPostInstallEnvoyIngressSetup;
+  hybridPostInstallValidation;
+}
+
+install;
