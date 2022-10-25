@@ -23,8 +23,9 @@ source ./add-resources-components.sh
 
 function validate() {
   if [[ -z $WORK_DIR ]]; then
-      echo "Environment variable WORK_DIR is not set, please checkout README.md"
-      exit 1
+      echo "Environment variable WORK_DIR setting now..."
+      WORK_DIR="$(pwd)/.."; export WORK_DIR;
+      echo "$WORK_DIR"
   fi
 
   if [[ -z $ORG_NAME ]]; then
@@ -69,6 +70,8 @@ function validate() {
 }
 
 function gitClone() { #This is the manual step, should include in README doc.
+  mkdir install;
+  cd install;
   sudo apt update
   sudo apt-get install git -y
   git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
@@ -79,9 +82,9 @@ function gitClone() { #This is the manual step, should include in README doc.
 }
 
 function fetchHybridInstall() {
+  cd "$WORK_DIR/.."
   git clone https://github.com/apigee/apigee-hybrid-install.git
-  cd apigee-hybrid-install
-  HYBRID_INSTALL_DIR=$(pwd); export HYBRID_INSTALL_DIR
+  HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
 }
 
 function installTools() {
@@ -125,7 +128,14 @@ function installDocker() {
 }
 
 function insertEtcHosts() {
-  echo "127.0.0.1       docker-registry" >> /etc/hosts
+  cat /etc/hosts|grep docker-registry; RESULT=$?
+  if [ $RESULT -ne 0 ]; then #Missing docker-registry entry trying to add..
+    sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts"; RESULT=$?
+    if [ $RESULT -ne 0 ]; then
+      echo "Error in adding entry '127.0.0.1       docker-registry' in /etc/hosts, add it manually and try again.."
+      exit 1;
+    fi
+  fi
 }
 
 function startK3DCluster() {
@@ -135,10 +145,10 @@ function startK3DCluster() {
   docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
   jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
   if [[ -z $docker_registry_port_mapping ]]; then
-    echo "Successfully started K3D cluster"
-  else
-    echo "Error in starting the K3D cluster";
+    echo "Error in starting the K3D cluster on the instance";
     exit 1;
+  else
+    echo "Successfully started K3D cluster"
   fi
 
   #Setting kubeconfig context
