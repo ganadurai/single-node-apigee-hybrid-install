@@ -109,7 +109,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 1. Execute the hybrid installation 
     ```bash
-    $WORK_DIR/tools/apigee-hybrid-setup.sh --org $ORG_NAME --env $ENV_NAME --envgroup $ENV_GROUP --ingress-domain $DOMAIN --cluster-name $CLUSTER_NAME --cluster-region $REGION --gcp-project-id $PROJECT_ID  --setup-all --verbose 
+    $HYBRID_INSTALL_DIR/tools/apigee-hybrid-setup.sh --org $ORG_NAME --env $ENV_NAME --envgroup $ENV_GROUP --ingress-domain $DOMAIN --cluster-name $CLUSTER_NAME --cluster-region $REGION --gcp-project-id $PROJECT_ID  --setup-all --verbose 
     ```
 
 1. Confirm the pods in apigee namespace is either in RUNNING or COMPLETED state. Checkout the resources on the node
@@ -204,4 +204,9 @@ If further customization of the resources on the pods is needed, adjust the valu
     kubectl -n ${APIGEE_NAMESPACE} get pods
     kubectl -n envoy-ns get pods
     ```
- 
+
+1. Confirm the pod request resources are applied as defined in this setup
+    ```bash
+    $WORK_DIR/scripts/pod-resources.sh
+    $WORK_DIR/scripts/node-resources.sh
+    ```
