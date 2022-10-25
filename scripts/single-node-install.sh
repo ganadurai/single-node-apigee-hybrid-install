@@ -21,6 +21,18 @@ source ./fill-resource-values.sh
 # shellcheck source=/dev/null
 source ./add-resources-components.sh
 
+function gitClone() { #This is the manual step, should include in README doc.
+  mkdir install;
+  cd install;
+  sudo apt update
+  sudo apt-get install git -y
+  git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
+  cd single-node-apigee-hybrid-install
+  git switch single-click-install
+  WORK_DIR=$(pwd);export WORK_DIR
+  cd "$WORK_DIR"/scripts
+}
+
 function validate() {
   if [[ -z $WORK_DIR ]]; then
       echo "Environment variable WORK_DIR setting now..."
@@ -67,18 +79,6 @@ function validate() {
     echo "Environment variable TOKEN is not set, please checkout README.md"
     exit 1
   fi
-}
-
-function gitClone() { #This is the manual step, should include in README doc.
-  mkdir install;
-  cd install;
-  sudo apt update
-  sudo apt-get install git -y
-  git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
-  cd single-node-apigee-hybrid-install
-  git switch single-click-install
-  WORK_DIR=$(pwd);export WORK_DIR
-  cd "$WORK_DIR"/scripts
 }
 
 function fetchHybridInstall() {
@@ -198,6 +198,9 @@ function hybridInstall() {
   cd "$HYBRID_INSTALL_DIR"
   kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.7.2/cert-manager.yaml
 
+  echo "Waiting 60s for the cert manager initialization"
+  sleep 60
+
   echo "ORG_NAME=$ORG_NAME"
   echo "ENV_NAME=$ENV_NAME"
   echo "ENV_GROUP=$ENV_GROUP"
@@ -271,9 +274,9 @@ function hybridPostInstallValidation() {
 }
 
 validate;
+installDocker;
 fetchHybridInstall;
 installTools;
-installDocker;
 insertEtcHosts;
 startK3DCluster;
 hybridPreInstallOverlaysPrep;
