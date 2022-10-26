@@ -186,7 +186,7 @@ function hybridPreInstallOverlaysPrep() {
   addComponents "$telemetryKustomizationFile" "${componentEntries[@]}"
 }
 
-function hybridInstallRe() {
+function hybridInstall() {
   date
   echo "Waiting 60s for the cert manager initialization"
   sleep 60
@@ -322,7 +322,7 @@ function installHybrid() {
   echo "Overlays prep for Install";
   hybridPreInstallOverlaysPrep;
   echo "Hybrid Install";
-  hybridInstall;
+  certManagerAndHybridInstall;
   echo "Post Install";
   hybridPostInstallEnvoyIngressSetup;
   echo "Validation of proxy execution";
