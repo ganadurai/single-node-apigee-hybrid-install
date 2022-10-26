@@ -33,6 +33,14 @@ function gitClone() { #This is the manual step, should include in README doc.
   cd "$WORK_DIR"/scripts
 }
 
+function validateDockerInstall() {
+  if [ -x "$(command -v docker)" ]; then
+    echo "docker presence is validated ..."
+else
+    echo "Docker is not running, install docker by running the script within the quotes './installDocker.sh; logout' and retry the hybrid install."
+fi
+}
+
 function validate() {
   if [[ -z $WORK_DIR ]]; then
       echo "Environment variable WORK_DIR setting now..."
