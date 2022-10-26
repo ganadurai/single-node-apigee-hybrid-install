@@ -108,41 +108,26 @@ function installTools() {
   curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 }
 
-function installDocker() {
-  which docker; RESULT=$?
-  if [ $RESULT -ne 0 ]; then #docker is missing, adding it
-    echo "Installing Docker.."
-    sleep 2;
-    
-    sudo apt-get update
+function installDocker() { #Insert the instruction in the startup script for docker ready VM
+  
+  # Start of Instructions in the startup
+  sudo apt-get update
+  sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
+  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+  echo "Waiting for 10s..."
+  sleep 10
+  sudo apt-get update
+  sudo apt install --yes docker-ce
+  # End of Instructions in the startup
 
-    sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
-
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-
-    sudo add-apt-repository "deb [arch=amd64] 
-    https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-
-    echo "Waiting for 10s..."
-    sleep 10
-
-    sudo apt-get update
-
-    sudo apt install --yes docker-ce
-
-    # https://thatlinuxbox.com/blog/article.php/access-docker-after-install-without-logout
-    USERNAME=$(whoami)
-    sudo gpasswd -a "$USERNAME" docker
-    sudo grpconv
-    
-    #Switch to the new group and comeback to have $USER belonging to docker group
-    newgrp docker; 
-    exit; 
-    install;
-  else
-    echo "Docker exists.."
-    sleep 5
-  fi
+  # https://thatlinuxbox.com/blog/article.php/access-docker-after-install-without-logout
+  USERNAME=$(whoami)
+  sudo gpasswd -a "$USERNAME" docker
+  sudo grpconv
+  
+  #Switch to the new group and comeback to have $USER belonging to docker group
+  newgrp docker; 
 }
 
 function insertEtcHosts() {
@@ -298,8 +283,8 @@ function hybridPostInstallValidation() {
 function install() {
   echo "Validation of variables";
   validate;
-  echo "Docker Installation";
-  installDocker;
+  #echo "Docker Installation";
+  #installDocker;
   echo "Fetch Hybrid Install";
   fetchHybridInstall;
   echo "Install the needed tools/libraries";
