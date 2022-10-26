@@ -33,6 +33,32 @@ function gitClone() { #This is the manual step, should include in README doc.
   cd "$WORK_DIR"/scripts
 }
 
+function installDocker() { #Insert the instruction in the startup script for docker ready VM
+  
+  # Start of Instructions in the startup
+  sudo apt-get update
+  sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
+  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+  echo "Waiting for 10s..."
+  sleep 10
+  sudo apt-get update
+  sudo apt install --yes docker-ce
+  # End of Instructions in the startup
+
+  # https://thatlinuxbox.com/blog/article.php/access-docker-after-install-without-logout
+  USERNAME=$(whoami)
+  sudo gpasswd -a "$USERNAME" docker
+  sudo grpconv
+  
+  #Switch to the new group and comeback to have $USER belonging to docker group
+  #newgrp docker;
+  
+newgrp docker << EOF
+  installHybrid;
+EOF
+}
+
 function validate() {
   if [[ -z $WORK_DIR ]]; then
       echo "Environment variable WORK_DIR setting now..."
@@ -106,28 +132,6 @@ function installTools() {
   tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
 
   curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-}
-
-function installDocker() { #Insert the instruction in the startup script for docker ready VM
-  
-  # Start of Instructions in the startup
-  sudo apt-get update
-  sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
-  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-  echo "Waiting for 10s..."
-  sleep 10
-  sudo apt-get update
-  sudo apt install --yes docker-ce
-  # End of Instructions in the startup
-
-  # https://thatlinuxbox.com/blog/article.php/access-docker-after-install-without-logout
-  USERNAME=$(whoami)
-  sudo gpasswd -a "$USERNAME" docker
-  sudo grpconv
-  
-  #Switch to the new group and comeback to have $USER belonging to docker group
-  newgrp docker; 
 }
 
 function insertEtcHosts() {
@@ -280,7 +284,7 @@ function hybridPostInstallValidation() {
   curl localhost:30080/apigee-hybrid-helloworld -H "Host: $DOMAIN"
 }
 
-function install() {
+function installHybrid() {
   echo "Validation of variables";
   validate;
   #echo "Docker Installation";
@@ -303,4 +307,4 @@ function install() {
   hybridPostInstallValidation;
 }
 
-install;
+installDocker;
