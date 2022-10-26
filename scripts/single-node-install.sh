@@ -186,7 +186,7 @@ function hybridPreInstallOverlaysPrep() {
   addComponents "$telemetryKustomizationFile" "${componentEntries[@]}"
 }
 
-function hybridInstall() {
+function hybridInstallRe() {
   date
   echo "Waiting 60s for the cert manager initialization"
   sleep 60
@@ -198,7 +198,7 @@ function hybridInstall() {
             --org "$ORG_NAME" --env "$ENV_NAME" --envgroup "$ENV_GROUP" \
             --ingress-domain "$DOMAIN" --cluster-name "$CLUSTER_NAME" \
             --cluster-region "$REGION" --gcp-project-id "$PROJECT_ID" \
-            --setup-all --verbose  2>&1 | tee /tmp/hybrid-install-output.txt)
+            --setup-all --verbose | tee /tmp/hybrid-install-output.txt)
   printf "\nHybrid Install Result : %s\n" "$OUTPUT"
   if [[ "$OUTPUT" -eq 1 ]]; then
     if grep -q 'failed to call webhook: Post "https://cert-manager-webhook.cert-manager.svc:443/validate?timeout=10s"' /tmp/hybrid-install-output.txt  
@@ -299,6 +299,11 @@ function hybridPostInstallValidation() {
         -H "Authorization: Bearer $TOKEN" --form file=@"$WORK_DIR/apigee-hybrid-helloworld.zip"
   
   curl localhost:30080/apigee-hybrid-helloworld -H "Host: $DOMAIN"
+}
+
+function cleanup() {
+  k3d cluster delete hybrid-cluster;
+  rm -Rf ~/install/apigee-hybrid-install/
 }
 
 function installHybrid() {
