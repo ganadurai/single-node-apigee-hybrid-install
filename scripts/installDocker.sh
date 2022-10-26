@@ -26,4 +26,4 @@ sudo apt-get update
 sudo apt install --yes docker-ce
 
 sudo usermod -aG docker "$USER"
-logout
+
