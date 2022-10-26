@@ -187,11 +187,11 @@ function hybridPreInstallOverlaysPrep() {
 }
 
 function hybridInstall() {
+  date
   echo "Waiting 60s for the cert manager initialization"
+  sleep 60
   date
-  sleep 60s
-  date
-
+  
   printf "\nInstalling and Setting up Hybrid containers\n"
   RESULT=0
   OUTPUT=$("$HYBRID_INSTALL_DIR"/tools/apigee-hybrid-setup.sh \
@@ -223,6 +223,7 @@ function certManagerAndHybridInstall() {
   echo "REGION=$REGION"
   echo "PROJECT_ID=$PROJECT_ID" 
   
+  touch /tmp/hybrid-install-output.txt
   hybridInstall;
   RESULT=$?
 
