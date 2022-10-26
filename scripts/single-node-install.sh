@@ -198,7 +198,7 @@ function hybridInstall() {
             --org "$ORG_NAME" --env "$ENV_NAME" --envgroup "$ENV_GROUP" \
             --ingress-domain "$DOMAIN" --cluster-name "$CLUSTER_NAME" \
             --cluster-region "$REGION" --gcp-project-id "$PROJECT_ID" \
-            --setup-all --verbose  2>&1 | /tmp/hybrid-install-output.txt)
+            --setup-all --verbose  2>&1 | tee /tmp/hybrid-install-output.txt)
   printf "\nHybrid Install Result : %s\n" "$OUTPUT"
   if [[ "$OUTPUT" -eq 1 ]]; then
     if grep -q 'failed to call webhook: Post "https://cert-manager-webhook.cert-manager.svc:443/validate?timeout=10s"' /tmp/hybrid-install-output.txt  
@@ -223,7 +223,8 @@ function certManagerAndHybridInstall() {
   echo "REGION=$REGION"
   echo "PROJECT_ID=$PROJECT_ID" 
   
-  touch /tmp/hybrid-install-output.txt
+  sudo touch /tmp/hybrid-install-output.txt
+  sudo chmod 666 /tmp/hybrid-install-output.txt
   hybridInstall;
   RESULT=$?
 
