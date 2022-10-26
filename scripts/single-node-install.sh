@@ -187,11 +187,33 @@ function hybridPreInstallOverlaysPrep() {
 }
 
 function hybridInstall() {
+  echo "Waiting 60s for the cert manager initialization"
+  date
+  sleep 60s
+  date
+
+  printf "\nInstalling and Setting up Hybrid containers\n"
+  RESULT=0
+  OUTPUT=$("$HYBRID_INSTALL_DIR"/tools/apigee-hybrid-setup.sh \
+            --org "$ORG_NAME" --env "$ENV_NAME" --envgroup "$ENV_GROUP" \
+            --ingress-domain "$DOMAIN" --cluster-name "$CLUSTER_NAME" \
+            --cluster-region "$REGION" --gcp-project-id "$PROJECT_ID" \
+            --setup-all --verbose  2>&1 | /tmp/hybrid-install-output.txt)
+  printf "\nHybrid Install Result : %s\n" "$OUTPUT"
+  if [[ "$OUTPUT" -eq 1 ]]; then
+    if grep -q 'failed to call webhook: Post "https://cert-manager-webhook.cert-manager.svc:443/validate?timeout=10s"' /tmp/hybrid-install-output.txt  
+    then
+      RESULT=1
+    else
+      RESULT=-1
+    fi
+  fi
+  return $RESULT
+}
+
+function certManagerAndHybridInstall() {
   cd "$HYBRID_INSTALL_DIR"
   kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.7.2/cert-manager.yaml
-
-  echo "Waiting 60s for the cert manager initialization"
-  sleep 60
 
   echo "ORG_NAME=$ORG_NAME"
   echo "ENV_NAME=$ENV_NAME"
@@ -201,11 +223,19 @@ function hybridInstall() {
   echo "REGION=$REGION"
   echo "PROJECT_ID=$PROJECT_ID" 
   
-  "$HYBRID_INSTALL_DIR"/tools/apigee-hybrid-setup.sh \
-  --org "$ORG_NAME" --env "$ENV_NAME" --envgroup "$ENV_GROUP" \
-  --ingress-domain "$DOMAIN" --cluster-name "$CLUSTER_NAME" \
-  --cluster-region "$REGION" --gcp-project-id "$PROJECT_ID" \
-  --setup-all --verbose 
+  hybridInstall;
+  RESULT=$?
+
+  counter=0;
+  while [ $RESULT -eq 1 ] && [ $counter -lt 3 ]; do
+    hybridInstall; #retrying to accomdate for cert-manager readiness
+    RESULT=$?
+    counter=$((counter+1))
+  done
+
+  if [[ $RESULT -eq -1 ]]; then
+    echo "Unexpected error, checkout the logs for troubleshooting"
+  fi
 
   kubectl wait "apigeedatastore/default" \
     "apigeeredis/default" \
