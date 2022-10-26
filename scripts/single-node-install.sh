@@ -271,8 +271,8 @@ function hybridPostInstallValidation() {
 function installHybrid() {
   echo "Validation of variables";
   validate;
-  #echo "Docker Installation";
-  #installDocker;
+  echo "Validate Docker Installation";
+  validateDockerInstall;
   echo "Fetch Hybrid Install";
   fetchHybridInstall;
   echo "Install the needed tools/libraries";
