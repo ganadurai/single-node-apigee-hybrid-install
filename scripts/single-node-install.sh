@@ -109,8 +109,10 @@ function installTools() {
 }
 
 function insertEtcHosts() {
-  RESULT=$(grep docker-registry2 /etc/hosts)
-  if [ -z "$RESULT" ]; then #Missing docker-registry entry trying to add..
+  if grep -q docker-registry /etc/hosts
+  then
+    echo "hosts entry already existing"
+  else
     sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts"; RESULT=$?
     if [ $RESULT -ne 0 ]; then
       echo "Error in adding entry '127.0.0.1       docker-registry' in /etc/hosts, add it manually and try again.."
