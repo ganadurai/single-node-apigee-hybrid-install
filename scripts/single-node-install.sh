@@ -289,6 +289,7 @@ function hybridPostInstallEnvoyIngressSetup() {
 
   kubectl apply -f envoy-deployment.yaml
 
+  echo "Waiting for envoy services to be ready...10s"
   kubectl -n envoy-ns wait --for=jsonpath='{.status.phase}'=Running pod -l app=envoy-proxy --timeout=10s
 
 }
@@ -297,8 +298,15 @@ function hybridPostInstallValidation() {
   export MGMT_HOST="https://apigee.googleapis.com"
   curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/apis?action=import&name=apigee-hybrid-helloworld" \
         -H "Authorization: Bearer $TOKEN" --form file=@"$WORK_DIR/apigee-hybrid-helloworld.zip"
-  
-  curl localhost:30080/apigee-hybrid-helloworld -H "Host: $DOMAIN"
+  echo "Waiting for proxy deployment and ready for testing, 60s"
+  sleep 60
+  OUTPUT=$(curl -i localhost:30080/apigee-hybrid-helloworld -H "Host: $DOMAIN" | grep HTTP)
+  printf "\n%s" "$OUTPUT"
+  if [[ "$OUTPUT" == *"200"* ]]; then
+    printf "\n\nSUCCESS: Hybrid is successfully installed\n\n"
+  else
+    printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
+  fi
 }
 
 function cleanup() {
