@@ -90,9 +90,9 @@ function installDocker() {
   sleep 10
   sudo apt-get update
   sudo apt install --yes docker-ce
+  sudo useradd admin
   sudo usermod -aG docker admin
 }
-
 
 echo "Step- Install the needed tools/libraries";
 installGitTool;
@@ -111,4 +111,5 @@ installDocker;
 
 #echo "Step- Launch install-core"
 #"$WORK_DIR"/scripts/install-core.sh
+
 
