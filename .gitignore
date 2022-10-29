@@ -1,0 +1,5 @@
+not-add-*.sh
+terraform-modules/vm-install/.terraform.lock.hcl
+terraform-modules/vm-install/.terraform/
+terraform-modules/vm-install/terraform.tfstate
+terraform-modules/vm-install/terraform.tfstate.backup
