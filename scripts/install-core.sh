@@ -70,6 +70,29 @@ function validateVars() {
   fi
 }
 
+function installTools() {  
+  sudo apt update
+  sudo apt-get install git -y
+  sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
+  sudo apt-get install jq -y
+  sudo apt-get install google-cloud-sdk-kpt -y
+
+  sudo apt-get install kubectl -y
+  sudo apt-get install wget -y
+
+  sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
+  tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
+
+  curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+  alias k=kubectl
+  alias ksn='kubectl config set-context --current'
+  alias ka='kubectl -n apigee'
+  alias ka-ssh='ka exec --stdin --tty'
+  alias ke='kubectl -n envoy-ns'
+  alias ke-ssh='ke exec --stdin --tty'
+}
+
 function fetchHybridInstall() {
   cd "$WORK_DIR/.."
   git clone https://github.com/apigee/apigee-hybrid-install.git

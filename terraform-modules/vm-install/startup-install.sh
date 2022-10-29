@@ -30,26 +30,9 @@ function initVars() {
   TOKEN=${VAR_TOKEN}; export TOKEN;
 }
 
-function installTools() {  
+function installGitTool() {  
   sudo apt update
-  sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
-  sudo apt-get install jq -y
-  sudo apt-get install google-cloud-sdk-kpt -y
-
-  sudo apt-get install kubectl -y
-  sudo apt-get install wget -y
-
-  sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
-  tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
-
-  curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-
-  alias k=kubectl
-  alias ksn='kubectl config set-context --current'
-  alias ka='kubectl -n apigee'
-  alias ka-ssh='ka exec --stdin --tty'
-  alias ke='kubectl -n envoy-ns'
-  alias ke-ssh='ke exec --stdin --tty'
+  sudo apt-get install git -y
 }
 
 function fetchSingleNodeInstall() {
@@ -58,7 +41,7 @@ function fetchSingleNodeInstall() {
   cd /opt/install
   git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
   cd single-node-apigee-hybrid-install
-  git switch single-click-install
+  git switch terraform-vm
   WORK_DIR=$(pwd);export WORK_DIR
   cd "$WORK_DIR"/scripts
 }
@@ -67,7 +50,7 @@ echo "Step- Initvars";
 initVars;
 
 echo "Step- Install the needed tools/libraries";
-installTools;
+installGitTool;
 
 echo "Step- Fetch SingleNode Install Repo";
 fetchSingleNodeInstall
