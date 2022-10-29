@@ -16,6 +16,11 @@
 
 set -e
 
+# shellcheck source=/dev/null
+source ./fill-resource-values.sh
+# shellcheck source=/dev/null
+source ./add-resources-components.sh
+
 function validateVars() {
   if [[ -z $WORK_DIR ]]; then
       echo "Environment variable WORK_DIR setting now..."
