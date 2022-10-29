@@ -43,11 +43,56 @@ function fetchSingleNodeInstall() {
   cd single-node-apigee-hybrid-install
   git switch terraform-vm
   WORK_DIR=$(pwd);export WORK_DIR
-  cd "$WORK_DIR"/scripts
+  sudo chmod 777 -R "$WORK_DIR"
 }
-  
-echo "Step- Initvars";
-initVars;
+
+function prepEnvVarsFile() {
+  touch "$WORK_DIR"/initvars.sh
+  {
+    echo "#!/bin/bash"
+    echo ""
+    echo "set -e"
+    echo ""
+    echo "export APIGEE_NAMESPACE=${VAR_APIGEE_NAMESPACE}"
+    echo "export ENV_NAME=${VAR_ENV_NAME}"
+    echo "export ENV_GROUP=${VAR_ENV_GROUP}"
+    echo "export DOMAIN=${VAR_DOMAIN}"
+    echo "export REGION=${VAR_REGION}"
+    echo ""
+    echo "export PROJECT_ID=${VAR_PROJECT_ID}"
+    echo "export ORG_NAME=${VAR_ORG_NAME}"
+    echo "export CLUSTER_NAME=${VAR_CLUSTER_NAME}"
+  } >> "$WORK_DIR"/initvars.sh
+  chmod +x "$WORK_DIR"/initvars.sh
+}
+
+function setEnvVariables() {
+  {
+    echo "export APIGEE_NAMESPACE=${VAR_APIGEE_NAMESPACE}"
+    echo "export ENV_NAME=${VAR_ENV_NAME}"
+    echo "export ENV_GROUP=${VAR_ENV_GROUP}"
+    echo "export DOMAIN=${VAR_DOMAIN}"
+    echo "export REGION=${VAR_REGION}"
+    echo ""
+    echo "export PROJECT_ID=${VAR_PROJECT_ID}"
+    echo "export ORG_NAME=${VAR_ORG_NAME}"
+    echo "export CLUSTER_NAME=${VAR_CLUSTER_NAME}"
+    echo "export WORK_DIR=$WORK_DIR"
+  } >> /etc/profile
+}
+
+function installDocker() {
+  sudo apt-get update
+  sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
+  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+  echo "Waiting for 10s..."
+  sleep 10
+  sudo apt-get update
+  sudo apt install --yes docker-ce
+  sudo usermod -aG docker admin
+}
+
 
 echo "Step- Install the needed tools/libraries";
 installGitTool;
@@ -55,5 +100,15 @@ installGitTool;
 echo "Step- Fetch SingleNode Install Repo";
 fetchSingleNodeInstall
 
-echo "Step- Launch install-core"
-"$WORK_DIR"/scripts/install-core.sh
+echo "Step- Set Env Variables";
+setEnvVariables
+
+echo "Step- Docker Installation";
+installDocker;
+
+#echo "Step- Prep vars file";
+#prepEnvVarsFile
+
+#echo "Step- Launch install-core"
+#"$WORK_DIR"/scripts/install-core.sh
+

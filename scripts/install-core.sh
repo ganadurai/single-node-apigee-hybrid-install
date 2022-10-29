@@ -104,17 +104,6 @@ function fetchHybridInstall() {
   HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
 }
 
-function installDocker() {
-  sudo apt-get update
-  sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
-  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-  echo "Waiting for 10s..."
-  sleep 10
-  sudo apt-get update
-  sudo apt install --yes docker-ce
-}
-
 function insertEtcHosts() {
   if grep -q docker-registry /etc/hosts
   then
@@ -312,9 +301,6 @@ validateVars
 
 echo "Step- Fetch Hybrid Install Repo";
 fetchHybridInstall
-
-echo "Step- Docker Installation";
-installDocker;
 
 echo "Step- Install the needed tools/libraries";
 installTools;
