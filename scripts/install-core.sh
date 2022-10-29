@@ -186,8 +186,8 @@ function hybridPreInstallOverlaysPrep() {
 
 function hybridInstall() {
   date
-  echo "Waiting 60s for the cert manager initialization"
-  sleep 60
+  echo "Waiting 120s for the cert manager initialization"
+  sleep 120
   date
   
   printf "\nInstalling and Setting up Hybrid containers\n"
@@ -196,7 +196,7 @@ function hybridInstall() {
             --org "$ORG_NAME" --env "$ENV_NAME" --envgroup "$ENV_GROUP" \
             --ingress-domain "$DOMAIN" --cluster-name "$CLUSTER_NAME" \
             --cluster-region "$REGION" --gcp-project-id "$PROJECT_ID" \
-            --setup-all --verbose | tee /tmp/hybrid-install-output.txt)
+            --setup-all --verbose > /tmp/hybrid-install-output.txt)
   printf "\nHybrid Install Result : %s\n" "$OUTPUT"
   if [[ "$OUTPUT" -eq 1 ]]; then
     if grep -q 'failed to call webhook: Post "https://cert-manager-webhook.cert-manager.svc:443/validate?timeout=10s"' /tmp/hybrid-install-output.txt  
