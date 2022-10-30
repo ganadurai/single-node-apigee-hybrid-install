@@ -17,9 +17,18 @@
 set -e
 
 # shellcheck source=/dev/null
-source ./fill-resource-values.sh
+source ./hybrid-artifacts/fill-resource-values.sh
 # shellcheck source=/dev/null
-source ./add-resources-components.sh
+source ./hybrid-artifacts/add-resources-components.sh
+
+function validateDockerInstall() {
+  if [ -x "$(command -v docker)" ]; then
+    echo "docker presence is validated ..."
+  else
+    echo "Docker is not running, install docker by running the script within the quotes './install-docker.sh; logout' and retry the hybrid install."
+    exit 1;
+  fi
+}
 
 function validateVars() {
   if [[ -z $WORK_DIR ]]; then

@@ -37,7 +37,7 @@ function validateDockerInstall() {
   if [ -x "$(command -v docker)" ]; then
     echo "docker presence is validated ..."
   else
-    echo "Docker is not running, install docker by running the script within the quotes './installDocker.sh; logout' and retry the hybrid install."
+    echo "Docker is not running, install docker by running the script within the quotes './install-docker.sh; logout' and retry the hybrid install."
     exit 1;
   fi
 }
