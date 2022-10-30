@@ -99,9 +99,7 @@ function installTools() {
 }
 
 function fetchHybridInstall() {
-  ls "$WORK_DIR/../apigee-hybrid-install"
-  RESULT=$?
-  if [[ $RESULT -eq 0 ]]; then #if the script is re-ran, clean it and pull a fresh copy
+  if [[ -d $WORK_DIR/../apigee-hybrid-install ]]; then #if the script is re-ran, clean it and pull a fresh copy
     rm -Rf "$WORK_DIR/../apigee-hybrid-install"
   fi
 
