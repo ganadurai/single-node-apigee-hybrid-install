@@ -99,9 +99,11 @@ function installTools() {
 }
 
 function fetchHybridInstall() {
-  cd "$WORK_DIR/.."
-  git clone https://github.com/apigee/apigee-hybrid-install.git
-  HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
+  if [[ -z $HYBRID_INSTALL_DIR ]]; then
+    cd "$WORK_DIR/.."
+    git clone https://github.com/apigee/apigee-hybrid-install.git
+    HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
+  fi
 }
 
 function insertEtcHosts() {
@@ -119,15 +121,17 @@ function insertEtcHosts() {
 
 function startK3DCluster() {
 
-  k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
+  if [[ -z $KUBECONFIG ]]; then
+    k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
 
-  docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
-  jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
-  if [[ -z $docker_registry_port_mapping ]]; then
-    echo "Error in starting the K3D cluster on the instance";
-    exit 1;
-  else
-    echo "Successfully started K3D cluster"
+    docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
+    jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
+    if [[ -z $docker_registry_port_mapping ]]; then
+      echo "Error in starting the K3D cluster on the instance";
+      exit 1;
+    else
+      echo "Successfully started K3D cluster"
+    fi
   fi
 
   #Setting kubeconfig context

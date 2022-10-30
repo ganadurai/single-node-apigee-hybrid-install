@@ -21,6 +21,11 @@ variable "PROJECT_ID" {
   type        = string
 }
 
+variable "ORG_ADMIN" {
+  description = "User having access to create vm instance"
+  type        = string
+}
+
 variable "ORG_NAME" {
   description = "Organization Name"
   type        = string

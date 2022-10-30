@@ -16,6 +16,9 @@
 
 set -e
 
+# shellcheck source=/dev/null
+source ../../scripts/installDocker.sh
+
 function initVars() {
   # The VAR_* variables are either set via terraform variables set in main.tf, or export variables in the OS 
   APIGEE_NAMESPACE=${VAR_APIGEE_NAMESPACE}; export APIGEE_NAMESPACE;
@@ -75,13 +78,14 @@ function setEnvVariables() {
     echo "export REGION=${VAR_REGION}"
     echo ""
     echo "export PROJECT_ID=${VAR_PROJECT_ID}"
+    echo "export ORG_ADMIN=${VAR_ORG_ADMIN}"
     echo "export ORG_NAME=${VAR_ORG_NAME}"
     echo "export CLUSTER_NAME=${VAR_CLUSTER_NAME}"
     echo "export WORK_DIR=$WORK_DIR"
   } >> /etc/profile
 }
 
-function installDocker() {
+function installDocker_remove() {
   sudo apt-get update
   sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
   curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
@@ -90,8 +94,7 @@ function installDocker() {
   sleep 10
   sudo apt-get update
   sudo apt install --yes docker-ce
-  sudo useradd admin
-  sudo usermod -aG docker admin
+  sudo usermod -aG docker "$(echo ${VAR_ORG_ADMIN} | tr . "_" | tr "@" "_")"
 }
 
 echo "Step- Install the needed tools/libraries";
@@ -104,7 +107,10 @@ echo "Step- Set Env Variables";
 setEnvVariables
 
 echo "Step- Docker Installation";
+#installDocker;
 installDocker;
+sudo usermod -aG docker "$(echo ${VAR_ORG_ADMIN} | tr . "_" | tr "@" "_")"
+
 
 #echo "Step- Prep vars file";
 #prepEnvVarsFile

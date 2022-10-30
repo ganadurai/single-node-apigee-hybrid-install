@@ -99,7 +99,8 @@ module "hybrid_vm" {
     //templatefile("${path.module}/backends.tftpl", { port = 8080, ip_addrs = ["10.0.0.1", "10.0.0.2"] })
     //startup-script = templatefile("${path.module}/test-var.sh", { VAR_PROJECT_ID = var.PROJECT_ID})
     //startup-script = templatefile("${path.module}/startup-install.sh", { VAR_APIGEE_NAMESPACE = var.APIGEE_NAMESPACE, VAR_ENV_NAME = var.ENV_NAME, VAR_ENV_GROUP = var.ENV_GROUP, VAR_DOMAIN = var.DOMAIN, VAR_REGION = var.REGION, VAR_PROJECT_ID = var.PROJECT_ID, VAR_ORG_NAME = var.ORG_NAME, VAR_CLUSTER_NAME = var.CLUSTER_NAME, VAR_TOKEN = var.TOKEN})
-    startup-script = templatefile("${path.module}/startup-install.sh", { VAR_PROJECT_ID = var.PROJECT_ID, 
+    startup-script = templatefile("${path.module}/startup-install.sh", { VAR_PROJECT_ID = var.PROJECT_ID,
+                                                                  VAR_ORG_ADMIN = var.ORG_ADMIN, 
                                                                   VAR_APIGEE_NAMESPACE = var.APIGEE_NAMESPACE, 
                                                                   VAR_ENV_NAME = var.ENV_NAME, 
                                                                   VAR_ENV_GROUP = var.ENV_GROUP, 
