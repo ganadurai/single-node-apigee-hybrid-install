@@ -122,8 +122,9 @@ function insertEtcHosts() {
 }
 
 function startK3DCluster() {
-  k3d cluster list hybrid-clusterRESULT=$?
-  if [[ $RESULT -ne 0 ]]; then
+  docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
+    jq 'select( .Status | contains("Up")) | .Ports ');
+  if [[ -z "$docker_registry_port_mapping" ]]; then
     k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
 
     docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
