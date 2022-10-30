@@ -16,9 +16,6 @@
 
 set -e
 
-# shellcheck source=/dev/null
-source ../../scripts/installDocker.sh
-
 function initVars() {
   # The VAR_* variables are either set via terraform variables set in main.tf, or export variables in the OS 
   APIGEE_NAMESPACE=${VAR_APIGEE_NAMESPACE}; export APIGEE_NAMESPACE;
@@ -85,7 +82,7 @@ function setEnvVariables() {
   } >> /etc/profile
 }
 
-function installDocker_remove() {
+function installDocker() {
   sudo apt-get update
   sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
   curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
@@ -107,9 +104,7 @@ echo "Step- Set Env Variables";
 setEnvVariables
 
 echo "Step- Docker Installation";
-#installDocker;
 installDocker;
-sudo usermod -aG docker "$(echo ${VAR_ORG_ADMIN} | tr . "_" | tr "@" "_")"
 
 
 #echo "Step- Prep vars file";
