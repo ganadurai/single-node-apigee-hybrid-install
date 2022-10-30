@@ -101,10 +101,12 @@ function installTools() {
 function fetchHybridInstall() {
   ls "$WORK_DIR/../apigee-hybrid-install"
   RESULT=$?
-  if [[ $RESULT -ne 0 ]]; then
-    cd "$WORK_DIR/.."
-    git clone https://github.com/apigee/apigee-hybrid-install.git
+  if [[ $RESULT -eq 0 ]]; then #if the script is re-ran, clean it and pull a fresh copy
+    rm -Rf "$WORK_DIR/../apigee-hybrid-install"
   fi
+
+  cd "$WORK_DIR/.."
+  git clone https://github.com/apigee/apigee-hybrid-install.git
   HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
 }
 
