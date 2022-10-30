@@ -99,7 +99,9 @@ function installTools() {
 }
 
 function fetchHybridInstall() {
-  if [[ -z $HYBRID_INSTALL_DIR ]]; then
+  ls "$WORK_DIR/../apigee-hybrid-install"
+  RESULT=$?
+  if [[ $RESULT -ne 0 ]]; then
     cd "$WORK_DIR/.."
     git clone https://github.com/apigee/apigee-hybrid-install.git
     HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
@@ -120,8 +122,8 @@ function insertEtcHosts() {
 }
 
 function startK3DCluster() {
-
-  if [[ -z $KUBECONFIG ]]; then
+  k3d cluster list hybrid-clusterRESULT=$?
+  if [[ $RESULT -ne 0 ]]; then
     k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
 
     docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
