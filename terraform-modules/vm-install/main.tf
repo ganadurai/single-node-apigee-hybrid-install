@@ -26,37 +26,10 @@ locals {
   instance_metadata_startup_script = var.hybrid_compute_instance.metadata_startup_script  
 }
 
-/*
-data "google_compute_network" "network" {
-  count   = var.vpc_create ? 0 : 1
-  project = var.project_id
-  name    = var.network
-}
-
-data "google_compute_network" "sub_network" {
-  count   = var.vpc_create ? 0 : 1
-  project = var.project_id
-  name    = var.network
-}
-*/
-
 provider "google" {
   project = var.PROJECT_ID
 }
 
-/*
-# https://dev.to/liptanbiswas/how-to-put-variable-in-terraform-start-up-script-2i64
-data "template_file" "startup_script" {
-  //template = file("${path.module}/test-var.sh")
-  template = "${file("${path.module}/test-var.sh")}"
-  vars = {
-    var_project_id = var.project_id 
-    //you can use any variable directly here
-  }
-}
-*/
-
-#resource "google_compute_instance" "default" {
 #https://github.com/GoogleCloudPlatform/cloud-foundation-fabric/tree/master/modules/compute-vm
 module "hybrid_vm" {
   source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/compute-vm"
@@ -74,14 +47,6 @@ module "hybrid_vm" {
     type = "${local.instance_boot_type}"
   }
 
-  
-  //network = (
-  //  var.vpc_create
-  //  ? try(google_compute_network.network.0, null)
-  //  : try(data.google_compute_network.network.0, null)
-  //)
-  
-
   network_interfaces = [{
 
     network                  = module.vpc_network.self_link
@@ -95,10 +60,7 @@ module "hybrid_vm" {
   }]
 
   metadata = {
-
-    //templatefile("${path.module}/backends.tftpl", { port = 8080, ip_addrs = ["10.0.0.1", "10.0.0.2"] })
-    //startup-script = templatefile("${path.module}/test-var.sh", { VAR_PROJECT_ID = var.PROJECT_ID})
-    //startup-script = templatefile("${path.module}/startup-install.sh", { VAR_APIGEE_NAMESPACE = var.APIGEE_NAMESPACE, VAR_ENV_NAME = var.ENV_NAME, VAR_ENV_GROUP = var.ENV_GROUP, VAR_DOMAIN = var.DOMAIN, VAR_REGION = var.REGION, VAR_PROJECT_ID = var.PROJECT_ID, VAR_ORG_NAME = var.ORG_NAME, VAR_CLUSTER_NAME = var.CLUSTER_NAME, VAR_TOKEN = var.TOKEN})
+    serial-port-logging-enable = true
     startup-script = templatefile("${path.module}/startup-install.sh", { VAR_PROJECT_ID = var.PROJECT_ID,
                                                                   VAR_ORG_ADMIN = var.ORG_ADMIN, 
                                                                   VAR_APIGEE_NAMESPACE = var.APIGEE_NAMESPACE, 
@@ -109,7 +71,6 @@ module "hybrid_vm" {
                                                                   VAR_ORG_NAME = var.ORG_NAME, 
                                                                   VAR_CLUSTER_NAME = var.CLUSTER_NAME, 
                                                                   VAR_TOKEN = var.TOKEN })
-    serial-port-logging-enable = true
   }
 
   service_account_create = true

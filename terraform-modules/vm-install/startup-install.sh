@@ -41,7 +41,7 @@ function fetchSingleNodeInstall() {
   cd /opt/install
   git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
   cd single-node-apigee-hybrid-install
-  git switch terraform-vm
+  git switch refactor
   WORK_DIR=$(pwd);export WORK_DIR
   sudo chmod 777 -R "$WORK_DIR"
 }

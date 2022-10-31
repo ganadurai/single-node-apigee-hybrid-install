@@ -17,32 +17,20 @@
 set -e
 
 # shellcheck source=/dev/null
-source ./fill-resource-values.sh
+source ./hybrid-artifacts/fill-resource-values.sh
 # shellcheck source=/dev/null
-source ./add-resources-components.sh
-
-function gitClone() { #This is the manual step, should include in README doc.
-  mkdir install;
-  cd install;
-  sudo apt update
-  sudo apt-get install git -y
-  git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
-  cd single-node-apigee-hybrid-install
-  git switch single-click-install
-  WORK_DIR=$(pwd);export WORK_DIR
-  cd "$WORK_DIR"/scripts
-}
+source ./hybrid-artifacts/add-resources-components.sh
 
 function validateDockerInstall() {
   if [ -x "$(command -v docker)" ]; then
     echo "docker presence is validated ..."
   else
-    echo "Docker is not running, install docker by running the script within the quotes './installDocker.sh; logout' and retry the hybrid install."
+    echo "Docker is not running, install docker by running the script within the quotes './install-docker.sh; logout' and retry the hybrid install."
     exit 1;
   fi
 }
 
-function validate() {
+function validateVars() {
   if [[ -z $WORK_DIR ]]; then
       echo "Environment variable WORK_DIR setting now..."
       WORK_DIR="$(pwd)/.."; export WORK_DIR;
@@ -56,8 +44,8 @@ function validate() {
   fi
 
   if [[ -z $ORG_NAME ]]; then
-    echo "Environment variable ORG_NAME is not set, please checkout README.md"
-    exit 1
+    echo "Environment variable ORG_NAME is not set, setting to PROJECT_ID"
+    ORG_NAME=$PROJECT_ID; export ORG_NAME;
   fi
 
   if [[ -z $ENV_NAME ]]; then
@@ -96,14 +84,9 @@ function validate() {
   fi
 }
 
-function fetchHybridInstall() {
-  cd "$WORK_DIR/.."
-  git clone https://github.com/apigee/apigee-hybrid-install.git
-  HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
-}
-
-function installTools() {
+function installTools() {  
   sudo apt update
+  sudo apt-get install git -y
   sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
   sudo apt-get install jq -y
   sudo apt-get install google-cloud-sdk-kpt -y
@@ -115,6 +98,23 @@ function installTools() {
   tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
 
   curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+  alias k=kubectl
+  alias ksn='kubectl config set-context --current'
+  alias ka='kubectl -n apigee'
+  alias ka-ssh='ka exec --stdin --tty'
+  alias ke='kubectl -n envoy-ns'
+  alias ke-ssh='ke exec --stdin --tty'
+}
+
+function fetchHybridInstall() {
+  if [[ -d $WORK_DIR/../apigee-hybrid-install ]]; then #if the script is re-ran, clean it and pull a fresh copy
+    rm -Rf "$WORK_DIR/../apigee-hybrid-install"
+  fi
+
+  cd "$WORK_DIR/.."
+  git clone https://github.com/apigee/apigee-hybrid-install.git
+  HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
 }
 
 function insertEtcHosts() {
@@ -131,16 +131,19 @@ function insertEtcHosts() {
 }
 
 function startK3DCluster() {
-
-  k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
-
   docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
-  jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
-  if [[ -z $docker_registry_port_mapping ]]; then
-    echo "Error in starting the K3D cluster on the instance";
-    exit 1;
-  else
-    echo "Successfully started K3D cluster"
+    jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
+  if [[ -z "$docker_registry_port_mapping" ]]; then
+    k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
+
+    docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
+    jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
+    if [[ -z $docker_registry_port_mapping ]]; then
+      echo "Error in starting the K3D cluster on the instance";
+      exit 1;
+    else
+      echo "Successfully started K3D cluster"
+    fi
   fi
 
   #Setting kubeconfig context
@@ -188,8 +191,8 @@ function hybridPreInstallOverlaysPrep() {
 
 function hybridInstall() {
   date
-  echo "Waiting 60s for the cert manager initialization"
-  sleep 60
+  echo "Waiting 120s for the cert manager initialization"
+  sleep 120
   date
   
   printf "\nInstalling and Setting up Hybrid containers\n"
@@ -198,7 +201,7 @@ function hybridInstall() {
             --org "$ORG_NAME" --env "$ENV_NAME" --envgroup "$ENV_GROUP" \
             --ingress-domain "$DOMAIN" --cluster-name "$CLUSTER_NAME" \
             --cluster-region "$REGION" --gcp-project-id "$PROJECT_ID" \
-            --setup-all --verbose | tee /tmp/hybrid-install-output.txt)
+            --setup-all --verbose > /tmp/hybrid-install-output.txt)
   printf "\nHybrid Install Result : %s\n" "$OUTPUT"
   if [[ "$OUTPUT" -eq 1 ]]; then
     if grep -q 'failed to call webhook: Post "https://cert-manager-webhook.cert-manager.svc:443/validate?timeout=10s"' /tmp/hybrid-install-output.txt  
@@ -309,32 +312,32 @@ function hybridPostInstallValidation() {
   fi
 }
 
-function cleanup() {
-  k3d cluster delete hybrid-cluster;
-  rm -Rf ~/install/apigee-hybrid-install/
-}
+echo "Step- Validate Docker Install"
+validateDockerInstall
 
-function installHybrid() {
-  echo "Validation of variables";
-  validate;
-  echo "Validate Docker Installation";
-  validateDockerInstall;
-  echo "Fetch Hybrid Install";
-  fetchHybridInstall;
-  echo "Install the needed tools/libraries";
-  installTools;
-  echo "Update /etc/hosts";
-  insertEtcHosts;
-  echo "Start K3D cluster";
-  startK3DCluster;
-  echo "Overlays prep for Install";
-  hybridPreInstallOverlaysPrep;
-  echo "Hybrid Install";
-  certManagerAndHybridInstall;
-  echo "Post Install";
-  hybridPostInstallEnvoyIngressSetup;
-  echo "Validation of proxy execution";
-  hybridPostInstallValidation;
-}
+echo "Step- Validatevars";
+validateVars
 
-installHybrid;
+echo "Step- Fetch Hybrid Install Repo";
+fetchHybridInstall
+
+echo "Step- Install the needed tools/libraries";
+installTools;
+
+echo "Step- Update /etc/hosts";
+insertEtcHosts;
+
+echo "Step- Start K3D cluster";
+startK3DCluster;
+
+echo "Step- Overlays prep for Install";
+hybridPreInstallOverlaysPrep;
+
+echo "Step- Hybrid Install";
+certManagerAndHybridInstall;
+
+echo "Step- Post Install";
+hybridPostInstallEnvoyIngressSetup;
+
+echo "Step- Validation of proxy execution";
+hybridPostInstallValidation;
