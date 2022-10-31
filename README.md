@@ -4,7 +4,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ## Modes of deployment
 
-* [Deploy New instance with Terraform and install Hybrid Runtime plane](#terraform-gcp-vm-deploy-and-hybrid-install)
+* [Deploy new gcp instance with Terraform and install Hybrid Runtime plane](#terraform-gcp-vm-deploy-and-hybrid-install)
 
 * [On a existing VM Instance, install Hybrid Runtime](#standalone-vm-hybrid-install)
 
