@@ -318,28 +318,28 @@ function hybridPostInstallValidation() {
 }
 
 echo "Step- Validate Docker Install"
-#validateDockerInstall
+validateDockerInstall
 
 echo "Step- Validatevars";
-#validateVars
+validateVars
 
 echo "Step- Fetch Hybrid Install Repo";
-#fetchHybridInstall
+fetchHybridInstall
 
 echo "Step- Install the needed tools/libraries";
-#installTools;
+installTools;
 
 echo "Step- Update /etc/hosts";
-#insertEtcHosts;
+insertEtcHosts;
 
 echo "Step- Start K3D cluster";
-#startK3DCluster;
+startK3DCluster;
 
 echo "Step- Overlays prep for Install";
-#hybridPreInstallOverlaysPrep;
+hybridPreInstallOverlaysPrep;
 
 echo "Step- Hybrid Install";
-#certManagerAndHybridInstall;
+certManagerAndHybridInstall;
 
 echo "Step- Post Install";
 hybridPostInstallEnvoyIngressSetup;
