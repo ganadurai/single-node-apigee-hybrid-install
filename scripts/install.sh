@@ -44,8 +44,8 @@ function validateVars() {
   fi
 
   if [[ -z $ORG_NAME ]]; then
-    echo "Environment variable ORG_NAME is not set, please checkout README.md"
-    exit 1
+    echo "Environment variable ORG_NAME is not set, setting to PROJECT_ID"
+    ORG_NAME=$PROJECT_ID; export ORG_NAME;
   fi
 
   if [[ -z $ENV_NAME ]]; then
@@ -311,6 +311,9 @@ function hybridPostInstallValidation() {
     printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
   fi
 }
+
+echo "Step- Validate Docker Install"
+validateDockerInstall
 
 echo "Step- Validatevars";
 validateVars
