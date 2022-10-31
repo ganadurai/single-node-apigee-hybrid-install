@@ -38,10 +38,9 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     ```bash
     sudo mkdir ~/install
     cd ~/install
-    export INSTALL_DIR=$(pwd);
     ```
     
-1. Install the repos 
+1. Install the repo 
     ```bash
     git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
     cd single-node-apigee-hybrid-install
@@ -78,6 +77,8 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
         -var="REGION=$REGION";
     ```
 
+1. Checkout [gcp cloud logging](https://console.cloud.google.com/logs/query;query=resource.type%3D%22gce_instance%22%0Astartup-script%20exit%20status%200) for the project where the VM is created, wait for startup script completion for installation of Docker (should seen an entry 'startup-script exit status 0')
+
 1. Execute the installation on the deployed VM, [follow the steps starting here.](#install-and-validation)
     
 
@@ -96,15 +97,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     export ENV_NAME=<environment name>
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
-    ```
-
-1. Execute the gcloud auth and fetch the token
-    ```bash
-    gcloud config set project $PROJECT_ID
-    ORG_ADMIN="<gcp account email>"
-    gcloud auth login $ORG_ADMIN
-
-    TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+    export ORG_ADMIN="<gcp account email>"
     ```
 
 1. Prepare the directories
@@ -128,6 +121,14 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     ```
 
 ## Install and Validation
+
+1. Execute the gcloud auth and fetch the token
+    ```bash
+    gcloud config set project $PROJECT_ID
+    gcloud auth login $ORG_ADMIN
+
+    TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+    ```
 
 1. Run the execution, this installs the needed libraries, K3D cluster, creates the overlay files, deploy the Hybrid containers and Ingress Envoy proxy.
     ```bash

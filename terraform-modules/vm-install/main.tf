@@ -60,7 +60,7 @@ module "hybrid_vm" {
   }]
 
   metadata = {
-    /*
+    serial-port-logging-enable = true
     startup-script = templatefile("${path.module}/startup-install.sh", { VAR_PROJECT_ID = var.PROJECT_ID,
                                                                   VAR_ORG_ADMIN = var.ORG_ADMIN, 
                                                                   VAR_APIGEE_NAMESPACE = var.APIGEE_NAMESPACE, 
@@ -71,8 +71,6 @@ module "hybrid_vm" {
                                                                   VAR_ORG_NAME = var.ORG_NAME, 
                                                                   VAR_CLUSTER_NAME = var.CLUSTER_NAME, 
                                                                   VAR_TOKEN = var.TOKEN })
-    */
-    serial-port-logging-enable = true
   }
 
   service_account_create = true
