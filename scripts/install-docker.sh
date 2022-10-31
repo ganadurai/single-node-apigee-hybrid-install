@@ -27,5 +27,6 @@ function installDocker() {
   sudo apt install --yes docker-ce
 }
 
+installDocker;
 sudo usermod -aG docker "$USER"
 printf "\n\n\nPlease close the session and reopen for docker install to be completed !!\n\n"

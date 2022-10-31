@@ -102,7 +102,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 1. Prepare the directories
     ```bash
-    sudo mkdir ~/install
+    mkdir ~/install
     cd ~/install
     export INSTALL_DIR=$(pwd);
     ```
@@ -125,6 +125,8 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     git clone https://github.com/apigee/apigee-hybrid-install.git
     cd apigee-hybrid-install
     export HYBRID_INSTALL_DIR=$(pwd)
+
+    cd $WORK_DIR
     ```
 
 ## Install and Validation
