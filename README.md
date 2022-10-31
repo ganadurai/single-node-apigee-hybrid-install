@@ -106,7 +106,14 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     cd ~/install
     export INSTALL_DIR=$(pwd);
     ```
-    
+
+1. Install git tool
+    ```bash
+    sudo apt update
+    sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
+    sudo apt-get install git -y
+    ```
+
 1. Install the repos 
     ```bash
     git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
