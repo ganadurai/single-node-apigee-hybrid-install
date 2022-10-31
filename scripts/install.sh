@@ -266,7 +266,12 @@ function hybridPostInstallEnvoyIngressSetup() {
   DOCKER_REGISTRY_PORT=${array[1]}; export DOCKER_REGISTRY_PORT
   echo "$DOCKER_REGISTRY_PORT"
 
-  kubectl create namespace envoy-ns
+  kubectl get namespace envoy-ns
+  RESULT=$?
+
+  if [[ $RESULT -ne 0 ]]; then
+    kubectl create namespace envoy-ns
+  fi
 
   #Build and Push the images
   docker build -t \
