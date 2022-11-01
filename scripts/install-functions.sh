@@ -186,8 +186,7 @@ function certManagerAndHybridInstall() {
   echo "REGION=$REGION"
   echo "PROJECT_ID=$PROJECT_ID" 
   
-  sudo touch /tmp/hybrid-install-output.txt
-  sudo chmod 666 /tmp/hybrid-install-output.txt
+  touch /tmp/hybrid-install-output.txt
   hybridInstall;
   RESULT=$?
 

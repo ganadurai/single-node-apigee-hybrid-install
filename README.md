@@ -87,20 +87,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ## Prerequisites
 
-1. Setup Environment variables
-    ```bash
-    export PROJECT_ID=<gcp-project-id>
-    export ORG_NAME=<optional, apigee-org-name>
-    export REGION=<region>
-    export CLUSTER_NAME=<cluster-name>
-    export ENV_NAME=<environment name>
-    export ENV_GROUP=<environment group name>
-    export DOMAIN=<environment group hostname>
-    export ORG_ADMIN=<gcp account email>
-    export APIGEE_NAMESPACE="apigee"
-    ```
-
-1. Following tools for this setup (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance.
+1. Following tools are needed for this setup (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance.
     ```bash
     sudo apt update
     sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
@@ -122,8 +109,22 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     sleep 10
     sudo apt-get update
     sudo apt install --yes docker-ce
-    
+    sudo usermod -aG docker $USER
+
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
+    ```
+
+1. Setup Environment variables
+    ```bash
+    export PROJECT_ID=<gcp-project-id>
+    export ORG_NAME=<optional, apigee-org-name>
+    export REGION=<region>
+    export CLUSTER_NAME=<cluster-name>
+    export ENV_NAME=<environment name>
+    export ENV_GROUP=<environment group name>
+    export DOMAIN=<environment group hostname>
+    export ORG_ADMIN=<gcp account email>
+    export APIGEE_NAMESPACE="apigee"
     ```
 
 1. Prepare the directories
