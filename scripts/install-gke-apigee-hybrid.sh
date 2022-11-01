@@ -17,7 +17,7 @@
 set -e
 
 # shellcheck source=/dev/null
-source ./install.sh
+source ./install-functions.sh
 
 function hybridPostInstallIngressGatewaySetup() {
   
@@ -51,7 +51,6 @@ function hybridPostInstallIngressGatewayValidation() {
   else
     printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
   fi
-
 }
 
 echo "Step- Validatevars";
