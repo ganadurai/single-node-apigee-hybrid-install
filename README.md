@@ -95,7 +95,8 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     export ENV_NAME=<environment name>
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
-    export ORG_ADMIN="<gcp account email>"
+    export ORG_ADMIN=<gcp account email>
+    export APIGEE_NAMESPACE="apigee"
     ```
 
 1. Prepare the directories
