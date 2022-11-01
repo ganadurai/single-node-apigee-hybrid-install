@@ -24,10 +24,10 @@ function hybridPostInstallIngressGatewaySetup() {
   export SERVICE_NAME=$ENV_NAME-ingrs-svc
   export ENV_GROUP_INGRESS=$ENV_GROUP-ingrs
   
-  envsubst < ./gke-artifacts/apigee-ingress-svc.tmpl > \
-    ./gke-artifacts/apigee-ingress-svc.yaml
+  envsubst < $WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.tmpl > \
+    $WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml
 
-  kubectl apply -f ./gke-artifacts/apigee-ingress-svc.yaml
+  kubectl apply -f $WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml
 
   echo "Waiting 60s for the Load balancer deployment for the ingress ..."
   sleep 60
@@ -54,19 +54,19 @@ function hybridPostInstallIngressGatewayValidation() {
 }
 
 echo "Step- Validatevars";
-validateVars
+#validateVars
 
 echo "Step- Fetch Hybrid Install Repo";
-fetchHybridInstall
+#fetchHybridInstall
 
 echo "Step- Install the needed tools/libraries";
 #installTools;
 
 echo "Step- Overlays prep for Install";
-hybridPreInstallOverlaysPrep;
+#hybridPreInstallOverlaysPrep;
 
 echo "Step- Hybrid Install";
-certManagerAndHybridInstall;
+#certManagerAndHybridInstall;
 
 echo "Step- Post Install";
 hybridPostInstallIngressGatewaySetup;
