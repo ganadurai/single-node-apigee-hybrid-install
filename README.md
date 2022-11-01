@@ -86,8 +86,6 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ## Prerequisites
 
-1. Install docker on the machine.
-
 1. Setup Environment variables
     ```bash
     export PROJECT_ID=<gcp-project-id>
@@ -107,11 +105,31 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     export INSTALL_DIR=$(pwd);
     ```
 
-1. Install git tool
+1. Install tools
     ```bash
     sudo apt update
     sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
     sudo apt-get install git -y
+    sudo apt-get install jq -y
+    sudo apt-get install google-cloud-sdk-kpt -y
+    sudo apt-get install kubectl -y
+    sudo apt-get install wget -y
+
+    sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
+    tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
+
+    sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts";
+
+    sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+    echo "Waiting for 10s..."
+    sleep 10
+    sudo apt-get update
+    sudo apt install --yes docker-ce
+    
+    printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
+
     ```
 
 1. Install the repos 

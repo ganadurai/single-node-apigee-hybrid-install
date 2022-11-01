@@ -29,7 +29,7 @@ function hybridPostInstallIngressGatewaySetup() {
 
   kubectl apply -f ./gke-artifacts/apigee-ingress-svc.yaml
 
-  echo "Waiting 60s for the Load balancer deployment for the ingres ..."
+  echo "Waiting 60s for the Load balancer deployment for the ingress ..."
   sleep 60
 
   kubectl get svc -n apigee -l app=apigee-ingressgateway
@@ -43,9 +43,9 @@ function hybridPostInstallIngressGatewaySetup() {
 
 function hybridPostInstallIngressGatewayValidation() {
 
-  OUTPUT=$(curl -i "https://$DOMAIN/apigee-hybrid-helloworld" \
-                --resolve "eval.hapigee2.google.com:443:$INGRESS_IP_ADDRESS" -k -i | grep HTTP)
-  printf "\n%s" "$OUTPUT"
+  OUTPUT=$(curl -s "https://$DOMAIN/apigee-hybrid-helloworld" \
+                --resolve "$DOMAIN:443:$INGRESS_IP_ADDRESS" -k -i | grep HTTP); export OUTPUT
+  echo "$OUTPUT"
   if [[ "$OUTPUT" == *"200"* ]]; then
     printf "\n\nSUCCESS: Hybrid is successfully installed\n\n"
   else
@@ -60,7 +60,7 @@ echo "Step- Fetch Hybrid Install Repo";
 fetchHybridInstall
 
 echo "Step- Install the needed tools/libraries";
-installTools;
+#installTools;
 
 echo "Step- Overlays prep for Install";
 hybridPreInstallOverlaysPrep;

@@ -24,6 +24,7 @@ function insertEtcHosts() {
   then
     echo "hosts entry already existing"
   else
+    echo "Adding host entry in /etc/hosts file."
     sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts"; RESULT=$?
     if [ $RESULT -ne 0 ]; then
       echo "Error in adding entry '127.0.0.1       docker-registry' in /etc/hosts, add it manually and try again.."
@@ -33,9 +34,14 @@ function insertEtcHosts() {
 }
 
 function startK3DCluster() {
+
+  # Check if the docker-registry exists, if so the K3D cluster is already running
   docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
     jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
   if [[ -z "$docker_registry_port_mapping" ]]; then
+    echo "Installing K3D"
+    curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
     k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
 
     docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
@@ -124,10 +130,10 @@ echo "Step- Fetch Hybrid Install Repo";
 fetchHybridInstall
 
 echo "Step- Install the needed tools/libraries";
-installTools;
+#installTools;
 
 echo "Step- Update /etc/hosts";
-insertEtcHosts;
+#insertEtcHosts;
 
 echo "Step- Start K3D cluster";
 startK3DCluster;
