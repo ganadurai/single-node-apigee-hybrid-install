@@ -23,6 +23,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     export ENV_NAME=<environment name>
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
+    export APIGEE_NAMESPACE="apigee"
     ```
 
 1. Execute the gcloud auth and fetch the token
@@ -99,14 +100,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     export APIGEE_NAMESPACE="apigee"
     ```
 
-1. Prepare the directories
-    ```bash
-    mkdir ~/install
-    cd ~/install
-    export INSTALL_DIR=$(pwd);
-    ```
-
-1. Install tools
+1. Following tools for this setup (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance.
     ```bash
     sudo apt update
     sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
@@ -130,7 +124,13 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     sudo apt install --yes docker-ce
     
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
+    ```
 
+1. Prepare the directories
+    ```bash
+    mkdir ~/install
+    cd ~/install
+    export INSTALL_DIR=$(pwd);
     ```
 
 1. Install the repos 
