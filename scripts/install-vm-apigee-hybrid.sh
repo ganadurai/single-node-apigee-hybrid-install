@@ -74,12 +74,8 @@ function hybridPostInstallEnvoyIngressSetup() {
   DOCKER_REGISTRY_PORT=${array[1]}; export DOCKER_REGISTRY_PORT
   echo "$DOCKER_REGISTRY_PORT"
 
-  kubectl get namespace envoy-ns
-  RESULT=$?
-
-  if [[ $RESULT -ne 0 ]]; then
-    kubectl create namespace envoy-ns
-  fi
+  #TODO: add command argument to skip namespace creation
+  kubectl create namespace envoy-ns
 
   #Build and Push the images
   docker build -t \
@@ -121,13 +117,13 @@ function hybridPostInstallEnvoyIngressValidation() {
 }
 
 echo "Step- Validate Docker Install"
-validateDockerInstall
+#validateDockerInstall
 
 echo "Step- Validatevars";
-validateVars
+#validateVars
 
 echo "Step- Fetch Hybrid Install Repo";
-fetchHybridInstall
+#fetchHybridInstall
 
 echo "Step- Install the needed tools/libraries";
 #installTools;
@@ -136,13 +132,13 @@ echo "Step- Update /etc/hosts";
 #insertEtcHosts;
 
 echo "Step- Start K3D cluster";
-startK3DCluster;
+#startK3DCluster;
 
 echo "Step- Overlays prep for Install";
-hybridPreInstallOverlaysPrep;
+#hybridPreInstallOverlaysPrep;
 
 echo "Step- Hybrid Install";
-certManagerAndHybridInstall;
+#certManagerAndHybridInstall;
 
 echo "Step- Post Install";
 hybridPostInstallEnvoyIngressSetup;

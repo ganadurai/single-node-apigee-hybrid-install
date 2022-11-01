@@ -77,7 +77,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
         -var="REGION=$REGION";
     ```
 
-1. Checkout [gcp cloud logging](https://console.cloud.google.com/logs/query;query=resource.type%3D%22gce_instance%22%0Astartup-script%20exit%20status%200) for the project where the VM is created, wait for startup script completion for installation of Docker (should seen an entry 'startup-script exit status 0')
+1. Checkout [gcp cloud logging](https://console.cloud.google.com/logs/query;query=resource.type%3D%22gce_instance%22%0Astartup-script%20exit%20status%200) for the project where the VM is created, wait for startup script completion for installation of Docker (should see an entry 'startup-script exit status 0'. Should not take more than 3 minutes)
 
 1. Execute the installation on the deployed VM, [follow the steps starting here.](#install-and-validation)
     
@@ -160,7 +160,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 1. Run the execution, this installs the needed libraries, K3D cluster, creates the overlay files, deploy the Hybrid containers and Ingress Envoy proxy.
     ```bash
     cd $WORK_DIR/scripts
-    ./install.sh --all
+    ./install-vm-apigee-hybrid.sh
     ```
   
 1. Test and validate the execution of proxy within the hybrid installation. 
