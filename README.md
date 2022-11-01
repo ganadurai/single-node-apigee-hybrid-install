@@ -36,7 +36,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 1. Prepare the directories
     ```bash
-    sudo mkdir ~/install
+    mkdir ~/install
     cd ~/install
     ```
     

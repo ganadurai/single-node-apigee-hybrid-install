@@ -302,12 +302,15 @@ function hybridPostInstallEnvoyIngressSetup() {
 
 }
 
-function hybridPostInstallValidation() {
+function deploySampleProxyForValidation() {
   export MGMT_HOST="https://apigee.googleapis.com"
   curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/apis?action=import&name=apigee-hybrid-helloworld" \
         -H "Authorization: Bearer $TOKEN" --form file=@"$WORK_DIR/apigee-hybrid-helloworld.zip"
   echo "Waiting for proxy deployment and ready for testing, 60s"
   sleep 60
+}
+
+function hybridPostInstallEnvoyIngressValidation() {
   OUTPUT=$(curl -i localhost:30080/apigee-hybrid-helloworld -H "Host: $DOMAIN" | grep HTTP)
   printf "\n%s" "$OUTPUT"
   if [[ "$OUTPUT" == *"200"* ]]; then
@@ -344,5 +347,8 @@ certManagerAndHybridInstall;
 echo "Step- Post Install";
 hybridPostInstallEnvoyIngressSetup;
 
+echo "Step- Deploy Sample Proxy For Validation"
+deploySampleProxyForValidation;
+
 echo "Step- Validation of proxy execution";
-hybridPostInstallValidation;
+hybridPostInstallEnvoyIngressValidation;
