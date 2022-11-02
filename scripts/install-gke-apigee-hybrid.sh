@@ -19,15 +19,34 @@ set -e
 # shellcheck source=/dev/null
 source ./install-functions.sh
 
+function installProjectAndCluster() {
+  cd "$WORK_DIR"/terraform-modules/gke-install
+
+  envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
+    "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
+
+  terraform init
+  terraform plan \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
+    -var "project_id=$PROJECT_ID"
+  terraform apply -auto-approve \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
+    -var "project_id=$PROJECT_ID"
+}
+
+function logIntoCluster() {
+  gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
+}
+
 function hybridPostInstallIngressGatewaySetup() {
   
   export SERVICE_NAME=$ENV_NAME-ingrs-svc
   export ENV_GROUP_INGRESS=$ENV_GROUP-ingrs
   
-  envsubst < $WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.tmpl > \
-    $WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml
+  envsubst < "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.tmpl" > \
+    "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml"
 
-  kubectl apply -f $WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml
+  kubectl apply -f "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml"
 
   echo "Waiting 60s for the Load balancer deployment for the ingress ..."
   sleep 60
@@ -54,19 +73,19 @@ function hybridPostInstallIngressGatewayValidation() {
 }
 
 echo "Step- Validatevars";
-#validateVars
+validateVars
 
-echo "Step- Fetch Hybrid Install Repo";
-#fetchHybridInstall
+echo "Step- Install Project and Cluster"
+installProjectAndCluster;
 
-echo "Step- Install the needed tools/libraries";
-#installTools;
+echo "Step- Log into cluster";
+logIntoCluster;
 
 echo "Step- Overlays prep for Install";
-#hybridPreInstallOverlaysPrep;
+hybridPreInstallOverlaysPrep;
 
 echo "Step- Hybrid Install";
-#certManagerAndHybridInstall;
+certManagerAndHybridInstall;
 
 echo "Step- Post Install";
 hybridPostInstallIngressGatewaySetup;

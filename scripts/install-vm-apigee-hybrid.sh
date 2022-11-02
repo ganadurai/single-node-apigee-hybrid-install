@@ -19,20 +19,6 @@ set -e
 # shellcheck source=/dev/null
 source ./install-functions.sh
 
-function insertEtcHosts() {
-  if grep -q docker-registry /etc/hosts
-  then
-    echo "hosts entry already existing"
-  else
-    echo "Adding host entry in /etc/hosts file."
-    sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts"; RESULT=$?
-    if [ $RESULT -ne 0 ]; then
-      echo "Error in adding entry '127.0.0.1       docker-registry' in /etc/hosts, add it manually and try again.."
-      exit 1;
-    fi
-  fi
-}
-
 function startK3DCluster() {
 
   # Check if the docker-registry exists, if so the K3D cluster is already running

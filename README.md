@@ -44,41 +44,16 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     cd ~/install
     ```
     
-1. Install the repo 
+1. Install the repo on the machine that executes the install
     ```bash
     git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
     cd single-node-apigee-hybrid-install
     export WORK_DIR=$(pwd)
-    cd $WORK_DIR/terraform-modules/vm-install
     ```
 
 1. Execute the terraform commands
     ```bash
-    terraform init;
-
-    terraform plan \
-        -var="PROJECT_ID=${PROJECT_ID}" \
-        -var="ORG_ADMIN=${ORG_ADMIN}" \
-        -var="ORG_NAME=${ORG_NAME}" \
-        -var="CLUSTER_NAME=${CLUSTER_NAME}" \
-        -var="TOKEN=${TOKEN}" \
-        -var="APIGEE_NAMESPACE=$APIGEE_NAMESPACE" \
-        -var="ENV_NAME=$ENV_NAME" \
-        -var="ENV_GROUP=$ENV_GROUP" \
-        -var="DOMAIN=$DOMAIN" \
-        -var="REGION=$REGION";
-    
-    terraform apply -auto-approve \
-        -var="PROJECT_ID=${PROJECT_ID}" \
-        -var="ORG_ADMIN=${ORG_ADMIN}" \
-        -var="ORG_NAME=${ORG_NAME}" \
-        -var="CLUSTER_NAME=${CLUSTER_NAME}" \
-        -var="TOKEN=${TOKEN}" \
-        -var="APIGEE_NAMESPACE=$APIGEE_NAMESPACE" \
-        -var="ENV_NAME=$ENV_NAME" \
-        -var="ENV_GROUP=$ENV_GROUP" \
-        -var="DOMAIN=$DOMAIN" \
-        -var="REGION=$REGION";
+    $WORK_DIR/scripts/install-gcp-vm-apigee-hybrid.sh
     ```
 
 1. Checkout [gcp cloud logging](https://console.cloud.google.com/logs/query;query=resource.type%3D%22gce_instance%22%0Astartup-script%20exit%20status%200) for the project where the VM is created, wait for startup script completion for installation of Docker (should see an entry 'startup-script exit status 0'. Should not take more than 3 minutes)
@@ -104,6 +79,33 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     export DOMAIN=<environment group hostname>
     export APIGEE_NAMESPACE="apigee"
     export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+    ```
+
+1. Install the tools needed. (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance, if missing in the instance where the setup is executed.
+    ```bash
+    sudo apt update
+    sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
+    sudo apt-get install git -y
+    sudo apt-get install jq -y
+    sudo apt-get install google-cloud-sdk-kpt -y
+    sudo apt-get install kubectl -y
+    sudo apt-get install wget -y
+
+    sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
+    tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
+
+    sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts";
+
+    sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+    echo "Waiting for 10s..."
+    sleep 10
+    sudo apt-get update
+    sudo apt install --yes docker-ce
+    sudo usermod -aG docker $USER
+
+    printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
     ```
 
 1. Execute the gcloud auth and fetch the token
@@ -132,23 +134,9 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     git clone https://github.com/apigee/apigee-hybrid-install.git
     cd apigee-hybrid-install
     export HYBRID_INSTALL_DIR=$(pwd)
-
-    cd $WORK_DIR/terraform-modules/gke-install
-    ```
-    
-1. Update the values in the variables file (if values differ) $WORK_DIR/terraform-modules/gke-install/hybrid.tfvars
-
-1. Execute the terraform commands to apply the changes
-    ```bash
-    terraform init
-    terraform plan --var-file=./hybrid.tfvars -var "project_id=$PROJECT_ID"
-    terraform apply -auto-approve --var-file=./hybrid.tfvars -var "project_id=$PROJECT_ID"
     ```
 
-1. Log in into the cluster
-    ```bash
-    gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
-    ```
+### Install and Validate
     
 1. Execute the hybrid install
     ```bash
