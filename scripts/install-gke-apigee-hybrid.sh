@@ -76,16 +76,19 @@ echo "Step- Validatevars";
 validateVars
 
 echo "Step- Install Project and Cluster"
-installProjectAndCluster;
+#installProjectAndCluster;
 
 echo "Step- Log into cluster";
 logIntoCluster;
 
 echo "Step- Overlays prep for Install";
-hybridPreInstallOverlaysPrep;
+#hybridPreInstallOverlaysPrep;
+
+echo "Step- cert manager Install";
+#certManagerInstall;
 
 echo "Step- Hybrid Install";
-certManagerAndHybridInstall;
+hybridRuntimeInstall;
 
 echo "Step- Post Install";
 hybridPostInstallIngressGatewaySetup;

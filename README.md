@@ -15,22 +15,9 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ### Prerequisites
 
-1. Install Terraform on the machine that initiates the install.
+1. Install Terraform on the machine that initiates the install. [Linux Install](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
-1. Setup Environment variables
-    ```bash
-    export PROJECT_ID=<gcp-project-id>
-    export ORG_NAME=<optional, apigee-org-name>
-    export REGION=<region>
-    export CLUSTER_NAME=<cluster-name>
-    export ENV_NAME=<environment name>
-    export ENV_GROUP=<environment group name>
-    export DOMAIN=<environment group hostname>
-    export APIGEE_NAMESPACE="apigee"
-    export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-    ```
-
-1. Install the tools needed. (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance, if missing in the instance where the setup is executed.
+1. Install the tools needed on the machine where the deployment is executed. (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance, if missing in the instance where the setup is executed.
     ```bash
     sudo apt update
     sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
@@ -57,6 +44,19 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     sudo usermod -aG docker $USER
 
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
+    ```
+
+1. Setup Environment variables
+    ```bash
+    export PROJECT_ID=<gcp-project-id>
+    export ORG_NAME=<optional, apigee-org-name>
+    export REGION=<region>
+    export CLUSTER_NAME=<cluster-name>
+    export ENV_NAME=<environment name>
+    export ENV_GROUP=<environment group name>
+    export DOMAIN=<environment group hostname>
+    export APIGEE_NAMESPACE="apigee"
+    export USE_GKE_GCLOUD_AUTH_PLUGIN=True
     ```
 
 1. Execute the gcloud auth and fetch the token

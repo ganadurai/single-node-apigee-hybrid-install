@@ -37,6 +37,12 @@ function validateVars() {
       echo "WORK_DIR=$WORK_DIR"
   fi
 
+  if [[ -z $HYBRID_INSTALL_DIR ]]; then
+      echo "Environment variable HYBRID_INSTALL_DIR setting now..."
+      HYBRID_INSTALL_DIR="$(pwd)/../../apigee-hybrid-install"; export HYBRID_INSTALL_DIR;
+      echo "HYBRID_INSTALL_DIR=$HYBRID_INSTALL_DIR"
+  fi
+
   if [[ -z $APIGEE_NAMESPACE ]]; then
       echo "Environment variable APIGEE_NAMESPACE setting now..."
       APIGEE_NAMESPACE="apigee"; export APIGEE_NAMESPACE;
@@ -150,10 +156,6 @@ function hybridPreInstallOverlaysPrep() {
 }
 
 function hybridInstall() {
-  date
-  echo "Waiting 120s for the cert manager initialization"
-  sleep 120
-  date
   
   printf "\nInstalling and Setting up Hybrid containers\n"
   RESULT=0
@@ -174,10 +176,18 @@ function hybridInstall() {
   return $RESULT
 }
 
-function certManagerAndHybridInstall() {
+function certManagerInstall() {
   cd "$HYBRID_INSTALL_DIR"
   kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.7.2/cert-manager.yaml
+  date
+  echo "Waiting 120s for the cert manager initialization"
+  sleep 120
+  date
+}
 
+function hybridRuntimeInstall() {
+  cd "$HYBRID_INSTALL_DIR"
+  
   echo "ORG_NAME=$ORG_NAME"
   echo "ENV_NAME=$ENV_NAME"
   echo "ENV_GROUP=$ENV_GROUP"

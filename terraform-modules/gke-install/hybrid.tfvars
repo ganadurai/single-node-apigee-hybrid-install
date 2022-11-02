@@ -22,5 +22,3 @@ apigee_envgroups = {
     hostnames    = ["eval.hapigee3.google.com"]
   }
 }
-
-//node_preemptible_runtime = true

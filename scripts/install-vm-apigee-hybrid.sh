@@ -117,8 +117,11 @@ startK3DCluster;
 echo "Step- Overlays prep for Install";
 hybridPreInstallOverlaysPrep;
 
+echo "Step- cert manager Install";
+certManagerInstall;
+
 echo "Step- Hybrid Install";
-certManagerAndHybridInstall;
+hybridRuntimeInstall;
 
 echo "Step- Post Install";
 hybridPostInstallEnvoyIngressSetup;
