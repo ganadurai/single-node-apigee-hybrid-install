@@ -176,6 +176,11 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
     ```
 
+1. Confirm the below docker command executed successfully. If not make sure docker is installed (if above step is followed for docker install, relaunch the ssh session)
+    ```bash
+    docker images
+    ```
+
 1. Prepare the directories
     ```bash
     mkdir ~/install
@@ -238,18 +243,8 @@ If further customization of the resources on the pods is needed, adjust the valu
 
 ## Troubleshooting
 
-1. Hybrid installation timing out on cert-manager webhook error, rerun the install with "--install-hybrid" flag.
-    ```bash
-    cd $WORK_DIR/scripts
-    ./install.sh --install-hybrid   
-    ```
-
-1. Hybrid installation completes and issue in Envoy proxy ingress creation, re-run the install with --install-ingress flag.
-    ```bash
-    cd $WORK_DIR/scripts
-    ./install.sh --install-ingress   
-    ```
-
+1. Hybrid installation timing out on cert-manager webhook error, rerun the install.
+  
 1. Failure on proxy execution: Verify the runtime pod has the proxy artifacts deployed and accessible within the pod
     ```bash
     RUNTIME_POD=$(kubectl -n ${APIGEE_NAMESPACE} get pods -l app=apigee-runtime --template \
