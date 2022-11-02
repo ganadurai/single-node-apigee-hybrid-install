@@ -22,8 +22,7 @@ locals {
   instance_boot_image = var.hybrid_compute_instance.boot_image
   instance_boot_size = var.hybrid_compute_instance.boot_size
   instance_boot_type = var.hybrid_compute_instance.boot_type
-  instance_network = var.network
-  instance_metadata_startup_script = var.hybrid_compute_instance.metadata_startup_script  
+  instance_network = var.network 
 }
 
 provider "google" {
@@ -60,17 +59,17 @@ module "hybrid_vm" {
   }]
 
   metadata = {
-    serial-port-logging-enable = true
-    startup-script = templatefile("${path.module}/startup-install.sh", { VAR_PROJECT_ID = var.PROJECT_ID,
-                                                                  VAR_ORG_ADMIN = var.ORG_ADMIN, 
-                                                                  VAR_APIGEE_NAMESPACE = var.APIGEE_NAMESPACE, 
-                                                                  VAR_ENV_NAME = var.ENV_NAME, 
-                                                                  VAR_ENV_GROUP = var.ENV_GROUP, 
-                                                                  VAR_DOMAIN = var.DOMAIN, 
-                                                                  VAR_REGION = var.REGION, 
-                                                                  VAR_ORG_NAME = var.ORG_NAME, 
-                                                                  VAR_CLUSTER_NAME = var.CLUSTER_NAME, 
-                                                                  VAR_TOKEN = var.TOKEN })
+    serial-port-logging-enable  = true
+    startup-script              = var.exclude_startup_script ? "" : templatefile("${path.module}/startup-install.sh", { VAR_PROJECT_ID = var.PROJECT_ID,
+                                                                        VAR_ORG_ADMIN = var.ORG_ADMIN, 
+                                                                        VAR_APIGEE_NAMESPACE = var.APIGEE_NAMESPACE, 
+                                                                        VAR_ENV_NAME = var.ENV_NAME, 
+                                                                        VAR_ENV_GROUP = var.ENV_GROUP, 
+                                                                        VAR_DOMAIN = var.DOMAIN, 
+                                                                        VAR_REGION = var.REGION, 
+                                                                        VAR_ORG_NAME = var.ORG_NAME, 
+                                                                        VAR_CLUSTER_NAME = var.CLUSTER_NAME, 
+                                                                        VAR_TOKEN = var.TOKEN })
   }
 
   service_account_create = true

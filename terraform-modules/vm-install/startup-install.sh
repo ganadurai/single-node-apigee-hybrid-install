@@ -41,7 +41,7 @@ function installTools() {
 
   sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
   tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
-  
+
   sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts";
 }
 
@@ -51,7 +51,6 @@ function fetchSingleNodeInstall() {
   cd /opt/install
   git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
   cd single-node-apigee-hybrid-install
-  git switch refactor
   WORK_DIR=$(pwd);export WORK_DIR
   sudo chmod 777 -R "$WORK_DIR"
 }

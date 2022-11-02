@@ -176,19 +176,6 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
     ```
 
-1. Setup Environment variables
-    ```bash
-    export PROJECT_ID=<gcp-project-id>
-    export ORG_NAME=<optional, apigee-org-name>
-    export REGION=<region>
-    export CLUSTER_NAME=<cluster-name>
-    export ENV_NAME=<environment name>
-    export ENV_GROUP=<environment group name>
-    export DOMAIN=<environment group hostname>
-    export ORG_ADMIN=<gcp account email>
-    export APIGEE_NAMESPACE="apigee"
-    ```
-
 1. Prepare the directories
     ```bash
     mkdir ~/install
@@ -209,6 +196,19 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     export HYBRID_INSTALL_DIR=$(pwd)
 
     cd $WORK_DIR
+    ```
+
+1. Setup Environment variables
+    ```bash
+    export PROJECT_ID=<gcp-project-id>
+    export ORG_NAME=<optional, apigee-org-name>
+    export REGION=<region>
+    export CLUSTER_NAME=<cluster-name>
+    export ENV_NAME=<environment name>
+    export ENV_GROUP=<environment group name>
+    export DOMAIN=<environment group hostname>
+    export ORG_ADMIN=<gcp account email>
+    export APIGEE_NAMESPACE="apigee"
     ```
 
 ### Install and Validation
