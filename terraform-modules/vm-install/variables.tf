@@ -105,7 +105,6 @@ variable "hybrid_compute_instance" {
     tags                    = list(string)
     network                 = string
     subnetwork              = string
-    metadata_startup_script = string
   })
   default = {
     name                    = "vm-hybrid-instance-1"
@@ -118,12 +117,11 @@ variable "hybrid_compute_instance" {
     tags                    = ["vm-hybrid-instance"]
     network                 = "hybrid-cluster-network"
     subnetwork              = "hybrid-cluster-subnet"
-    //metadata_startup_script = "echo hi > /test.txt"
-    metadata_startup_script = <<-EOF
-    echo "hello
-    you" > /test.txt
-    echo "help
-    me" > /test2.txt
-    EOF
   }
+}
+
+variable "exclude_startup_script" {
+  description = "Create VPC. When set to false, uses a data source to reference existing VPC."
+  type        = bool
+  default     = true
 }

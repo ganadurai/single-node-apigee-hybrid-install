@@ -37,6 +37,12 @@ function validateVars() {
       echo "WORK_DIR=$WORK_DIR"
   fi
 
+  if [[ -z $HYBRID_INSTALL_DIR ]]; then
+      echo "Environment variable HYBRID_INSTALL_DIR setting now..."
+      HYBRID_INSTALL_DIR="$(pwd)/../../apigee-hybrid-install"; export HYBRID_INSTALL_DIR;
+      echo "HYBRID_INSTALL_DIR=$HYBRID_INSTALL_DIR"
+  fi
+
   if [[ -z $APIGEE_NAMESPACE ]]; then
       echo "Environment variable APIGEE_NAMESPACE setting now..."
       APIGEE_NAMESPACE="apigee"; export APIGEE_NAMESPACE;
@@ -117,46 +123,6 @@ function fetchHybridInstall() {
   HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
 }
 
-function insertEtcHosts() {
-  if grep -q docker-registry /etc/hosts
-  then
-    echo "hosts entry already existing"
-  else
-    sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts"; RESULT=$?
-    if [ $RESULT -ne 0 ]; then
-      echo "Error in adding entry '127.0.0.1       docker-registry' in /etc/hosts, add it manually and try again.."
-      exit 1;
-    fi
-  fi
-}
-
-function startK3DCluster() {
-  docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
-    jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
-  if [[ -z "$docker_registry_port_mapping" ]]; then
-    k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
-
-    docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
-    jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
-    if [[ -z $docker_registry_port_mapping ]]; then
-      echo "Error in starting the K3D cluster on the instance";
-      exit 1;
-    else
-      echo "Successfully started K3D cluster"
-    fi
-  fi
-
-  #Setting kubeconfig context
-  KUBECONFIG=$(k3d kubeconfig write hybrid-cluster); export KUBECONFIG
-  
-  kubectl get nodes
-  RESULT=$?
-  if [ $RESULT -ne 0 ]; then
-    echo "Kubeconfig not properly set, please verify the K3D cluster is up and running."
-    exit 1
-  fi
-}
-
 function hybridPreInstallOverlaysPrep() {
   echo "Filling in resource values"
   fillResourceValues;
@@ -190,10 +156,6 @@ function hybridPreInstallOverlaysPrep() {
 }
 
 function hybridInstall() {
-  date
-  echo "Waiting 120s for the cert manager initialization"
-  sleep 120
-  date
   
   printf "\nInstalling and Setting up Hybrid containers\n"
   RESULT=0
@@ -214,10 +176,18 @@ function hybridInstall() {
   return $RESULT
 }
 
-function certManagerAndHybridInstall() {
+function certManagerInstall() {
   cd "$HYBRID_INSTALL_DIR"
   kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.7.2/cert-manager.yaml
+  date
+  echo "Waiting 120s for the cert manager initialization"
+  sleep 120
+  date
+}
 
+function hybridRuntimeInstall() {
+  cd "$HYBRID_INSTALL_DIR"
+  
   echo "ORG_NAME=$ORG_NAME"
   echo "ENV_NAME=$ENV_NAME"
   echo "ENV_GROUP=$ENV_GROUP"
@@ -226,8 +196,7 @@ function certManagerAndHybridInstall() {
   echo "REGION=$REGION"
   echo "PROJECT_ID=$PROJECT_ID" 
   
-  sudo touch /tmp/hybrid-install-output.txt
-  sudo chmod 666 /tmp/hybrid-install-output.txt
+  touch /tmp/hybrid-install-output.txt
   hybridInstall;
   RESULT=$?
 
@@ -257,92 +226,204 @@ function certManagerAndHybridInstall() {
   fi
 }
 
-function hybridPostInstallEnvoyIngressSetup() {
-  cd "$WORK_DIR"/envoy
-
-  #Extract the instance port for the docker-regitry
-  docker_registry_forwarded_port=$(docker port docker-registry 5000)
-  IFS=':' read -r -a array <<< "$docker_registry_forwarded_port"
-  DOCKER_REGISTRY_PORT=${array[1]}; export DOCKER_REGISTRY_PORT
-  echo "$DOCKER_REGISTRY_PORT"
-
-  kubectl get namespace envoy-ns
-  RESULT=$?
-
-  if [[ $RESULT -ne 0 ]]; then
-    kubectl create namespace envoy-ns
-  fi
-
-  #Build and Push the images
-  docker build -t \
-  localhost:"$DOCKER_REGISTRY_PORT"/apigee-hybrid/single-node/envoy-proxy:v1 .
-
-  docker push \
-  localhost:"$DOCKER_REGISTRY_PORT"/apigee-hybrid/single-node/envoy-proxy:v1
-
-  SERVICE_NAME=$(kubectl get svc -n "${APIGEE_NAMESPACE}" -l env=eval,app=apigee-runtime --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-  export SERVICE_NAME;
-
-  #Validate the substitutin variables
-  if [[ -z $DOCKER_REGISTRY_PORT ]]; then
-    echo "Instance port for the docker-regitry is not derived successfully, exiting.."
-    exit 1
-  fi
-  if [[ -z $SERVICE_NAME ]]; then
-    echo "Hybrid runtime pod's name is not derived successfully, exiting"
-    exit 1
-  fi
-  
-  envsubst < envoy-deployment.tmpl > envoy-deployment.yaml
-
-  kubectl apply -f envoy-deployment.yaml
-
-  echo "Waiting for envoy services to be ready...10s"
-  kubectl -n envoy-ns wait --for=jsonpath='{.status.phase}'=Running pod -l app=envoy-proxy --timeout=10s
-
-}
-
-function hybridPostInstallValidation() {
+function deploySampleProxyForValidation() {
   export MGMT_HOST="https://apigee.googleapis.com"
   curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/apis?action=import&name=apigee-hybrid-helloworld" \
         -H "Authorization: Bearer $TOKEN" --form file=@"$WORK_DIR/apigee-hybrid-helloworld.zip"
   echo "Waiting for proxy deployment and ready for testing, 60s"
   sleep 60
-  OUTPUT=$(curl -i localhost:30080/apigee-hybrid-helloworld -H "Host: $DOMAIN" | grep HTTP)
-  printf "\n%s" "$OUTPUT"
-  if [[ "$OUTPUT" == *"200"* ]]; then
-    printf "\n\nSUCCESS: Hybrid is successfully installed\n\n"
-  else
-    printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
-  fi
 }
 
-echo "Step- Validate Docker Install"
-validateDockerInstall
 
-echo "Step- Validatevars";
-validateVars
 
-echo "Step- Fetch Hybrid Install Repo";
-fetchHybridInstall
+################################################################################
+# Print help text.
+################################################################################
+usage() {
+    local FLAGS_1 FLAGS_2
 
-echo "Step- Install the needed tools/libraries";
-installTools;
+    # Flags that require an argument
+    FLAGS_1="$(
+        cat <<EOF
+    --org             <ORGANIZATION_NAME>           Set the Apigee Organization.
+                                                    If not set, the project configured
+                                                    in gcloud will be used.
+    --env             <ENVIRONMENT_NAME>            Set the Apigee Environment.
+                                                    If not set, a random environment
+                                                    within the organization will be
+                                                    selected.
+    --envgroup        <ENVIRONMENT_GROUP_NAME>      Set the Apigee Environment Group.
+                                                    If not set, a random environment
+                                                    group within the organization
+                                                    will be selected.
+    --ingress-domain  <ENVIRONMENT_GROUP_HOSTNAME>  Set the hostname. This will be
+                                                    used to generate self signed
+                                                    certificates.
+    --namespace       <APIGEE_NAMESPACE>            The name of the namespace where
+                                                    apigee components will be installed.
+                                                    Defaults to "apigee".
+    --cluster-name    <CLUSTER_NAME>                The Kubernetes cluster name.
+    --cluster-region  <CLUSTER_REGION>              The region in which the
+                                                    Kubernetes cluster resides.
+    --gcp-project-id  <GCP_PROJECT_ID>              The GCP Project ID where the
+                                                    Kubernetes cluster exists.
+                                                    This can be different from
+                                                    the Apigee Organization name.
+    --token           <GCP_AUTH_TOKEN>              The GCP Project User Admin Token
+                                                    Check README for details.
+EOF
+    )"
 
-echo "Step- Update /etc/hosts";
-insertEtcHosts;
+    # Flags that DON'T require an argument
+    FLAGS_2="$(
+        cat <<EOF
+    --create-cluster             Creates the GKE cluster or the VM instance that hosts
+                                 container infrastructure.
+    --skip-create-cluster        Skips creating the GKE cluster or the VM instance that hosts
+                                 container infrastructure.
+    --prep-overlay-files         Creates the overlay files for the spec requests for the pods/
+    --install-cert-manager       Installs the cert manager in the cluster
+    --install-hybrid             Deploys the apigee hybrid runtime place
+    --install-ingress            Creates the ingress service to serve as the gatway to 
+                                 access the deployed proxy 
+    --setup-all                  Used to execute all the tasks that can be performed
+                                 by the script.
+    --help                       Display usage information.
+EOF
+    )"
 
-echo "Step- Start K3D cluster";
-startK3DCluster;
+    cat <<EOF
+${SCRIPT_NAME}
+USAGE: ${SCRIPT_NAME} --cluster-name <CLUSTER_NAME> --cluster-region <CLUSTER_REGION> [FLAGS]...
 
-echo "Step- Overlays prep for Install";
-hybridPreInstallOverlaysPrep;
+Helps with the installation of Apigee Hybrid. Can be used to either automate the
+complete installation, or execute individual tasks
 
-echo "Step- Hybrid Install";
-certManagerAndHybridInstall;
+FLAGS that expect an argument:
 
-echo "Step- Post Install";
-hybridPostInstallEnvoyIngressSetup;
+$FLAGS_1
 
-echo "Step- Validation of proxy execution";
-hybridPostInstallValidation;
+FLAGS without argument:
+
+$FLAGS_2
+
+EXAMPLES:
+
+    Setup everything:
+        
+        $ ./apigee-hybrid-setup.sh --cluster-name apigee-hybrid-cluster --cluster-region us-west1 --setup-all
+        
+    Only apply configuration and enable verbose logging:
+
+        $ ./apigee-hybrid-setup.sh --cluster-name apigee-hybrid-cluster --cluster-region us-west1 --verbose --apply-configuration
+
+EOF
+}
+
+################################################################################
+# Checks for the existence of a second argument and exit if it does not exist.
+################################################################################
+arg_required() {
+    if [[ ! "${2:-}" || "${2:0:1}" = '-' ]]; then
+        fatal "Option ${1} requires an argument."
+    fi
+}
+
+################################################################################
+# Parse command line arguments.
+################################################################################
+parse_args() {
+    while [[ $# != 0 ]]; do
+        case "${1}" in
+        --org)
+            arg_required "${@}"
+            export ORG_NAME="${2}"
+            shift 2
+            ;;
+        --env)
+            arg_required "${@}"
+            export ENV_NAME="${2}"
+            shift 2
+            ;;
+        --envgroup)
+            arg_required "${@}"
+            export ENV_GROUP="${2}"
+            shift 2
+            ;;
+        --ingress-domain)
+            arg_required "${@}"
+            export DOMAIN="${2}"
+            shift 2
+            ;;
+        --namespace)
+            arg_required "${@}"
+            export APIGEE_NAMESPACE="${2}"
+            shift 2
+            ;;
+        --cluster-name)
+            arg_required "${@}"
+            export CLUSTER_NAME="${2}"
+            shift 2
+            ;;
+        --cluster-region)
+            arg_required "${@}"
+            export REGION="${2}"
+            shift 2
+            ;;
+        --gcp-project-id)
+            arg_required "${@}"
+            export PROJECT_ID="${2}"
+            shift 2
+            ;;
+        --create-cluster)
+            export SHOULD_INSTALL_GKE_CLUSTER="1"
+            shift 1
+            ;;
+        --skip-create-cluster)
+            export SHOULD_SKIP_INSTALL_GKE_CLUSTER="0"
+            shift 1
+            ;;
+        --prep-overlay-files)
+            export SHOULD_PREP_OVERLAYS="1"
+            shift 1
+            ;;
+        --install-cert-manager)
+            export SHOULD_INSTALL_CERT_MNGR="1"
+            shift 1
+            ;;
+        --install-hybrid)
+            export SHOULD_INSTALL_HYBRID="1"
+            shift 1
+            ;;
+        --install-ingress)
+            export SHOULD_INSTALL_INGRESS="1"
+            shift 1
+            ;;
+        --setup-all)
+            SHOULD_INSTALL_GKE_CLUSTER="1"
+            SHOULD_PREP_OVERLAYS="1"
+            SHOULD_INSTALL_CERT_MNGR="1"
+            SHOULD_INSTALL_HYBRID="1"
+            SHOULD_INSTALL_INGRESS="1"
+            shift 1
+            ;;
+        --help)
+            usage
+            exit
+            ;;
+        *)
+            fatal "Unknown option '${1}'"
+            ;;
+        esac
+    done
+
+    if [[ "${SHOULD_INSTALL_GKE_CLUSTER}" != "1" &&
+        "${SHOULD_PREP_OVERLAYS}" != "1" &&
+        "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
+        "${SHOULD_INSTALL_HYBRID}" != "1" &&
+        "${SHOULD_INSTALL_INGRESS}" != "1" ]]; then
+        usage
+        exit
+    fi
+
+}
