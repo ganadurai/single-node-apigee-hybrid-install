@@ -72,20 +72,22 @@ function hybridPostInstallIngressGatewayValidation() {
   fi
 }
 
+#parse_args "${@}"
+
 echo "Step- Validatevars";
 validateVars
 
 echo "Step- Install Project and Cluster"
-#installProjectAndCluster;
+installProjectAndCluster;
 
 echo "Step- Log into cluster";
 logIntoCluster;
 
 echo "Step- Overlays prep for Install";
-#hybridPreInstallOverlaysPrep;
+hybridPreInstallOverlaysPrep;
 
 echo "Step- cert manager Install";
-#certManagerInstall;
+certManagerInstall;
 
 echo "Step- Hybrid Install";
 hybridRuntimeInstall;

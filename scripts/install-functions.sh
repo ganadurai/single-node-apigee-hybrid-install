@@ -233,3 +233,197 @@ function deploySampleProxyForValidation() {
   echo "Waiting for proxy deployment and ready for testing, 60s"
   sleep 60
 }
+
+
+
+################################################################################
+# Print help text.
+################################################################################
+usage() {
+    local FLAGS_1 FLAGS_2
+
+    # Flags that require an argument
+    FLAGS_1="$(
+        cat <<EOF
+    --org             <ORGANIZATION_NAME>           Set the Apigee Organization.
+                                                    If not set, the project configured
+                                                    in gcloud will be used.
+    --env             <ENVIRONMENT_NAME>            Set the Apigee Environment.
+                                                    If not set, a random environment
+                                                    within the organization will be
+                                                    selected.
+    --envgroup        <ENVIRONMENT_GROUP_NAME>      Set the Apigee Environment Group.
+                                                    If not set, a random environment
+                                                    group within the organization
+                                                    will be selected.
+    --ingress-domain  <ENVIRONMENT_GROUP_HOSTNAME>  Set the hostname. This will be
+                                                    used to generate self signed
+                                                    certificates.
+    --namespace       <APIGEE_NAMESPACE>            The name of the namespace where
+                                                    apigee components will be installed.
+                                                    Defaults to "apigee".
+    --cluster-name    <CLUSTER_NAME>                The Kubernetes cluster name.
+    --cluster-region  <CLUSTER_REGION>              The region in which the
+                                                    Kubernetes cluster resides.
+    --gcp-project-id  <GCP_PROJECT_ID>              The GCP Project ID where the
+                                                    Kubernetes cluster exists.
+                                                    This can be different from
+                                                    the Apigee Organization name.
+    --token           <GCP_AUTH_TOKEN>              The GCP Project User Admin Token
+                                                    Check README for details.
+EOF
+    )"
+
+    # Flags that DON'T require an argument
+    FLAGS_2="$(
+        cat <<EOF
+    --create-cluster             Creates the GKE cluster or the VM instance that hosts
+                                 container infrastructure.
+    --skip-create-cluster        Skips creating the GKE cluster or the VM instance that hosts
+                                 container infrastructure.
+    --prep-overlay-files         Creates the overlay files for the spec requests for the pods/
+    --install-cert-manager       Installs the cert manager in the cluster
+    --install-hybrid             Deploys the apigee hybrid runtime place
+    --install-ingress            Creates the ingress service to serve as the gatway to 
+                                 access the deployed proxy 
+    --setup-all                  Used to execute all the tasks that can be performed
+                                 by the script.
+    --help                       Display usage information.
+EOF
+    )"
+
+    cat <<EOF
+${SCRIPT_NAME}
+USAGE: ${SCRIPT_NAME} --cluster-name <CLUSTER_NAME> --cluster-region <CLUSTER_REGION> [FLAGS]...
+
+Helps with the installation of Apigee Hybrid. Can be used to either automate the
+complete installation, or execute individual tasks
+
+FLAGS that expect an argument:
+
+$FLAGS_1
+
+FLAGS without argument:
+
+$FLAGS_2
+
+EXAMPLES:
+
+    Setup everything:
+        
+        $ ./apigee-hybrid-setup.sh --cluster-name apigee-hybrid-cluster --cluster-region us-west1 --setup-all
+        
+    Only apply configuration and enable verbose logging:
+
+        $ ./apigee-hybrid-setup.sh --cluster-name apigee-hybrid-cluster --cluster-region us-west1 --verbose --apply-configuration
+
+EOF
+}
+
+################################################################################
+# Checks for the existence of a second argument and exit if it does not exist.
+################################################################################
+arg_required() {
+    if [[ ! "${2:-}" || "${2:0:1}" = '-' ]]; then
+        fatal "Option ${1} requires an argument."
+    fi
+}
+
+################################################################################
+# Parse command line arguments.
+################################################################################
+parse_args() {
+    while [[ $# != 0 ]]; do
+        case "${1}" in
+        --org)
+            arg_required "${@}"
+            export ORG_NAME="${2}"
+            shift 2
+            ;;
+        --env)
+            arg_required "${@}"
+            export ENV_NAME="${2}"
+            shift 2
+            ;;
+        --envgroup)
+            arg_required "${@}"
+            export ENV_GROUP="${2}"
+            shift 2
+            ;;
+        --ingress-domain)
+            arg_required "${@}"
+            export DOMAIN="${2}"
+            shift 2
+            ;;
+        --namespace)
+            arg_required "${@}"
+            export APIGEE_NAMESPACE="${2}"
+            shift 2
+            ;;
+        --cluster-name)
+            arg_required "${@}"
+            export CLUSTER_NAME="${2}"
+            shift 2
+            ;;
+        --cluster-region)
+            arg_required "${@}"
+            export REGION="${2}"
+            shift 2
+            ;;
+        --gcp-project-id)
+            arg_required "${@}"
+            export PROJECT_ID="${2}"
+            shift 2
+            ;;
+        --create-cluster)
+            export SHOULD_INSTALL_GKE_CLUSTER="1"
+            shift 1
+            ;;
+        --skip-create-cluster)
+            export SHOULD_SKIP_INSTALL_GKE_CLUSTER="0"
+            shift 1
+            ;;
+        --prep-overlay-files)
+            export SHOULD_PREP_OVERLAYS="1"
+            shift 1
+            ;;
+        --install-cert-manager)
+            export SHOULD_INSTALL_CERT_MNGR="1"
+            shift 1
+            ;;
+        --install-hybrid)
+            export SHOULD_INSTALL_HYBRID="1"
+            shift 1
+            ;;
+        --install-ingress)
+            export SHOULD_INSTALL_INGRESS="1"
+            shift 1
+            ;;
+        --setup-all)
+            SHOULD_INSTALL_GKE_CLUSTER="1"
+            SHOULD_PREP_OVERLAYS="1"
+            SHOULD_INSTALL_CERT_MNGR="1"
+            SHOULD_INSTALL_HYBRID="1"
+            SHOULD_INSTALL_INGRESS="1"
+            shift 1
+            ;;
+        --help)
+            usage
+            exit
+            ;;
+        *)
+            fatal "Unknown option '${1}'"
+            ;;
+        esac
+    done
+
+    if [[ "${SHOULD_INSTALL_GKE_CLUSTER}" != "1" &&
+        "${SHOULD_PREP_OVERLAYS}" != "1" &&
+        "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
+        "${SHOULD_INSTALL_HYBRID}" != "1" &&
+        "${SHOULD_INSTALL_INGRESS}" != "1" ]]; then
+        usage
+        exit
+    fi
+
+}

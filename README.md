@@ -138,7 +138,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 1. Execute the terraform commands
     ```bash
-    $WORK_DIR/scripts/install-gcp-vm-apigee-hybrid.sh
+    $WORK_DIR/scripts/deploy-gcp-vm.sh
     ```
 
 1. Checkout [gcp cloud logging](https://console.cloud.google.com/logs/query;query=resource.type%3D%22gce_instance%22%0Astartup-script%20exit%20status%200) for the project where the VM is created, wait for startup script completion for installation of Docker (should see an entry 'startup-script exit status 0'. Should not take more than 3 minutes)
