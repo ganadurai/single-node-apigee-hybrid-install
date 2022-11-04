@@ -72,32 +72,42 @@ function hybridPostInstallIngressGatewayValidation() {
   fi
 }
 
-#parse_args "${@}"
+parse_args "${@}"
 
 echo "Step- Validatevars";
 validateVars
 
-echo "Step- Install Project and Cluster"
-installProjectAndCluster;
+if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
+  echo "Step- Install Project and Cluster"
+  installProjectAndCluster;
+fi
 
 echo "Step- Log into cluster";
 logIntoCluster;
 
-echo "Step- Overlays prep for Install";
-hybridPreInstallOverlaysPrep;
+if [[ $SHOULD_PREP_OVERLAYS == "1" ]]; then
+  echo "Step- Overlays prep for Install";
+  hybridPreInstallOverlaysPrep;
+fi
 
-echo "Step- cert manager Install";
-certManagerInstall;
 
-echo "Step- Hybrid Install";
-hybridRuntimeInstall;
+if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
+  echo "Step- cert manager Install";
+  certManagerInstall;
+fi
 
-echo "Step- Post Install";
-hybridPostInstallIngressGatewaySetup;
+if [[ $SHOULD_INSTALL_HYBRID == "1" ]]; then
+  echo "Step- Hybrid Install";
+  hybridRuntimeInstall;
+fi
 
-echo "Step- Deploy Sample Proxy For Validation"
-deploySampleProxyForValidation;
+if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
+  echo "Step- Post Install";
+  hybridPostInstallIngressGatewaySetup;
 
-echo "Step- Validation of proxy execution";
-hybridPostInstallIngressGatewayValidation;
+  echo "Step- Deploy Sample Proxy For Validation"
+  deploySampleProxyForValidation;
 
+  echo "Step- Validation of proxy execution";
+  hybridPostInstallIngressGatewayValidation;
+fi

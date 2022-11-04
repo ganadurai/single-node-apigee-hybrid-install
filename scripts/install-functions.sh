@@ -21,6 +21,8 @@ source ./hybrid-artifacts/fill-resource-values.sh
 # shellcheck source=/dev/null
 source ./hybrid-artifacts/add-resources-components.sh
 
+SCRIPT_NAME="${0##*/}"
+
 function validateDockerInstall() {
   if [ -x "$(command -v docker)" ]; then
     echo "docker presence is validated ..."
@@ -32,15 +34,15 @@ function validateDockerInstall() {
 
 function validateVars() {
   if [[ -z $WORK_DIR ]]; then
-      echo "Environment variable WORK_DIR setting now..."
+      #echo "Environment variable WORK_DIR setting now..."
       WORK_DIR="$(pwd)/.."; export WORK_DIR;
-      echo "WORK_DIR=$WORK_DIR"
+      #echo "WORK_DIR=$WORK_DIR"
   fi
 
   if [[ -z $HYBRID_INSTALL_DIR ]]; then
-      echo "Environment variable HYBRID_INSTALL_DIR setting now..."
+      #echo "Environment variable HYBRID_INSTALL_DIR setting now..."
       HYBRID_INSTALL_DIR="$(pwd)/../../apigee-hybrid-install"; export HYBRID_INSTALL_DIR;
-      echo "HYBRID_INSTALL_DIR=$HYBRID_INSTALL_DIR"
+      #echo "HYBRID_INSTALL_DIR=$HYBRID_INSTALL_DIR"
   fi
 
   if [[ -z $APIGEE_NAMESPACE ]]; then
@@ -124,6 +126,9 @@ function fetchHybridInstall() {
 }
 
 function hybridPreInstallOverlaysPrep() {
+
+  fetchHybridInstall;
+
   echo "Filling in resource values"
   fillResourceValues;
   echo "Moving resource overlays into Hybrid install source"
@@ -234,7 +239,33 @@ function deploySampleProxyForValidation() {
   sleep 60
 }
 
+banner_info() {
+    echo ""
+    info "********************************************"
+    info "${1}"
+    info "********************************************"
+}
 
+function info() {
+    if [[ "${VERBOSE}" -eq 1 && "${HAS_TS}" -eq 1 ]]; then
+        echo "${SCRIPT_NAME}: ${1}" | TZ=utc ts '%Y-%m-%dT%.T' >&2
+    else
+        echo "${SCRIPT_NAME}: ${1}" >&2
+    fi
+}
+
+warn() {
+    info "[WARNING]: ${1}" >&2
+}
+
+function error() {
+    info "[ERROR]: ${1}" >&2
+}
+
+function fatal() {
+    error "${1}"
+    exit 2
+}
 
 ################################################################################
 # Print help text.
@@ -256,7 +287,7 @@ usage() {
                                                     If not set, a random environment
                                                     group within the organization
                                                     will be selected.
-    --ingress-domain  <ENVIRONMENT_GROUP_HOSTNAME>  Set the hostname. This will be
+    --domain          <ENVIRONMENT_GROUP_HOSTNAME>  Set the hostname. This will be
                                                     used to generate self signed
                                                     certificates.
     --namespace       <APIGEE_NAMESPACE>            The name of the namespace where
@@ -279,9 +310,9 @@ EOF
         cat <<EOF
     --create-cluster             Creates the GKE cluster or the VM instance that hosts
                                  container infrastructure.
-    --skip-create-cluster        Skips creating the GKE cluster or the VM instance that hosts
-                                 container infrastructure.
-    --prep-overlay-files         Creates the overlay files for the spec requests for the pods/
+    --skip-create-cluster        Skips creating the GKE cluster or the VM instance 
+                                 (if done already)that hosts container infrastructure.
+    --prep-overlay-files         Creates the overlay files for the spec requests for the pods
     --install-cert-manager       Installs the cert manager in the cluster
     --install-hybrid             Deploys the apigee hybrid runtime place
     --install-ingress            Creates the ingress service to serve as the gatway to 
@@ -293,7 +324,7 @@ EOF
     )"
 
     cat <<EOF
-${SCRIPT_NAME}
+    
 USAGE: ${SCRIPT_NAME} --cluster-name <CLUSTER_NAME> --cluster-region <CLUSTER_REGION> [FLAGS]...
 
 Helps with the installation of Apigee Hybrid. Can be used to either automate the
@@ -311,11 +342,11 @@ EXAMPLES:
 
     Setup everything:
         
-        $ ./apigee-hybrid-setup.sh --cluster-name apigee-hybrid-cluster --cluster-region us-west1 --setup-all
+        $ ./${SCRIPT_NAME} --org apigee-hybrid --env eval --envgroup eval-group --domain eval.apigee.com --cluster-name hybrid-cluster --cluster-region us-west1 --setup-all
         
     Only apply configuration and enable verbose logging:
 
-        $ ./apigee-hybrid-setup.sh --cluster-name apigee-hybrid-cluster --cluster-region us-west1 --verbose --apply-configuration
+        $ ./${SCRIPT_NAME} --org apigee-hybrid --env eval --envgroup eval-group --domain eval.apigee.com --cluster-name hybrid-cluster --cluster-region us-west1 --create-cluster
 
 EOF
 }
@@ -350,7 +381,7 @@ parse_args() {
             export ENV_GROUP="${2}"
             shift 2
             ;;
-        --ingress-domain)
+        --domain)
             arg_required "${@}"
             export DOMAIN="${2}"
             shift 2
@@ -376,11 +407,11 @@ parse_args() {
             shift 2
             ;;
         --create-cluster)
-            export SHOULD_INSTALL_GKE_CLUSTER="1"
+            export SHOULD_INSTALL_CLUSTER="1"
             shift 1
             ;;
         --skip-create-cluster)
-            export SHOULD_SKIP_INSTALL_GKE_CLUSTER="0"
+            export SHOULD_SKIP_INSTALL_CLUSTER="0"
             shift 1
             ;;
         --prep-overlay-files)
@@ -400,7 +431,7 @@ parse_args() {
             shift 1
             ;;
         --setup-all)
-            SHOULD_INSTALL_GKE_CLUSTER="1"
+            SHOULD_INSTALL_CLUSTER="1"
             SHOULD_PREP_OVERLAYS="1"
             SHOULD_INSTALL_CERT_MNGR="1"
             SHOULD_INSTALL_HYBRID="1"
@@ -417,7 +448,7 @@ parse_args() {
         esac
     done
 
-    if [[ "${SHOULD_INSTALL_GKE_CLUSTER}" != "1" &&
+    if [[ "${SHOULD_INSTALL_CLUSTER}" != "1" &&
         "${SHOULD_PREP_OVERLAYS}" != "1" &&
         "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
         "${SHOULD_INSTALL_HYBRID}" != "1" &&

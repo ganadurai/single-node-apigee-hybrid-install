@@ -115,7 +115,7 @@ variable "gke_cluster" {
     master_authorized_ranges = map(string)
   })
   default = {
-    name                      = "hybrid-cluster"
+    name                      = "hybrid-cluster-2"
     location                  = "us-central1"
     master_authorized_ranges  = {
       "internet" = "0.0.0.0/0"
