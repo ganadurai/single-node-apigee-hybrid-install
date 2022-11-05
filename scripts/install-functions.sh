@@ -45,6 +45,14 @@ function validateVars() {
       #echo "HYBRID_INSTALL_DIR=$HYBRID_INSTALL_DIR"
   fi
 
+  if [[ -z $PROJECT_CREATE ]]; then
+    PROJECT_CREATE=false;
+  fi
+
+  if [[ -z $ORG_CREATE ]]; then
+    ORG_CREATE=false;
+  fi
+
   if [[ -z $APIGEE_NAMESPACE ]]; then
       echo "Environment variable APIGEE_NAMESPACE setting now..."
       APIGEE_NAMESPACE="apigee"; export APIGEE_NAMESPACE;
