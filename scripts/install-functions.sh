@@ -430,6 +430,11 @@ parse_args() {
             export ORG_CREATE="${2}"
             shift 2
             ;;
+        --billing-account-id)
+            arg_required "${@}"
+            export BILLING_ACCOUNT_ID="${2}"
+            shift 2
+            ;;
         --create-cluster)
             export SHOULD_INSTALL_CLUSTER="1"
             shift 1
