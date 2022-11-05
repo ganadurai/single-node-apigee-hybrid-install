@@ -36,6 +36,10 @@ module "project" {
     "pubsub.googleapis.com",
     "sourcerepo.googleapis.com",
   ]
+  policy_boolean = {
+    "constraints/compute.requireShieldedVm" = false
+    "constraints/iam.disableServiceAccountKeyCreation" = true
+  }
 }
 
 module "vpc" {
