@@ -319,6 +319,7 @@ EOF
                                  access the deployed proxy 
     --setup-all                  Used to execute all the tasks that can be performed
                                  by the script.
+    --delete-cluster             Delete cluster.
     --help                       Display usage information.
 EOF
     )"
@@ -438,6 +439,10 @@ parse_args() {
             SHOULD_INSTALL_INGRESS="1"
             shift 1
             ;;
+        --delete-cluster)
+            export SHOULD_DELETE_CLUSTER="1"
+            shift 1
+            ;;
         --help)
             usage
             exit
@@ -452,6 +457,7 @@ parse_args() {
         "${SHOULD_PREP_OVERLAYS}" != "1" &&
         "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
         "${SHOULD_INSTALL_HYBRID}" != "1" &&
+        "${SHOULD_DELETE_CLUSTER}" != "1" &&
         "${SHOULD_INSTALL_INGRESS}" != "1" ]]; then
         usage
         exit

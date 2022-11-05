@@ -34,6 +34,21 @@ function installProjectAndCluster() {
     -var "project_id=$PROJECT_ID"
 }
 
+function deleteCluster() {
+  cd "$WORK_DIR"/terraform-modules/gke-install
+
+  envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
+    "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
+
+  terraform init
+  terraform plan \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
+    -var "project_id=$PROJECT_ID"
+  terraform destroy -auto-approve \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
+    -var "project_id=$PROJECT_ID"
+}
+
 function logIntoCluster() {
   gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
 }
@@ -110,4 +125,8 @@ if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
 
   echo "Step- Validation of proxy execution";
   hybridPostInstallIngressGatewayValidation;
+fi
+
+if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
+  deleteCluster;
 fi

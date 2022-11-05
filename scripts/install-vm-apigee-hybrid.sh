@@ -19,7 +19,7 @@ set -e
 # shellcheck source=/dev/null
 source ./install-functions.sh
 
-function startK3DCluster() {
+function installK3DCluster() {
 
   # Check if the docker-registry exists, if so the K3D cluster is already running
   docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
@@ -27,12 +27,16 @@ function startK3DCluster() {
   if [[ -z "$docker_registry_port_mapping" ]]; then
     echo "Installing K3D"
     curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+    k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
   fi
 }
 
-function logIntoK3DCluster() {
-  k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
+function deleteK3DCluster() {
+  k3d cluster delete hybrid-cluster;
+}
 
+function logIntoK3DCluster() {
+  
   docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
   jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
   if [[ -z $docker_registry_port_mapping ]]; then
@@ -102,7 +106,7 @@ validateVars
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
   echo "Step- Start K3D cluster";
-  startK3DCluster;
+  installK3DCluster;
 fi
 
 echo "Step- Log into cluster";
@@ -132,6 +136,10 @@ if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
 
   echo "Step- Validation of proxy execution";
   hybridPostInstallEnvoyIngressValidation;
+fi
+
+if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
+  deleteK3DCluster;
 fi
 
 
