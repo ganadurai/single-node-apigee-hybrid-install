@@ -89,44 +89,45 @@ function hybridPostInstallIngressGatewayValidation() {
 
 parse_args "${@}"
 
-echo "Step- Validatevars";
+banner_info "Step- Validatevars";
 validateVars
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
-  echo "Step- Install Project and Cluster"
+  banner_info "Step- Install Project and Cluster"
   installProjectAndCluster;
 fi
 
-echo "Step- Log into cluster";
+banner_info "Step- Log into cluster";
 logIntoCluster;
 
 if [[ $SHOULD_PREP_OVERLAYS == "1" ]]; then
-  echo "Step- Overlays prep for Install";
+  banner_info "Step- Overlays prep for Install";
   hybridPreInstallOverlaysPrep;
 fi
 
 
 if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
-  echo "Step- cert manager Install";
+  banner_info "Step- cert manager Install";
   certManagerInstall;
 fi
 
 if [[ $SHOULD_INSTALL_HYBRID == "1" ]]; then
-  echo "Step- Hybrid Install";
+  banner_info "Step- Hybrid Install";
   hybridRuntimeInstall;
 fi
 
 if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
-  echo "Step- Post Install";
+  banner_info "Step- Post Install";
   hybridPostInstallIngressGatewaySetup;
 
-  echo "Step- Deploy Sample Proxy For Validation"
+  banner_info "Step- Deploy Sample Proxy For Validation"
   deploySampleProxyForValidation;
 
-  echo "Step- Validation of proxy execution";
+  banner_info "Step- Validation of proxy execution";
   hybridPostInstallIngressGatewayValidation;
 fi
 
 if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
+  banner_info "Step- Delete Cluster"
   deleteCluster;
 fi

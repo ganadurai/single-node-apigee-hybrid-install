@@ -239,7 +239,7 @@ function deploySampleProxyForValidation() {
   sleep 60
 }
 
-banner_info() {
+function banner_info() {
     echo ""
     info "********************************************"
     info "${1}"
@@ -405,6 +405,11 @@ parse_args() {
         --gcp-project-id)
             arg_required "${@}"
             export PROJECT_ID="${2}"
+            shift 2
+            ;;
+        --token)
+            arg_required "${@}"
+            export TOKEN="${2}"
             shift 2
             ;;
         --create-cluster)
