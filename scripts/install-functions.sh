@@ -420,6 +420,16 @@ parse_args() {
             export TOKEN="${2}"
             shift 2
             ;;
+        --project-create)
+            arg_required "${@}"
+            export PROJECT_CREATE="${2}"
+            shift 2
+            ;;
+        --org-create)
+            arg_required "${@}"
+            export ORG_CREATE="${2}"
+            shift 2
+            ;;
         --create-cluster)
             export SHOULD_INSTALL_CLUSTER="1"
             shift 1
