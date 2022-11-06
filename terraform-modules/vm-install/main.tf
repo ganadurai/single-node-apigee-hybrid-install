@@ -93,7 +93,7 @@ module "vpc_network" {
 }
 
 module "firewall" {
-  source       = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-vpc-firewall"
+  source       = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v16.0.0"
   project_id   = var.PROJECT_ID
   network      = var.network
   //admin_ranges = ["10.0.0.0/8"]
