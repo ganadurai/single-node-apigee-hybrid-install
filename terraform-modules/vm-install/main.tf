@@ -31,7 +31,7 @@ provider "google" {
 
 module "project" {
   source          = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/project?ref=v16.0.0"
-  name            = var.project_id
+  name            = var.PROJECT_ID
   policy_boolean = {
     "constraints/compute.requireShieldedVm" = false
     "constraints/iam.disableServiceAccountKeyCreation" = false
