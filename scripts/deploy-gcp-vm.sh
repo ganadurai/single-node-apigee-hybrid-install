@@ -16,6 +16,9 @@
 
 set -e
 
+gcloud alpha resource-manager org-policies set-policy \
+    --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
+
 cd "$WORK_DIR/terraform-modules/vm-install"
 
 terraform init;
