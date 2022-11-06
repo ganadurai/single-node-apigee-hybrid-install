@@ -29,11 +29,11 @@ function installProjectAndCluster() {
   terraform plan \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
     -var "project_create=$PROJECT_CREATE" -var "apigee_org_create=$ORG_CREATE" -var "billing_account=$BILLING_ACCOUNT_ID" \
-    -var "project_id=$PROJECT_ID"
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
   terraform apply -auto-approve \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
     -var "project_create=$PROJECT_CREATE" -var "apigee_org_create=$ORG_CREATE" -var "billing_account=$BILLING_ACCOUNT_ID" \
-    -var "project_id=$PROJECT_ID"
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
 }
 
 function deleteCluster() {

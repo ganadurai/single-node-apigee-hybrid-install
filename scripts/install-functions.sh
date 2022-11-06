@@ -382,6 +382,11 @@ parse_args() {
             export ORG_NAME="${2}"
             shift 2
             ;;
+        --org-admin)
+            arg_required "${@}"
+            export ORG_ADMIN="${2}"
+            shift 2
+            ;;
         --env)
             arg_required "${@}"
             export ENV_NAME="${2}"

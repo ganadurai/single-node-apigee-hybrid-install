@@ -19,6 +19,11 @@ variable "project_id" {
   type        = string
 }
 
+variable "org_admin" {
+  description = "User id email as apigee admin"
+  type        = string
+}
+
 variable "ax_region" {
   description = "GCP region for storing Apigee analytics data (see https://cloud.google.com/apigee/docs/api-platform/get-started/install-cli)."
   type        = string

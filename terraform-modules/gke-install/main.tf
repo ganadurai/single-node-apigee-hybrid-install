@@ -38,7 +38,12 @@ module "project" {
   ]
   policy_boolean = {
     "constraints/compute.requireShieldedVm" = false
-    "constraints/iam.disableServiceAccountKeyCreation" = true
+    "constraints/iam.disableServiceAccountKeyCreation" = false
+  }
+  group_iam = {
+    var.org_admin = [
+      "roles/apigee.admin"
+    ]
   }
 }
 
