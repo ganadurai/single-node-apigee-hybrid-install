@@ -19,6 +19,12 @@ set -e
 # shellcheck source=/dev/null
 source ./install-functions.sh
 
+function installTools() {  
+  wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
+  tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
+
+}
+
 function installProjectAndCluster() {
   cd "$WORK_DIR"/terraform-modules/gke-install
 
@@ -93,6 +99,9 @@ parse_args "${@}"
 
 banner_info "Step- Validatevars";
 validateVars
+
+banner_info "Step - Install Tools"
+installTools
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
   banner_info "Step- Install Project and Cluster"
