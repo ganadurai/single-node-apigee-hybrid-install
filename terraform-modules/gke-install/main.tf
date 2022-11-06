@@ -40,7 +40,7 @@ module "project" {
     "constraints/compute.requireShieldedVm" = false
     "constraints/iam.disableServiceAccountKeyCreation" = false
   }
-  group_iam = {
+  iam = {
     "user:${var.org_admin}" = [
       "roles/apigee.admin"
     ]
