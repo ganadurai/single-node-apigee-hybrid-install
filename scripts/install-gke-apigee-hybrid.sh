@@ -19,6 +19,12 @@ set -e
 # shellcheck source=/dev/null
 source ./install-functions.sh
 
+function installTools() {  
+  wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
+  tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
+
+}
+
 function installProjectAndCluster() {
   cd "$WORK_DIR"/terraform-modules/gke-install
 
@@ -28,14 +34,32 @@ function installProjectAndCluster() {
   terraform init
   terraform plan \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
-    -var "project_id=$PROJECT_ID"
+    -var "project_create=$PROJECT_CREATE" -var "apigee_org_create=$ORG_CREATE" -var "billing_account=$BILLING_ACCOUNT_ID" \
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
   terraform apply -auto-approve \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
-    -var "project_id=$PROJECT_ID"
+    -var "project_create=$PROJECT_CREATE" -var "apigee_org_create=$ORG_CREATE" -var "billing_account=$BILLING_ACCOUNT_ID" \
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
+}
+
+function deleteCluster() {
+  cd "$WORK_DIR"/terraform-modules/gke-install
+
+  envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
+    "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
+
+  terraform init
+  terraform plan \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
+  terraform destroy -auto-approve \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
 }
 
 function logIntoCluster() {
   gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
+  TOKEN=$(gcloud auth print-access-token); export TOKEN;
 }
 
 function hybridPostInstallIngressGatewaySetup() {
@@ -72,32 +96,50 @@ function hybridPostInstallIngressGatewayValidation() {
   fi
 }
 
-#parse_args "${@}"
+parse_args "${@}"
 
-echo "Step- Validatevars";
+banner_info "Step- Validatevars";
 validateVars
 
-echo "Step- Install Project and Cluster"
-installProjectAndCluster;
+banner_info "Step - Install Tools"
+installTools
 
-echo "Step- Log into cluster";
+if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
+  banner_info "Step- Install Project and Cluster"
+  installProjectAndCluster;
+fi
+
+banner_info "Step- Log into cluster";
 logIntoCluster;
 
-echo "Step- Overlays prep for Install";
-hybridPreInstallOverlaysPrep;
+if [[ $SHOULD_PREP_OVERLAYS == "1" ]]; then
+  banner_info "Step- Overlays prep for Install";
+  hybridPreInstallOverlaysPrep;
+fi
 
-echo "Step- cert manager Install";
-certManagerInstall;
 
-echo "Step- Hybrid Install";
-hybridRuntimeInstall;
+if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
+  banner_info "Step- cert manager Install";
+  certManagerInstall;
+fi
 
-echo "Step- Post Install";
-hybridPostInstallIngressGatewaySetup;
+if [[ $SHOULD_INSTALL_HYBRID == "1" ]]; then
+  banner_info "Step- Hybrid Install";
+  hybridRuntimeInstall;
+fi
 
-echo "Step- Deploy Sample Proxy For Validation"
-deploySampleProxyForValidation;
+if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
+  banner_info "Step- Post Install";
+  hybridPostInstallIngressGatewaySetup;
 
-echo "Step- Validation of proxy execution";
-hybridPostInstallIngressGatewayValidation;
+  banner_info "Step- Deploy Sample Proxy For Validation"
+  deploySampleProxyForValidation;
 
+  banner_info "Step- Validation of proxy execution";
+  hybridPostInstallIngressGatewayValidation;
+fi
+
+if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
+  banner_info "Step- Delete Cluster"
+  deleteCluster;
+fi

@@ -19,7 +19,7 @@ set -e
 # shellcheck source=/dev/null
 source ./install-functions.sh
 
-function startK3DCluster() {
+function installK3DCluster() {
 
   # Check if the docker-registry exists, if so the K3D cluster is already running
   docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
@@ -27,27 +27,23 @@ function startK3DCluster() {
   if [[ -z "$docker_registry_port_mapping" ]]; then
     echo "Installing K3D"
     curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-
     k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
-
-    docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
-    jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
-    if [[ -z $docker_registry_port_mapping ]]; then
-      echo "Error in starting the K3D cluster on the instance";
-      exit 1;
-    else
-      echo "Successfully started K3D cluster"
-    fi
   fi
+}
 
-  #Setting kubeconfig context
-  KUBECONFIG=$(k3d kubeconfig write hybrid-cluster); export KUBECONFIG
+function deleteK3DCluster() {
+  k3d cluster delete hybrid-cluster;
+}
+
+function logIntoK3DCluster() {
   
-  kubectl get nodes
-  RESULT=$?
-  if [ $RESULT -ne 0 ]; then
-    echo "Kubeconfig not properly set, please verify the K3D cluster is up and running."
-    exit 1
+  docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
+  jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
+  if [[ -z $docker_registry_port_mapping ]]; then
+    echo "Error in starting the K3D cluster on the instance";
+    exit 1;
+  else
+    echo "Successfully started K3D cluster"
   fi
 }
 
@@ -108,28 +104,42 @@ validateDockerInstall
 echo "Step- Validatevars";
 validateVars
 
-echo "Step- Fetch Hybrid Install Repo";
-fetchHybridInstall
+if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
+  echo "Step- Start K3D cluster";
+  installK3DCluster;
+fi
 
-echo "Step- Start K3D cluster";
-startK3DCluster;
+echo "Step- Log into cluster";
+logIntoK3DCluster
 
-echo "Step- Overlays prep for Install";
-hybridPreInstallOverlaysPrep;
+if [[ $SHOULD_PREP_OVERLAYS == "1" ]]; then
+  echo "Step- Overlays prep for Install";
+  hybridPreInstallOverlaysPrep;
+fi
 
-echo "Step- cert manager Install";
-certManagerInstall;
+if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
+  echo "Step- cert manager Install";
+  certManagerInstall;
+fi
 
-echo "Step- Hybrid Install";
-hybridRuntimeInstall;
+if [[ $SHOULD_INSTALL_HYBRID == "1" ]]; then
+  echo "Step- Hybrid Install";
+  hybridRuntimeInstall;
+fi
 
-echo "Step- Post Install";
-hybridPostInstallEnvoyIngressSetup;
+if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
+  echo "Step- Post Install";
+  hybridPostInstallEnvoyIngressSetup;
 
-echo "Step- Deploy Sample Proxy For Validation"
-deploySampleProxyForValidation;
+  echo "Step- Deploy Sample Proxy For Validation"
+  deploySampleProxyForValidation;
 
-echo "Step- Validation of proxy execution";
-hybridPostInstallEnvoyIngressValidation;
+  echo "Step- Validation of proxy execution";
+  hybridPostInstallEnvoyIngressValidation;
+fi
+
+if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
+  deleteK3DCluster;
+fi
 
 
