@@ -30,6 +30,7 @@ provider "google" {
 }
 
 module "org-policies" {
+  source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/project"
   policy_boolean = {
     "constraints/compute.requireShieldedVm" = false
     "constraints/iam.disableServiceAccountKeyCreation" = false
