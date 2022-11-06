@@ -59,6 +59,7 @@ function deleteCluster() {
 
 function logIntoCluster() {
   gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
+  TOKEN=$(gcloud auth print-access-token); export TOKEN;
 }
 
 function hybridPostInstallIngressGatewaySetup() {
