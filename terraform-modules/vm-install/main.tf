@@ -29,6 +29,14 @@ provider "google" {
   project = var.PROJECT_ID
 }
 
+module "org-policies" {
+  policy_boolean = {
+    "constraints/compute.requireShieldedVm" = false
+    "constraints/iam.disableServiceAccountKeyCreation" = false
+    "constraints/compute.vmExternalIpAccess" = false
+  }
+}
+
 #https://github.com/GoogleCloudPlatform/cloud-foundation-fabric/tree/master/modules/compute-vm
 module "hybrid_vm" {
   source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/compute-vm"
@@ -75,7 +83,8 @@ module "hybrid_vm" {
   service_account_create = true
 
   depends_on = [
-    module.vpc_network
+    module.vpc_network,
+    module.org-policies
   ]
 }
 
