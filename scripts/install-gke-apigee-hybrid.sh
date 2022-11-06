@@ -51,10 +51,10 @@ function deleteCluster() {
   terraform init
   terraform plan \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
-    -var "project_id=$PROJECT_ID"
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
   terraform destroy -auto-approve \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
-    -var "project_id=$PROJECT_ID"
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
 }
 
 function logIntoCluster() {
