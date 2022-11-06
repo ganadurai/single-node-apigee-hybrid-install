@@ -29,8 +29,9 @@ provider "google" {
   project = var.PROJECT_ID
 }
 
-module "org-policies" {
-  source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/project"
+module "project" {
+  source          = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/project?ref=v16.0.0"
+  name            = var.project_id
   policy_boolean = {
     "constraints/compute.requireShieldedVm" = false
     "constraints/iam.disableServiceAccountKeyCreation" = false
@@ -85,7 +86,7 @@ module "hybrid_vm" {
 
   depends_on = [
     module.vpc_network,
-    module.org-policies
+    module.project
   ]
 }
 
