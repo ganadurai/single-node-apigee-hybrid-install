@@ -41,8 +41,8 @@ module "project" {
     "constraints/iam.disableServiceAccountKeyCreation" = false
   }
   iam = {
-    "user:${var.org_admin}" = [
-      "roles/apigee.admin"
+    "roles/apigee.admin" = [
+      "user:${var.org_admin}"
     ]
   }
 }
