@@ -17,7 +17,12 @@
 output "internal_ip" {
   description = "Instance main interface internal IP address."
   value = try(
-    google_compute_instance.default.0.network_interface.0.network_ip,
+    module.hybrid_vm.internal_ip,
     null
   )
+}
+
+output "cluster_name" {
+  description = "Cluster name."
+  value       = module.gke-cluster.name
 }
