@@ -192,6 +192,7 @@ function hybridInstall() {
 function certManagerInstall() {
   cd "$HYBRID_INSTALL_DIR"
   kubectl get namespace | grep cert-manager
+  echo "checked cert manager exixts"
   RESULT=$?
   if [[ $RESULT -ne 0 ]]; then
     kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.7.2/cert-manager.yaml
