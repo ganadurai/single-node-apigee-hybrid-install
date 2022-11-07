@@ -57,8 +57,7 @@ function hybridPostInstallEnvoyIngressSetup() {
   echo "$DOCKER_REGISTRY_PORT"
 
   
-  
-  RESULT=$(kubectl get namespace | grep -c envoy-ns)
+  RESULT=kubectl get namespace | { grep envoy-ns || true; } | wc -l
   if [[ $RESULT -eq 0 ]]; then
     kubectl create namespace envoy-ns
   fi
