@@ -15,6 +15,8 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ### Prerequisites
 
+Its **preferred** to run the GKE installation from within the Cloudshell of GCP console. All the needed tools is already configured. If following this installation other than CloudShell, follow the next two steps to get the needed tools and libraries.
+
 1. Install Terraform on the machine that initiates the install. [Linux Install](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
 1. Install the tools needed on the machine where the deployment is executed. (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance, if missing in the instance where the setup is executed.
@@ -45,6 +47,28 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
     ```
+### Download install libraries
+
+1. Prepare the directories
+    ```bash
+    mkdir ~/install
+    cd ~/install
+    ```
+    
+1. Install the repos 
+    ```bash
+    git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
+    cd single-node-apigee-hybrid-install
+    export WORK_DIR=$(pwd)
+    
+    cd $INSTALL_DIR  
+    
+    git clone https://github.com/apigee/apigee-hybrid-install.git
+    cd apigee-hybrid-install
+    export HYBRID_INSTALL_DIR=$(pwd)
+    ```
+
+### Setup Environment variables and tokens
 
 1. Setup Environment variables
     ```bash
@@ -69,44 +93,11 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
     ```
 
-1. Prepare the directories
-    ```bash
-    mkdir ~/install
-    cd ~/install
-    ```
-    
-1. Install the repos 
-    ```bash
-    git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
-    cd single-node-apigee-hybrid-install
-    export WORK_DIR=$(pwd)
-    
-    cd $INSTALL_DIR  
-    
-    git clone https://github.com/apigee/apigee-hybrid-install.git
-    cd apigee-hybrid-install
-    export HYBRID_INSTALL_DIR=$(pwd)
-    ```
-
 ### Install and Validate
+
+This install can be done on a brand new GCP project and Apigee org setup. OR, can be installed on a existing GCP project and Apigee org. 
     
-1. Execute the hybrid runtime install on an existing project with apigee hybrid org configured. (takes around ~20 minutes)
-    ```bash
-    cd $WORK_DIR/scripts
-    ./install-gke-apigee-hybrid.sh \
-    --gcp-project-id $PROJECT_ID \
-    --org $ORG_NAME \
-    --org-admin $ORG_ADMIN \
-    --env $ENV_NAME \
-    --envgroup $ENV_GROUP \
-    --domain $DOMAIN \
-    --cluster-name $CLUSTER_NAME \
-    --cluster-region $REGION \
-    --token $TOKEN \
-    --setup-all
-    ```
-    
-1. To create new project, setup apigee org, create single node GKE cluster and install Hybrid runtime.
+1. To create new project, setup apigee org, create single node GKE cluster and install Hybrid runtime. execute the below command:  (takes around ~30 minutes)
     ```bash
     ./install-gke-apigee-hybrid.sh \
     --gcp-project-id $PROJECT_ID \
@@ -121,6 +112,23 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     --project-create true \
     --org-create true \
     --billing-account-id $BILLING_ACCOUNT_ID \
+    --setup-all
+    ```
+
+
+1. Execute the hybrid runtime install on an existing project with apigee hybrid org configured already. (takes around ~20 minutes)
+    ```bash
+    cd $WORK_DIR/scripts
+    ./install-gke-apigee-hybrid.sh \
+    --gcp-project-id $PROJECT_ID \
+    --org $ORG_NAME \
+    --org-admin $ORG_ADMIN \
+    --env $ENV_NAME \
+    --envgroup $ENV_GROUP \
+    --domain $DOMAIN \
+    --cluster-name $CLUSTER_NAME \
+    --cluster-region $REGION \
+    --token $TOKEN \
     --setup-all
     ```
 
