@@ -98,6 +98,8 @@ function hybridPostInstallEnvoyIngressValidation() {
   fi
 }
 
+parse_args "${@}"
+
 echo "Step- Validate Docker Install"
 validateDockerInstall
 

@@ -16,11 +16,15 @@
 
 set -e
 
-gcloud alpha resource-manager org-policies set-policy \
-    --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
-
-echo "Waiting 30s for org-policy take into effect! "
-sleep 30
+gcloud alpha resource-manager org-policies describe \
+    constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | grep ALLOW
+RESULT=$?
+if [[ $RESULT -ne 0 ]]; then
+    gcloud alpha resource-manager org-policies set-policy \
+        --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
+    echo "Waiting 30s for org-policy take into effect! "
+    sleep 30
+fi
 
 cd "$WORK_DIR/terraform-modules/vm-install"
 
