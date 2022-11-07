@@ -57,7 +57,7 @@ function hybridPostInstallEnvoyIngressSetup() {
   echo "$DOCKER_REGISTRY_PORT"
 
   
-  RESULT=kubectl get namespace | { grep envoy-ns || true; } | wc -l
+  RESULT=$(kubectl get namespace | { grep envoy-ns || true; } | wc -l); echo "$RESULT"
   if [[ $RESULT -eq 0 ]]; then
     kubectl create namespace envoy-ns
   fi
@@ -134,7 +134,7 @@ fi
 
 if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
   TOKEN=$(gcloud auth print-access-token); export TOKEN;
-  
+
   echo "Step- Post Install";
   hybridPostInstallEnvoyIngressSetup;
 
