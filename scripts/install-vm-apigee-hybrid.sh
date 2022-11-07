@@ -133,6 +133,8 @@ if [[ $SHOULD_INSTALL_HYBRID == "1" ]]; then
 fi
 
 if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
+  TOKEN=$(gcloud auth print-access-token); export TOKEN;
+  
   echo "Step- Post Install";
   hybridPostInstallEnvoyIngressSetup;
 
