@@ -191,6 +191,7 @@ function hybridInstall() {
 
 function certManagerInstall() {
   cd "$HYBRID_INSTALL_DIR"
+  echo "checking cert manager exixts"
   kubectl get namespace | grep cert-manager
   echo "checked cert manager exixts"
   RESULT=$?
