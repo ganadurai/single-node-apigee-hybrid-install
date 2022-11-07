@@ -57,6 +57,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
     export DOMAIN=<environment group hostname>
     export APIGEE_NAMESPACE="apigee"
     export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+    export BILLING_ACCOUNT_ID=<billing account id> #If creating new GCP project;
     ```
 
 1. Execute the gcloud auth and fetch the token
@@ -89,10 +90,38 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ### Install and Validate
     
-1. Execute the hybrid install. (takes around ~20 minutes)
+1. Execute the hybrid runtime install on an existing project with apigee hybrid org configured. (takes around ~20 minutes)
     ```bash
     cd $WORK_DIR/scripts
-    ./install-gke-apigee-hybrid.sh
+    ./install-gke-apigee-hybrid.sh \
+    --gcp-project-id $PROJECT_ID \
+    --org $ORG_NAME \
+    --org-admin $ORG_ADMIN \
+    --env $ENV_NAME \
+    --envgroup $ENV_GROUP \
+    --domain $DOMAIN \
+    --cluster-name $CLUSTER_NAME \
+    --cluster-region $REGION \
+    --token $TOKEN \
+    --setup-all
+    ```
+    
+1. To create new project, setup apigee org, create single node GKE cluster and install Hybrid runtime.
+    ```bash
+    ./install-gke-apigee-hybrid.sh \
+    --gcp-project-id $PROJECT_ID \
+    --org $ORG_NAME \
+    --org-admin $ORG_ADMIN \
+    --env $ENV_NAME \
+    --envgroup $ENV_GROUP \
+    --domain $DOMAIN \
+    --cluster-name $CLUSTER_NAME \
+    --cluster-region $REGION \
+    --token $TOKEN \
+    --project-create true \
+    --org-create true \
+    --billing-account-id $BILLING_ACCOUNT_ID \
+    --setup-all
     ```
 
 
@@ -230,7 +259,18 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 1. Run the execution, this installs the needed libraries, K3D cluster, creates the overlay files, deploy the Hybrid containers and Ingress Envoy proxy. (takes around ~20 minutes)
     ```bash
     cd $WORK_DIR/scripts
-    ./install-vm-apigee-hybrid.sh
+    
+    ./install-vm-apigee-hybrid.sh \
+    --gcp-project-id $PROJECT_ID \
+    --org $ORG_NAME \
+    --org-admin $ORG_ADMIN \
+    --env $ENV_NAME \
+    --envgroup $ENV_GROUP \
+    --domain $DOMAIN \
+    --cluster-name $CLUSTER_NAME \
+    --cluster-region $REGION \
+    --token $TOKEN \
+    --setup-all
     ```
   
 1. Test and validate the execution of proxy within the hybrid installation. 
