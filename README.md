@@ -21,7 +21,9 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ### Prerequisites
 
-**Recommended** to run the GKE installation from within the Cloudshell of GCP console. All the needed tools is already configured. If following this installation other than CloudShell, follow the next two steps to get the needed tools and libraries.
+**Recommended:**  run the GKE installation from within the Cloudshell of GCP console. All the needed tools is already configured. 
+
+If following this installation other than CloudShell, follow the next two steps to get the needed tools and libraries.
 
 1. Install Terraform on the machine that initiates the install. [Linux Install](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
