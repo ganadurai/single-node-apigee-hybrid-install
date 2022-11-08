@@ -1,6 +1,12 @@
 # Single VM (all-in-one) Hybrid Installation
 
-This is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide) focussed on executing the installation on a **single VM instance** with minimal resources (validated for GCP e2-standard-4: 4vCPU, 16GB RAM, 20GB disk). This deployment model is aimed for just  testing and sandbox purposes, **NOT for production deployments**. Also please note, this set up is **NOT covered under any form of Google support**. 
+Are you worried about the cost associated with setting up Apigee Hybrid for simple tests and validation? As per the [installation documents](https://cloud.google.com/apigee/docs/hybrid/v1.8/install-create-cluster.html) you need 6 nodes (3 stateful + 3 stateless). This would cost you more than $800 per month. This tool customizes the pod resources (CPU and Memory) to a minimum and you can set up Apigee Hybrid (all-in-one) on a Single node (4vCPU, 16GB RAM). 
+
+If deploying in a GCP environment, this tool can execute the following: setting up a GCP Project, deploying Apigee org, deployingGKE cluster with a single node and validating the setup. If you prefer to deploy GKE cluster on an existing GCP project and Apigee org, its supported too
+
+This tool also provides end-to-end automation of setting up Hybrid on a simple VM instance thats **not** attached to a Kubernetes cluster.
+
+This is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide). This deployment model is aimed for just  testing and sandbox purposes, **NOT for production deployments**. Also please note, this set up is **NOT covered under any form of Google support**. 
 
 ## Modes of deployment
 
@@ -15,7 +21,7 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ### Prerequisites
 
-Its **preferred** to run the GKE installation from within the Cloudshell of GCP console. All the needed tools is already configured. If following this installation other than CloudShell, follow the next two steps to get the needed tools and libraries.
+**Recommended** to run the GKE installation from within the Cloudshell of GCP console. All the needed tools is already configured. If following this installation other than CloudShell, follow the next two steps to get the needed tools and libraries.
 
 1. Install Terraform on the machine that initiates the install. [Linux Install](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 

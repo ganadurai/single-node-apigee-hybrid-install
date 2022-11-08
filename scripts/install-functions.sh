@@ -250,7 +250,7 @@ function deploySampleProxyForValidation() {
   export MGMT_HOST="https://apigee.googleapis.com"
   curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/apis?action=import&name=apigee-hybrid-helloworld" \
         -H "Authorization: Bearer $TOKEN" --form file=@"$WORK_DIR/apigee-hybrid-helloworld.zip"
-  curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/environments/eval/apis/apigee-hybrid-helloworld/revisions/1/deployments" \
+  curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/environments/eval/apis/apigee-hybrid-helloworld/revisions/1/deployments?override=true" \
         -H "Authorization: Bearer $TOKEN"
   echo "Waiting for proxy deployment and ready for testing, 60s"
   sleep 60
