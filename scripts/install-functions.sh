@@ -417,12 +417,10 @@ parse_args() {
     while [[ $# != 0 ]]; do
         case "${1}" in
         --project-create)
-            arg_required "${@}"
             export SHOULD_CREATE_PROJECT="1"
             shift 2
             ;;
         --apigee-org-create)
-            arg_required "${@}"
             export SHOULD_CREATE_APIGEE_ORG="1"
             shift 2
             ;;
