@@ -90,16 +90,16 @@ if [[ $SHOULD_DELETE_PROJECT == "1" ]]; then
   exit 0;
 fi
 
-if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
-  banner_info "Step- Install Project"
-  installDeleteProject "apply";
-fi
-
 if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
   banner_info "Step- Delete Cluster"
   installDeleteCluster "destroy";
   echo "Successfully deleted cluster, exiting"
   exit 0;
+fi
+
+if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
+  banner_info "Step- Install Project"
+  installDeleteProject "apply";
 fi
 
 banner_info "Step - Install Tools"
