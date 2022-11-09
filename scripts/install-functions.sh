@@ -147,6 +147,8 @@ function installDeleteProject() {
 
 function installApigeeOrg() {
   cd "$WORK_DIR"/terraform-modules/apigee-install
+  rm -Rf .terraform*
+  rm terraform.tfstate
   terraform init
   terraform plan -var "apigee_org_create=true" \
   -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
