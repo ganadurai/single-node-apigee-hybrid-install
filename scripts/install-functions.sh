@@ -486,8 +486,9 @@ parse_args() {
           "${SHOULD_PREP_OVERLAYS}"     != "1" &&
           "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
           "${SHOULD_INSTALL_HYBRID}"    != "1" &&
+          "${SHOULD_INSTALL_INGRESS}"   != "1" &&
           "${SHOULD_DELETE_CLUSTER}"    != "1" &&
-          "${SHOULD_INSTALL_INGRESS}"   != "1" ]]; then
+          "${SHOULD_DELETE_PROJECT}"    != "1" ]]; then
         usage
         exit
     fi
