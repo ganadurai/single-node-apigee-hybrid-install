@@ -25,7 +25,7 @@ function installTools() {
 
 }
 
-function installProjectAndCluster() {
+function installDeleteCluster() {
   cd "$WORK_DIR"/terraform-modules/gke-install
 
   envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
@@ -33,28 +33,9 @@ function installProjectAndCluster() {
 
   terraform init
   terraform plan \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
-    -var "project_create=$PROJECT_CREATE" -var "apigee_org_create=$ORG_CREATE" -var "billing_account=$BILLING_ACCOUNT_ID" \
-    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
-  terraform apply -auto-approve \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
-    -var "project_create=$PROJECT_CREATE" -var "apigee_org_create=$ORG_CREATE" -var "billing_account=$BILLING_ACCOUNT_ID" \
-    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
-}
-
-function deleteCluster() {
-  cd "$WORK_DIR"/terraform-modules/gke-install
-
-  envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
-    "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
-
-  terraform init
-  terraform plan \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
-    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
-  terraform destroy -auto-approve \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars" \
-    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN"
+    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
+  terraform "$1" -auto-approve \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
 }
 
 function logIntoCluster() {
@@ -101,12 +82,31 @@ parse_args "${@}"
 banner_info "Step- Validatevars";
 validateVars
 
+if [[ $SHOULD_DELETE_PROJECT == "1" ]]; then
+  banner_info "Step- Delete Project"
+  installDeleteProject "destroy";
+  echo "Successfully deleted project, exiting"
+  exit 0;
+fi
+
+if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
+  banner_info "Step- Install Project"
+  installDeleteProject "apply";
+fi
+
 banner_info "Step - Install Tools"
 installTools
 
+if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
+  banner_info "Step- Delete Cluster"
+  installDeleteCluster "destroy";
+  echo "Successfully deleted cluster, exiting"
+  exit 0;
+fi
+
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
   banner_info "Step- Install Project and Cluster"
-  installProjectAndCluster;
+  installDeleteCluster "apply";
 fi
 
 banner_info "Step- Log into cluster";
@@ -137,9 +137,4 @@ if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
 
   banner_info "Step- Validation of proxy execution";
   hybridPostInstallIngressGatewayValidation;
-fi
-
-if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
-  banner_info "Step- Delete Cluster"
-  deleteCluster;
 fi

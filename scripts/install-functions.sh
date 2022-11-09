@@ -98,6 +98,19 @@ function validateVars() {
     echo "Environment variable TOKEN is not set, please checkout README.md"
     exit 1
   fi
+
+  if [[ $PROJECT_CREATE = true ]] && [[ -z $BILLING_ACCOUNT_ID ]]; then
+    echo "BILLING_ACCOUNT_ID is not set with PROJECT_CREATE marked as true, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $VPC_NETWORK_NAME ]]; then
+    VPC_NETWORK_NAME="hybrid-runtime-cluster-vpc"; export VPC_NETWORK_NAME;
+  fi
+
+  if [[ -z $SUB_NETWORK_NAME ]]; then
+    SUB_NETWORK_NAME="hybrid-runtime-cluster-vpc-subnetwork"; export SUB_NETWORK_NAME;
+  fi
 }
 
 function installTools() {  
@@ -121,6 +134,25 @@ function installTools() {
   alias ka-ssh='ka exec --stdin --tty'
   alias ke='kubectl -n envoy-ns'
   alias ke-ssh='ke exec --stdin --tty'
+}
+
+function installDeleteProject() {
+  cd "$WORK_DIR"/terraform-modules/project-install
+  terraform init
+  terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
+  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" -var "project_create=true"
+  terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
+  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" -var "project_create=true"
+}
+
+function installApigeeOrg() {
+  cd "$WORK_DIR"/terraform-modules/apigee-install
+  terraform init
+  terraform plan -var "apigee_org_create=true" \
+  -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
+  terraform apply -auto-approve -var "apigee_org_create=true" \
+  -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
+
 }
 
 function fetchHybridInstall() {
@@ -384,69 +416,14 @@ arg_required() {
 parse_args() {
     while [[ $# != 0 ]]; do
         case "${1}" in
-        --org)
-            arg_required "${@}"
-            export ORG_NAME="${2}"
-            shift 2
-            ;;
-        --org-admin)
-            arg_required "${@}"
-            export ORG_ADMIN="${2}"
-            shift 2
-            ;;
-        --env)
-            arg_required "${@}"
-            export ENV_NAME="${2}"
-            shift 2
-            ;;
-        --envgroup)
-            arg_required "${@}"
-            export ENV_GROUP="${2}"
-            shift 2
-            ;;
-        --domain)
-            arg_required "${@}"
-            export DOMAIN="${2}"
-            shift 2
-            ;;
-        --namespace)
-            arg_required "${@}"
-            export APIGEE_NAMESPACE="${2}"
-            shift 2
-            ;;
-        --cluster-name)
-            arg_required "${@}"
-            export CLUSTER_NAME="${2}"
-            shift 2
-            ;;
-        --cluster-region)
-            arg_required "${@}"
-            export REGION="${2}"
-            shift 2
-            ;;
-        --gcp-project-id)
-            arg_required "${@}"
-            export PROJECT_ID="${2}"
-            shift 2
-            ;;
-        --token)
-            arg_required "${@}"
-            export TOKEN="${2}"
-            shift 2
-            ;;
         --project-create)
             arg_required "${@}"
-            export PROJECT_CREATE="${2}"
+            export SHOULD_CREATE_PROJECT="1"
             shift 2
             ;;
-        --org-create)
+        --apigee-org-create)
             arg_required "${@}"
-            export ORG_CREATE="${2}"
-            shift 2
-            ;;
-        --billing-account-id)
-            arg_required "${@}"
-            export BILLING_ACCOUNT_ID="${2}"
+            export SHOULD_CREATE_APIGEE_ORG="1"
             shift 2
             ;;
         --create-cluster)
@@ -485,6 +462,10 @@ parse_args() {
             export SHOULD_DELETE_CLUSTER="1"
             shift 1
             ;;
+        --delete-project)
+            export SHOULD_DELETE_PROJECT="1"
+            shift 1
+            ;;
         --help)
             usage
             exit
@@ -495,12 +476,18 @@ parse_args() {
         esac
     done
 
-    if [[ "${SHOULD_INSTALL_CLUSTER}" != "1" &&
-        "${SHOULD_PREP_OVERLAYS}" != "1" &&
-        "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
-        "${SHOULD_INSTALL_HYBRID}" != "1" &&
-        "${SHOULD_DELETE_CLUSTER}" != "1" &&
-        "${SHOULD_INSTALL_INGRESS}" != "1" ]]; then
+    if [[ "${SHOULD_CREATE_PROJECT}" == "1" ]]; then
+       export SHOULD_CREATE_APIGEE_ORG="1";
+    fi
+
+    if [[ "${SHOULD_CREATE_PROJECT}"    != "1" && 
+          "${SHOULD_CREATE_APIGEE_ORG}" != "1" &&
+          "${SHOULD_INSTALL_CLUSTER}"   != "1" &&
+          "${SHOULD_PREP_OVERLAYS}"     != "1" &&
+          "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
+          "${SHOULD_INSTALL_HYBRID}"    != "1" &&
+          "${SHOULD_DELETE_CLUSTER}"    != "1" &&
+          "${SHOULD_INSTALL_INGRESS}"   != "1" ]]; then
         usage
         exit
     fi
