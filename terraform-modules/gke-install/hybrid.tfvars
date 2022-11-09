@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-apigee_environments = ["eval"]
 
-apigee_envgroups = {
-  eval-group = {
-    environments = ["eval"]
-    hostnames    = ["eval.hapigee3.google.com"]
+gke_cluster = {
+  name                      = "hybrid-cluster"
+  location                  = "us-central1"
+  master_authorized_ranges  = {
+    "internet" = "0.0.0.0/0"
   }
+  master_ip_cidr            = "192.168.0.0/28"
+  region                    = "us-central1"
 }
