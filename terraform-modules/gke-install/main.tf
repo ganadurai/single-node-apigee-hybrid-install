@@ -47,6 +47,9 @@ module "gke-nodepool-default" {
   node_tags          = ["apigee-hybrid"]
   node_locations     = var.node_locations_data
   autoscaling_config = var.nodepool_autoscaling_config
+  depends_on = [
+    module.gke-cluster
+  ]
 }
 
 resource "google_compute_firewall" "allow-master-webhook" {
