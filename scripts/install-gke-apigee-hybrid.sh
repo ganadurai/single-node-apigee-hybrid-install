@@ -105,7 +105,7 @@ fi
 banner_info "Step - Install Tools"
 installTools
 
-if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
+if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   banner_info "Step- Install Project and Cluster"
   installDeleteCluster "apply";
 fi

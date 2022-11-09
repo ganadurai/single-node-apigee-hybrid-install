@@ -414,6 +414,7 @@ arg_required() {
 # Parse command line arguments.
 ################################################################################
 parse_args() {
+    export SHOULD_SKIP_INSTALL_CLUSTER="0"
     while [[ $# != 0 ]]; do
         case "${1}" in
         --project-create)
@@ -429,7 +430,7 @@ parse_args() {
             shift 1
             ;;
         --skip-create-cluster)
-            export SHOULD_SKIP_INSTALL_CLUSTER="0"
+            export SHOULD_SKIP_INSTALL_CLUSTER="1"
             shift 1
             ;;
         --prep-overlay-files)
