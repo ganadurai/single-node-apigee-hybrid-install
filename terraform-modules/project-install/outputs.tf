@@ -26,12 +26,12 @@ output "subnet_self_links" {
 
 output "vpc_network_name" {
   description = "VPC network name"
-  value       = locals.vpc_network_name
+  value       = local.vpc_network_name
 }
 
 output "sub_network_name" {
   description = "Subnet name"
-  value       = locals.sub_network_name
+  value       = local.sub_network_name
 }
 
 /*
