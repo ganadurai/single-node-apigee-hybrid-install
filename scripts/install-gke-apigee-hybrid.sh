@@ -105,8 +105,6 @@ fi
 banner_info "Step - Install Tools"
 installTools
 
-echo "SHOULD_INSTALL_CLUSTER=$SHOULD_INSTALL_CLUSTER"
-echo "SHOULD_SKIP_INSTALL_CLUSTER=$SHOULD_SKIP_INSTALL_CLUSTER"
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   banner_info "Step- Install Project and Cluster"
   installDeleteCluster "apply";

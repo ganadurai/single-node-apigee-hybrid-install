@@ -419,11 +419,11 @@ parse_args() {
         case "${1}" in
         --project-create)
             export SHOULD_CREATE_PROJECT="1"
-            shift 2
+            shift 1
             ;;
         --apigee-org-create)
             export SHOULD_CREATE_APIGEE_ORG="1"
-            shift 2
+            shift 1
             ;;
         --create-cluster)
             export SHOULD_INSTALL_CLUSTER="1"
@@ -450,7 +450,6 @@ parse_args() {
             shift 1
             ;;
         --setup-all)
-            banner_info "Setup - ALL"
             export SHOULD_INSTALL_CLUSTER="1"
             export SHOULD_PREP_OVERLAYS="1"
             export SHOULD_INSTALL_CERT_MNGR="1"
