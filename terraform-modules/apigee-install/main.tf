@@ -20,7 +20,7 @@
 
 module "apigee" {
   source              = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/apigee-organization?ref=v16.0.0"
-  project_id          = module.project.project_id
+  project_id          = var.project_id
   analytics_region    = var.ax_region
   runtime_type        = "HYBRID"
   apigee_environments = var.apigee_environments
