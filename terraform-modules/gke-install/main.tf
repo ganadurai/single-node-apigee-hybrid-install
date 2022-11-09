@@ -38,8 +38,8 @@ module "gke-cluster" {
 module "gke-nodepool-default" {
   source             = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-nodepool?ref=v16.0.0"
   project_id         = var.project_id
-  cluster_name       = var.gke-cluster.name
-  location           = var.gke-cluster.location
+  cluster_name       = var.gke_cluster.name
+  location           = var.gke_cluster.location
   name               = "apigee-default-nodepool"
   node_machine_type  = var.node_machine_type
   node_preemptible   = var.node_preemptible_runtime
@@ -66,8 +66,8 @@ resource "google_compute_firewall" "allow-master-webhook" {
 
 module "nat" {
   source         = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-cloudnat?ref=v16.0.0"
-  project_id     = module.project.project_id
+  project_id     = var.project_id
   region         = var.gke_cluster.region
   name           = "nat-${var.gke_cluster.region}"
-  router_network = module.vpc.self_link
+  router_network = var.vpc_self_link
 }
