@@ -1,9 +1,5 @@
 not-add-*.sh
-terraform-modules/vm-install/.terraform.lock.hcl
-terraform-modules/vm-install/.terraform/
-terraform-modules/vm-install/terraform.tfstate
-terraform-modules/vm-install/terraform.tfstate.backup
-terraform-modules/gke-install/.terraform.lock.hcl
-terraform-modules/gke-install/.terraform/
-terraform-modules/gke-install/terraform.tfstate
-terraform-modules/gke-install/terraform.tfstate.backup
+terraform-modules/*/.terraform.lock.hcl
+terraform-modules/*/.terraform/
+terraform-modules/*/terraform.tfstate
+terraform-modules/*/terraform.tfstate.backup

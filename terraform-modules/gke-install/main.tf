@@ -35,6 +35,7 @@ module "project" {
     "container.googleapis.com",
     "pubsub.googleapis.com",
     "sourcerepo.googleapis.com",
+    "logging.googleapis.com"
   ]
   policy_boolean = {
     "constraints/compute.requireShieldedVm" = false
