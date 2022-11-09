@@ -86,6 +86,7 @@ if [[ $SHOULD_DELETE_PROJECT == "1" ]]; then
   banner_info "Step- Delete Project"
   installDeleteProject "destroy";
   echo "Successfully deleted project, exiting"
+  #https://console.cloud.google.com/networking/firewalls/list?project=$PROJECT_ID
   exit 0;
 fi
 
@@ -94,15 +95,15 @@ if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   installDeleteProject "apply";
 fi
 
-banner_info "Step - Install Tools"
-installTools
-
 if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
   banner_info "Step- Delete Cluster"
   installDeleteCluster "destroy";
   echo "Successfully deleted cluster, exiting"
   exit 0;
 fi
+
+banner_info "Step - Install Tools"
+installTools
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
   banner_info "Step- Install Project and Cluster"
