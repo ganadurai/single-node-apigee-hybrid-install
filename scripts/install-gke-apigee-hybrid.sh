@@ -102,11 +102,16 @@ if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   installDeleteProject "apply";
 fi
 
+if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
+  banner_info "Step- Install Apigee Org"
+  installApigeeOrg;
+fi
+
 banner_info "Step - Install Tools"
 installTools
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
-  banner_info "Step- Install Project and Cluster"
+  banner_info "Step- Install Cluster"
   installDeleteCluster "apply";
 fi
 
