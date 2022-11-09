@@ -450,6 +450,7 @@ parse_args() {
             shift 1
             ;;
         --setup-all)
+            banner_info "Setup - ALL"
             export SHOULD_INSTALL_CLUSTER="1"
             export SHOULD_PREP_OVERLAYS="1"
             export SHOULD_INSTALL_CERT_MNGR="1"
