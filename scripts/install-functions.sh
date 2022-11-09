@@ -450,11 +450,11 @@ parse_args() {
             shift 1
             ;;
         --setup-all)
-            SHOULD_INSTALL_CLUSTER="1"
-            SHOULD_PREP_OVERLAYS="1"
-            SHOULD_INSTALL_CERT_MNGR="1"
-            SHOULD_INSTALL_HYBRID="1"
-            SHOULD_INSTALL_INGRESS="1"
+            export SHOULD_INSTALL_CLUSTER="1"
+            export SHOULD_PREP_OVERLAYS="1"
+            export SHOULD_INSTALL_CERT_MNGR="1"
+            export SHOULD_INSTALL_HYBRID="1"
+            export SHOULD_INSTALL_INGRESS="1"
             shift 1
             ;;
         --delete-cluster)
