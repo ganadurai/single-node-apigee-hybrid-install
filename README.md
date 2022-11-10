@@ -119,7 +119,12 @@ If following this installation outside of CloudShell, follow the next two steps 
     ```
 
 
-## GCP VM Deploy (with terraform) and Hybrid Install
+## Deploy Apigee Hybrid on VM instance
+
+Minimum Spec needed :  4vCPU, 16GB RAM
+
+Choose one from the two options below:
+  to deploy Apigee Hybrid on an existing VM or create a new GCP VM with the option to create on a new GCP   
 
 ### Prerequisites
 

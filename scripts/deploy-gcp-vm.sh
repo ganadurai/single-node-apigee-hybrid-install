@@ -121,7 +121,7 @@ function createDestroyVM() {
     cd "$WORK_DIR/terraform-modules/vm-install"
 
     last_project_id=$(cat install-state.txt)
-    if [ "$last_project_id" != "" ] || [ "$last_project_id" != "$PROJECT_ID" ]; then
+    if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
         echo "Clearing up the terraform state"
         rm -Rf .terraform*
         rm -f terraform.tfstate
@@ -156,12 +156,13 @@ function createDestroyVM() {
     echo "$PROJECT_ID" > install-state.txt
 
     banner_info "Step- Validation and Next Steps...";
-    echo "Access the below url to confirm the existence of log entry confirming the bootup of the instance (approx wait time 2mts)"
+    echo ""
+    echo "Access the below url to confirm the existence of log entry 'startup-script exit status 0' this validates the bootup of the instance is successful (approx wait time 2mts)"
     echo "https://console.cloud.google.com/logs/query;query=startup-script%20exit%20status%200;?referrer=search&project=$PROJECT_ID"
     echo ""
     echo "Access the ssh console of the instance"
     echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$REGION-a/instances/vm-hybrid-instance-1"
-
+    echo ""
 
 }
 
