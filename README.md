@@ -4,7 +4,7 @@ For executing simple tests or validation in a Hybrid deployment are you worried 
 
 This tool solves these concerns. It overrides the resource needs for the Hybrid containers and make it possible to deploy on a single VM node (4vCPU, 16GB RAM). This makes the cost associated with Hybird installation less than $100 per month instead of more than $800.
 
-This tool also provides end-to-end automation of creating a GCP project, configuring an Apigee org and deploying Hybrid on the instance.
+This tool also provides end-to-end automation of creating a GCP project, configuring an Apigee org and deploying Hybrid on a instance.
 
 This implementation is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide). This deployment model is aimed for just testing and sandbox purposes, **NOT for production deployments**. Also please note, this set up is **NOT covered under any form of Google support**. 
 
