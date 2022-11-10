@@ -112,8 +112,8 @@ function checkAndApplyOrgconstranints() {
     if [[ $RESULT -eq 0 ]]; then
         gcloud alpha resource-manager org-policies set-policy \
             --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
-        echo "Waiting 30s for org-policy take into effect! "
-        sleep 30
+        echo "Waiting 60s for org-policy take into effect! "
+        sleep 60
     fi
 }
 
