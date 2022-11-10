@@ -110,7 +110,7 @@ validateDockerInstall
 echo "Step- Validatevars";
 validateVars
 
-if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
+if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   echo "Step- Start K3D cluster";
   installK3DCluster;
 fi

@@ -155,15 +155,6 @@ function createDestroyVM() {
 
     echo "$PROJECT_ID" > install-state.txt
 
-    banner_info "Step- Validation and Next Steps...";
-    echo ""
-    echo "Access the below url to confirm the existence of log entry 'startup-script exit status 0' this validates the bootup of the instance is successful (approx wait time 2mts)"
-    echo "https://console.cloud.google.com/logs/query;query=startup-script%20exit%20status%200;?referrer=search&project=$PROJECT_ID"
-    echo ""
-    echo "Access the ssh console of the instance"
-    echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$REGION-a/instances/vm-hybrid-instance-1"
-    echo ""
-
 }
 
 parse_args "${@}"
@@ -187,6 +178,15 @@ fi
 if [[ $SHOULD_CREATE_VM == "1" ]]; then
   banner_info "Step- Create VM"
   createDestroyVM "apply";
+  
+  banner_info "Step- Next Steps...";
+  echo ""
+  echo "Access the below url to confirm the existence of log entry 'startup-script exit status 0' this validates the bootup of the instance is successful (approx wait time 2mts)"
+  echo "https://console.cloud.google.com/logs/query;query=startup-script%20exit%20status%200;?referrer=search&project=$PROJECT_ID"
+  echo ""
+  echo "Access the ssh console of the instance"
+  echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$REGION-a/instances/vm-hybrid-instance-1"
+  echo ""
 fi
 
 if [[ $SHOULD_DELETE_VM == "1" ]]; then
