@@ -123,8 +123,8 @@ If following this installation outside of CloudShell, follow the next two steps 
 Minimum Spec needed :  4vCPU, 16GB RAM
 
 Choose one from the two options below:
-* Execute the installation on a GCP VM.
-* Execute the installation on any VM.
+* [Execute the installation on a GCP VM.](#gcp-vm-installation)
+* [Execute the installation on Standalone VM.](#standalone-vm-hybrid-install)
  
 ### GCP VM Installation
 
