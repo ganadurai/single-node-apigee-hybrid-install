@@ -98,6 +98,19 @@ function validateVars() {
     echo "Environment variable TOKEN is not set, please checkout README.md"
     exit 1
   fi
+
+  if [[ $PROJECT_CREATE = true ]] && [[ -z $BILLING_ACCOUNT_ID ]]; then
+    echo "BILLING_ACCOUNT_ID is not set with PROJECT_CREATE marked as true, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $VPC_NETWORK_NAME ]]; then
+    VPC_NETWORK_NAME="hybrid-runtime-cluster-vpc"; export VPC_NETWORK_NAME;
+  fi
+
+  if [[ -z $SUB_NETWORK_NAME ]]; then
+    SUB_NETWORK_NAME="hybrid-runtime-cluster-vpc-subnetwork"; export SUB_NETWORK_NAME;
+  fi
 }
 
 function installTools() {  
@@ -121,6 +134,33 @@ function installTools() {
   alias ka-ssh='ka exec --stdin --tty'
   alias ke='kubectl -n envoy-ns'
   alias ke-ssh='ke exec --stdin --tty'
+}
+
+function installDeleteProject() {
+  cd "$WORK_DIR"/terraform-modules/project-install
+  terraform init
+  terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
+  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" -var "project_create=true"
+  terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
+  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" -var "project_create=true"
+}
+
+function installApigeeOrg() {
+  cd "$WORK_DIR"/terraform-modules/apigee-install
+
+  last_project_id=$(cat install-state.txt)
+  if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
+    echo "Clearing up the terraform state"
+    rm -Rf .terraform*
+    rm -f terraform.tfstate
+  fi
+  terraform init
+  terraform plan -var "apigee_org_create=true" \
+    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
+  terraform apply -auto-approve -var "apigee_org_create=true" \
+    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
+  
+  echo "$PROJECT_ID" > install-state.txt
 }
 
 function fetchHybridInstall() {
@@ -192,7 +232,7 @@ function hybridInstall() {
 function certManagerInstall() {
   cd "$HYBRID_INSTALL_DIR"
   echo "checking cert manager exixts"
-  RESULT=$(kubectl get namespace | { grep cert-manager || true; } | wc -l); echo "$RESULT"
+  RESULT=$(kubectl get namespace | { grep cert-manager || true; } | wc -l);
   echo "checked cert manager exists"
   if [[ $RESULT -eq 0 ]]; then
     kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.7.2/cert-manager.yaml
@@ -248,9 +288,14 @@ function hybridRuntimeInstall() {
 
 function deploySampleProxyForValidation() {
   export MGMT_HOST="https://apigee.googleapis.com"
-  curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/apis?action=import&name=apigee-hybrid-helloworld" \
-        -H "Authorization: Bearer $TOKEN" --form file=@"$WORK_DIR/apigee-hybrid-helloworld.zip"
-  curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/environments/eval/apis/apigee-hybrid-helloworld/revisions/1/deployments?override=true" \
+  PROXY_REVISION=$(curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/apis?action=import&name=apigee-hybrid-helloworld" \
+        -H "Authorization: Bearer $TOKEN" --form file=@"$WORK_DIR/apigee-hybrid-helloworld.zip" | \
+    jq '.revision'|cut -d '"' -f 2);
+  if [[ -z $PROXY_REVISION ]]; then
+    echo "Error in uploading the sample proxy to management api endpoint : $MGMT_HOST"
+    exit 1;
+  fi
+  curl -s -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/environments/eval/apis/apigee-hybrid-helloworld/revisions/$PROXY_REVISION/deployments?override=true" \
         -H "Authorization: Bearer $TOKEN"
   echo "Waiting for proxy deployment and ready for testing, 60s"
   sleep 60
@@ -288,43 +333,13 @@ function fatal() {
 # Print help text.
 ################################################################################
 usage() {
-    local FLAGS_1 FLAGS_2
-
-    # Flags that require an argument
-    FLAGS_1="$(
-        cat <<EOF
-    --org             <ORGANIZATION_NAME>           Set the Apigee Organization.
-                                                    If not set, the project configured
-                                                    in gcloud will be used.
-    --env             <ENVIRONMENT_NAME>            Set the Apigee Environment.
-                                                    If not set, a random environment
-                                                    within the organization will be
-                                                    selected.
-    --envgroup        <ENVIRONMENT_GROUP_NAME>      Set the Apigee Environment Group.
-                                                    If not set, a random environment
-                                                    group within the organization
-                                                    will be selected.
-    --domain          <ENVIRONMENT_GROUP_HOSTNAME>  Set the hostname. This will be
-                                                    used to generate self signed
-                                                    certificates.
-    --namespace       <APIGEE_NAMESPACE>            The name of the namespace where
-                                                    apigee components will be installed.
-                                                    Defaults to "apigee".
-    --cluster-name    <CLUSTER_NAME>                The Kubernetes cluster name.
-    --cluster-region  <CLUSTER_REGION>              The region in which the
-                                                    Kubernetes cluster resides.
-    --gcp-project-id  <GCP_PROJECT_ID>              The GCP Project ID where the
-                                                    Kubernetes cluster exists.
-                                                    This can be different from
-                                                    the Apigee Organization name.
-    --token           <GCP_AUTH_TOKEN>              The GCP Project User Admin Token
-                                                    Check README for details.
-EOF
-    )"
+    local FLAGS_2
 
     # Flags that DON'T require an argument
     FLAGS_2="$(
         cat <<EOF
+    --project-create             Creates GCP project and enables the needed apis for setting up apigee
+    --apigee-org-create          Creates Apigee org within the assigned project.
     --create-cluster             Creates the GKE cluster or the VM instance that hosts
                                  container infrastructure.
     --skip-create-cluster        Skips creating the GKE cluster or the VM instance 
@@ -343,28 +358,20 @@ EOF
 
     cat <<EOF
     
-USAGE: ${SCRIPT_NAME} --cluster-name <CLUSTER_NAME> --cluster-region <CLUSTER_REGION> [FLAGS]...
-
 Helps with the installation of Apigee Hybrid. Can be used to either automate the
 complete installation, or execute individual tasks
-
-FLAGS that expect an argument:
-
-$FLAGS_1
-
-FLAGS without argument:
 
 $FLAGS_2
 
 EXAMPLES:
 
-    Setup everything:
+    Setsup everything on a existing project with an apigee org configured already:
         
-        $ ./${SCRIPT_NAME} --org apigee-hybrid --env eval --envgroup eval-group --domain eval.apigee.com --cluster-name hybrid-cluster --cluster-region us-west1 --setup-all
+        $ ./${SCRIPT_NAME} --setup-all
         
-    Only apply configuration and enable verbose logging:
+    Creates a new GCP project, configures Apigee org and installs Apigee Hybrid
 
-        $ ./${SCRIPT_NAME} --org apigee-hybrid --env eval --envgroup eval-group --domain eval.apigee.com --cluster-name hybrid-cluster --cluster-region us-west1 --create-cluster
+        $ ./${SCRIPT_NAME} --project-create --setup-all
 
 EOF
 }
@@ -382,79 +389,24 @@ arg_required() {
 # Parse command line arguments.
 ################################################################################
 parse_args() {
+    export SHOULD_SKIP_INSTALL_CLUSTER="0"
+    export CLUSTER_ACTION="0"
     while [[ $# != 0 ]]; do
         case "${1}" in
-        --org)
-            arg_required "${@}"
-            export ORG_NAME="${2}"
-            shift 2
-            ;;
-        --org-admin)
-            arg_required "${@}"
-            export ORG_ADMIN="${2}"
-            shift 2
-            ;;
-        --env)
-            arg_required "${@}"
-            export ENV_NAME="${2}"
-            shift 2
-            ;;
-        --envgroup)
-            arg_required "${@}"
-            export ENV_GROUP="${2}"
-            shift 2
-            ;;
-        --domain)
-            arg_required "${@}"
-            export DOMAIN="${2}"
-            shift 2
-            ;;
-        --namespace)
-            arg_required "${@}"
-            export APIGEE_NAMESPACE="${2}"
-            shift 2
-            ;;
-        --cluster-name)
-            arg_required "${@}"
-            export CLUSTER_NAME="${2}"
-            shift 2
-            ;;
-        --cluster-region)
-            arg_required "${@}"
-            export REGION="${2}"
-            shift 2
-            ;;
-        --gcp-project-id)
-            arg_required "${@}"
-            export PROJECT_ID="${2}"
-            shift 2
-            ;;
-        --token)
-            arg_required "${@}"
-            export TOKEN="${2}"
-            shift 2
-            ;;
         --project-create)
-            arg_required "${@}"
-            export PROJECT_CREATE="${2}"
-            shift 2
+            export SHOULD_CREATE_PROJECT="1"
+            shift 1
             ;;
-        --org-create)
-            arg_required "${@}"
-            export ORG_CREATE="${2}"
-            shift 2
-            ;;
-        --billing-account-id)
-            arg_required "${@}"
-            export BILLING_ACCOUNT_ID="${2}"
-            shift 2
+        --apigee-org-create)
+            export SHOULD_CREATE_APIGEE_ORG="1"
+            shift 1
             ;;
         --create-cluster)
             export SHOULD_INSTALL_CLUSTER="1"
             shift 1
             ;;
         --skip-create-cluster)
-            export SHOULD_SKIP_INSTALL_CLUSTER="0"
+            export SHOULD_SKIP_INSTALL_CLUSTER="1"
             shift 1
             ;;
         --prep-overlay-files)
@@ -463,26 +415,34 @@ parse_args() {
             ;;
         --install-cert-manager)
             export SHOULD_INSTALL_CERT_MNGR="1"
+            export CLUSTER_ACTION="1"
             shift 1
             ;;
         --install-hybrid)
             export SHOULD_INSTALL_HYBRID="1"
+            export CLUSTER_ACTION="1"
             shift 1
             ;;
         --install-ingress)
             export SHOULD_INSTALL_INGRESS="1"
+            export CLUSTER_ACTION="1"
             shift 1
             ;;
         --setup-all)
-            SHOULD_INSTALL_CLUSTER="1"
-            SHOULD_PREP_OVERLAYS="1"
-            SHOULD_INSTALL_CERT_MNGR="1"
-            SHOULD_INSTALL_HYBRID="1"
-            SHOULD_INSTALL_INGRESS="1"
+            export SHOULD_INSTALL_CLUSTER="1"
+            export SHOULD_PREP_OVERLAYS="1"
+            export SHOULD_INSTALL_CERT_MNGR="1"
+            export SHOULD_INSTALL_HYBRID="1"
+            export SHOULD_INSTALL_INGRESS="1"
+            export CLUSTER_ACTION="1"
             shift 1
             ;;
         --delete-cluster)
             export SHOULD_DELETE_CLUSTER="1"
+            shift 1
+            ;;
+        --delete-project)
+            export SHOULD_DELETE_PROJECT="1"
             shift 1
             ;;
         --help)
@@ -495,12 +455,19 @@ parse_args() {
         esac
     done
 
-    if [[ "${SHOULD_INSTALL_CLUSTER}" != "1" &&
-        "${SHOULD_PREP_OVERLAYS}" != "1" &&
-        "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
-        "${SHOULD_INSTALL_HYBRID}" != "1" &&
-        "${SHOULD_DELETE_CLUSTER}" != "1" &&
-        "${SHOULD_INSTALL_INGRESS}" != "1" ]]; then
+    if [[ "${SHOULD_CREATE_PROJECT}" == "1" ]]; then
+       export SHOULD_CREATE_APIGEE_ORG="1";
+    fi
+
+    if [[ "${SHOULD_CREATE_PROJECT}"    != "1" && 
+          "${SHOULD_CREATE_APIGEE_ORG}" != "1" &&
+          "${SHOULD_INSTALL_CLUSTER}"   != "1" &&
+          "${SHOULD_PREP_OVERLAYS}"     != "1" &&
+          "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
+          "${SHOULD_INSTALL_HYBRID}"    != "1" &&
+          "${SHOULD_INSTALL_INGRESS}"   != "1" &&
+          "${SHOULD_DELETE_CLUSTER}"    != "1" &&
+          "${SHOULD_DELETE_PROJECT}"    != "1" ]]; then
         usage
         exit
     fi

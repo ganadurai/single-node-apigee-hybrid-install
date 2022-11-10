@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
-apigee_environments = ["$ENV_NAME"]
+project_id = "$PROJECT_ID" 
 
-apigee_envgroups = {
-  $ENV_GROUP = {
-    environments = ["$ENV_NAME"]
-    hostnames    = ["$DOMAIN"]
+gke_cluster = {
+  name                      = "$CLUSTER_NAME"
+  location                  = "$REGION"
+  master_authorized_ranges  = {
+    "internet" = "0.0.0.0/0"
   }
+  master_ip_cidr            = "192.168.0.0/28"
+  region                    = "$REGION"
 }
+
+node_locations_data = ["$REGION-a"]
+
+vpc_self_link = "https://www.googleapis.com/compute/v1/projects/$PROJECT_ID/global/networks/$VPC_NETWORK_NAME"
+
+subnet_self_link = "https://www.googleapis.com/compute/v1/projects/$PROJECT_ID/regions/$REGION/subnetworks/$SUB_NETWORK_NAME"

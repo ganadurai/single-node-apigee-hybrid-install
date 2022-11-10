@@ -19,6 +19,6 @@ apigee_environments = ["eval"]
 apigee_envgroups = {
   eval-group = {
     environments = ["eval"]
-    hostnames    = ["eval.hapigee3.google.com"]
+    hostnames    = ["eval.hapigee.google.com"]
   }
 }

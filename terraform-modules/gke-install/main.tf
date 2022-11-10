@@ -14,64 +14,16 @@
  * limitations under the License.
  */
 
-locals {
-  env_groups = var.apigee_envgroups
-}
 
 data "google_client_config" "provider" {}
 
-
-module "project" {
-  source          = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/project?ref=v16.0.0"
-  name            = var.project_id
-  parent          = var.project_parent
-  billing_account = var.billing_account
-  project_create  = var.project_create
-  services = [
-    "apigee.googleapis.com",
-    "apigeeconnect.googleapis.com",
-    "cloudresourcemanager.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "pubsub.googleapis.com",
-    "sourcerepo.googleapis.com",
-  ]
-  policy_boolean = {
-    "constraints/compute.requireShieldedVm" = false
-    "constraints/iam.disableServiceAccountKeyCreation" = false
-  }
-  iam = {
-    "roles/apigee.admin" = [
-      "user:${var.org_admin}"
-    ]
-  }
-}
-
-module "vpc" {
-  source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-vpc?ref=v16.0.0"
-  project_id = module.project.project_id
-  name       = var.network
-  subnets    = var.subnets
-}
-
-
-module "apigee" {
-  source              = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/apigee-organization?ref=v16.0.0"
-  project_id          = module.project.project_id
-  analytics_region    = var.ax_region
-  runtime_type        = "HYBRID"
-  apigee_environments = var.apigee_environments
-  apigee_envgroups    = var.apigee_envgroups
-  count               = var.apigee_org_create ? 1 : 0
-}
-
 module "gke-cluster" {
   source                   = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-cluster?ref=v16.0.0"
-  project_id               = module.project.project_id
+  project_id               = var.project_id
   name                     = var.gke_cluster.name
   location                 = var.gke_cluster.location
-  network                  = module.vpc.self_link
-  subnetwork               = module.vpc.subnet_self_links["${var.gke_cluster.region}/${var.subnets[0].name}"]
+  network                  = var.vpc_self_link
+  subnetwork               = var.subnet_self_link
   secondary_range_pods     = "pods"
   secondary_range_services = "services"
   master_authorized_ranges = var.gke_cluster.master_authorized_ranges
@@ -85,9 +37,9 @@ module "gke-cluster" {
 
 module "gke-nodepool-default" {
   source             = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-nodepool?ref=v16.0.0"
-  project_id         = module.project.project_id
-  cluster_name       = module.gke-cluster.name
-  location           = module.gke-cluster.location
+  project_id         = var.project_id
+  cluster_name       = var.gke_cluster.name
+  location           = var.gke_cluster.location
   name               = "apigee-default-nodepool"
   node_machine_type  = var.node_machine_type
   node_preemptible   = var.node_preemptible_runtime
@@ -95,12 +47,15 @@ module "gke-nodepool-default" {
   node_tags          = ["apigee-hybrid"]
   node_locations     = var.node_locations_data
   autoscaling_config = var.nodepool_autoscaling_config
+  depends_on = [
+    module.gke-cluster
+  ]
 }
 
 resource "google_compute_firewall" "allow-master-webhook" {
-  project   = module.project.project_id
+  project   = var.project_id
   name      = "gke-master-apigee-webhooks"
-  network   = module.vpc.self_link
+  network   = var.vpc_self_link
   direction = "INGRESS"
   allow {
     protocol = "tcp"
@@ -114,8 +69,8 @@ resource "google_compute_firewall" "allow-master-webhook" {
 
 module "nat" {
   source         = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-cloudnat?ref=v16.0.0"
-  project_id     = module.project.project_id
+  project_id     = var.project_id
   region         = var.gke_cluster.region
   name           = "nat-${var.gke_cluster.region}"
-  router_network = module.vpc.self_link
+  router_network = var.vpc_self_link
 }

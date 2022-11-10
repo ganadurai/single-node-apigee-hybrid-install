@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-output "cluster_name" {
-  description = "Cluster name."
-  value       = module.gke-cluster.name
+ locals {
+  env_groups = var.apigee_envgroups
 }
 
-output "cluster_region" {
-  description = "Cluster location."
-  value       = module.gke-cluster.location
+module "apigee" {
+  source              = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/apigee-organization?ref=v16.0.0"
+  project_id          = var.project_id
+  analytics_region    = var.ax_region
+  runtime_type        = "HYBRID"
+  apigee_environments = var.apigee_environments
+  apigee_envgroups    = var.apigee_envgroups
+  count               = var.apigee_org_create ? 1 : 0
 }
-

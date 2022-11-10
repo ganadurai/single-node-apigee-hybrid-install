@@ -67,6 +67,11 @@ variable "REGION" {
   type        = string
 }
 
+variable "ZONE" {
+  description = "Deployment region"
+  type        = string
+}
+
 
 variable "network" {
   description = "Network name to be used for hosting the instance."
@@ -121,7 +126,7 @@ variable "hybrid_compute_instance" {
 }
 
 variable "exclude_startup_script" {
-  description = "Create VPC. When set to false, uses a data source to reference existing VPC."
+  description = "Create VPC. When set to false, startup script not included and executed at vm start"
   type        = bool
   default     = false
 }

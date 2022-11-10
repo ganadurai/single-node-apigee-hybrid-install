@@ -1,29 +1,26 @@
-# Single VM (all-in-one) Hybrid Installation
+# Single Node (all-in-one) Hybrid Installation
 
-Are you worried about the cost associated with setting up Apigee Hybrid for simple tests and validation? As per the [installation documents](https://cloud.google.com/apigee/docs/hybrid/v1.8/install-create-cluster.html) you need 6 nodes (3 stateful + 3 stateless). This would cost you more than $800 per month. This tool customizes the pod resources (CPU and Memory) to a minimum and you can set up Apigee Hybrid (all-in-one) on a Single node (4vCPU, 16GB RAM). 
+For executing simple tests or validation in a Hybrid deployment are you worried about the cost associated and the time consumed in the setups?? 
 
-If deploying in a GCP environment, this tool can execute the following: setting up a GCP Project, deploying Apigee org, deployingGKE cluster with a single node and validating the setup. If you prefer to deploy GKE cluster on an existing GCP project and Apigee org, its supported too
+This tool solves these concerns. It overrides the resource needs for the Hybrid containers and make it possible to deploy on a single VM node (4vCPU, 16GB RAM). This makes the cost associated with Hybird installation less than $100 per month instead of more than $800.
 
-This tool also provides end-to-end automation of setting up Hybrid on a simple VM instance thats **not** attached to a Kubernetes cluster.
+This tool also provides end-to-end automation of creating a GCP project, configuring an Apigee org and deploying Hybrid on a instance.
 
-This is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide). This deployment model is aimed for just  testing and sandbox purposes, **NOT for production deployments**. Also please note, this set up is **NOT covered under any form of Google support**. 
+This implementation is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide). This deployment model is aimed for just testing and sandbox purposes, **NOT for production deployments**. Also please note, this set up is **NOT covered under any form of Google support**. 
 
 ## Modes of deployment
 
-* [Deploy single node GKE with terraform and install Apigee Hybrid](#gke-deploy-with-terraform-and-hybrid-install)
+* [Deploy Apigee Hybrid on a single node GKE cluster](#apigee-hybrid-on-a-single-node-gke-cluster)
 
-* [Deploy gcp VM instance with terraform and install Apigee Hybrid](#gcp-vm-deploy-with-terraform-and-hybrid-install)
+* [Deploy Apigee Hybrid on a single VM instance](#apigee-hybrid-on-a-single-vm-instance)
 
-* [On a existing VM Instance, install Apigee Hybrid](#standalone-vm-hybrid-install)
-
-
-## GKE Deploy (with terraform) and Hybrid Install
+## Apigee Hybrid on a single node GKE cluster
 
 ### Prerequisites
 
-**Recommended:**  run the GKE installation from within the Cloudshell of GCP console. All the needed tools is already configured. 
+Execute this toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
 
-If following this installation other than CloudShell, follow the next two steps to get the needed tools and libraries.
+If following this installation outside of CloudShell, follow the next two steps to get the needed tools and libraries.
 
 1. Install Terraform on the machine that initiates the install. [Linux Install](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
@@ -40,9 +37,6 @@ If following this installation other than CloudShell, follow the next two steps 
     sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
     tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
 
-    # Host entry
-    sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts";
-
     # Docker Install
     sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
@@ -55,6 +49,7 @@ If following this installation other than CloudShell, follow the next two steps 
 
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
     ```
+    
 ### Download install libraries
 
 1. Prepare the directories
@@ -87,9 +82,8 @@ If following this installation other than CloudShell, follow the next two steps 
     export ENV_NAME=<environment name>
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
-    export APIGEE_NAMESPACE="apigee"
     export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-    export BILLING_ACCOUNT_ID=<billing account id> #If creating new GCP project;
+    export BILLING_ACCOUNT_ID=<billing account-id> #Required, if opted to let the tool to spin up a GCP project
     ```
 
 1. Execute the gcloud auth and fetch the token
@@ -98,54 +92,47 @@ If following this installation other than CloudShell, follow the next two steps 
     ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
-    TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+    TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
 
 ### Install and Validate
 
-This install can be done on a brand new GCP project and Apigee org setup. OR, can be installed on a existing GCP project and Apigee org. 
-    
-1. To create new project, setup apigee org, create single node GKE cluster and install Hybrid runtime. execute the below command:  (takes around ~30 minutes)
-    ```bash
-    ./install-gke-apigee-hybrid.sh \
-    --gcp-project-id $PROJECT_ID \
-    --org $ORG_NAME \
-    --org-admin $ORG_ADMIN \
-    --env $ENV_NAME \
-    --envgroup $ENV_GROUP \
-    --domain $DOMAIN \
-    --cluster-name $CLUSTER_NAME \
-    --cluster-region $REGION \
-    --token $TOKEN \
-    --project-create true \
-    --org-create true \
-    --billing-account-id $BILLING_ACCOUNT_ID \
-    --setup-all
-    ```
-
-
-1. Execute the hybrid runtime install on an existing project with apigee hybrid org configured already. (takes around ~20 minutes)
+1. Step into the install directory
     ```bash
     cd $WORK_DIR/scripts
-    ./install-gke-apigee-hybrid.sh \
-    --gcp-project-id $PROJECT_ID \
-    --org $ORG_NAME \
-    --org-admin $ORG_ADMIN \
-    --env $ENV_NAME \
-    --envgroup $ENV_GROUP \
-    --domain $DOMAIN \
-    --cluster-name $CLUSTER_NAME \
-    --cluster-region $REGION \
-    --token $TOKEN \
-    --setup-all
+    ```
+    
+1. Choose from one of the below deployment models:
+
+* Create GCP project, Apigee Org and deploy Apigee Hybrid
+    ```bash
+    ./install-gke-apigee-hybrid.sh --project-create --setup-all
+    ```
+    
+* Create Apigee Org within an existing GCP Project and deploy Apigee Hybrid.
+    ```bash
+    ./install-gke-apigee-hybrid.sh --apigee-org-create --setup-all
     ```
 
+* Deploy Apigee Hybrid on an existing GCP project with Apigee Org instantiated already.
+    ```bash
+    ./install-gke-apigee-hybrid.sh --setup-all
+    ```
+    
+1. Post installation, log into the cluster and view the pods.
+    ```bash
+    gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
+    kubectl -n apigee get pods
+    ```
 
-## GCP VM Deploy (with terraform) and Hybrid Install
+## Apigee Hybrid on a single VM instance
 
-### Prerequisites
+* [Execute the installation on a GCP VM.](#gcp-vm-installation)
+* [Execute the installation on Standalone VM.](#standalone-vm-hybrid-install)
+ 
+### GCP VM Installation
 
-1. Install Terraform on the machine that initiates the install.
+1. Execute this installation toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
 
 1. Setup Environment variables
     ```bash
@@ -156,7 +143,7 @@ This install can be done on a brand new GCP project and Apigee org setup. OR, ca
     export ENV_NAME=<environment name>
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
-    export APIGEE_NAMESPACE="apigee"
+    export BILLING_ACCOUNT_ID=<billing account-id> #Required, if opted to let the tool to spin up a GCP project
     ```
 
 1. Execute the gcloud auth and fetch the token
@@ -165,7 +152,7 @@ This install can be done on a brand new GCP project and Apigee org setup. OR, ca
     ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
-    TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+    TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
 
 1. Prepare the directories
@@ -181,14 +168,21 @@ This install can be done on a brand new GCP project and Apigee org setup. OR, ca
     export WORK_DIR=$(pwd)
     ```
 
-1. Execute the terraform commands
+1. Execute installation
     ```bash
-    $WORK_DIR/scripts/deploy-gcp-vm.sh
+    cd $WORK_DIR/scripts/
+    
+    # If you prefer the VM to be created with an new Project with Apigee org configured use the commande below
+    ./deploy-gcp-vm.sh --project-create --create-vm
+    
+    # If you prefer the VM to be created within an existing Project with Apigee org
+    ./deploy-gcp-vm.sh --create-vm
+    
     ```
 
-1. Checkout [gcp cloud logging](https://console.cloud.google.com/logs/query;query=resource.type%3D%22gce_instance%22%0Astartup-script%20exit%20status%200) for the project where the VM is created, wait for startup script completion for installation of Docker (should see an entry 'startup-script exit status 0'. Should not take more than 3 minutes)
+1. Checkout the instructions at the end of the installation output. 
 
-1. Execute the installation on the deployed VM, [follow the steps starting here.](#install-and-validation)
+1. SSH into the created VM to complete the Hybrid installation, [follow the steps starting here.](#install-and-validation)
     
 
 ## Standalone VM Hybrid Install
@@ -222,7 +216,7 @@ This install can be done on a brand new GCP project and Apigee org setup. OR, ca
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
     ```
 
-1. Confirm the below docker command executed successfully. If not make sure docker is installed (if above step is followed for docker install, relaunch the ssh session)
+1. Confirm docker is ready and running on the VM instance
     ```bash
     docker images
     ```
@@ -259,7 +253,6 @@ This install can be done on a brand new GCP project and Apigee org setup. OR, ca
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
     export ORG_ADMIN=<gcp account email>
-    export APIGEE_NAMESPACE="apigee"
     ```
 
 ### Install and Validation
@@ -267,31 +260,22 @@ This install can be done on a brand new GCP project and Apigee org setup. OR, ca
 1. Execute the gcloud auth and fetch the token
     ```bash
     gcloud config set project $PROJECT_ID
+    ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
-    TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+    TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
 
 1. Run the execution, this installs the needed libraries, K3D cluster, creates the overlay files, deploy the Hybrid containers and Ingress Envoy proxy. (takes around ~20 minutes)
     ```bash
     cd $WORK_DIR/scripts
     
-    ./install-vm-apigee-hybrid.sh \
-    --gcp-project-id $PROJECT_ID \
-    --org $ORG_NAME \
-    --org-admin $ORG_ADMIN \
-    --env $ENV_NAME \
-    --envgroup $ENV_GROUP \
-    --domain $DOMAIN \
-    --cluster-name $CLUSTER_NAME \
-    --cluster-region $REGION \
-    --token $TOKEN \
-    --setup-all
+    ./install-vm-apigee-hybrid.sh --setup-all
     ```
   
 1. Test and validate the execution of proxy within the hybrid installation. 
     ```bash
-    curl localhost:30080/hello-world -H 'Host: $DOMAIN'
+    curl localhost:30080/apigee-hybrid-helloworld -H 'Host: $DOMAIN'
     ```
 
 ## Tunning of pod resource requests

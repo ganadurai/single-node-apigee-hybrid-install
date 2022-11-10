@@ -55,26 +55,6 @@ function fetchSingleNodeInstall() {
   sudo chmod 777 -R "$WORK_DIR"
 }
 
-function prepEnvVarsFile() {
-  touch "$WORK_DIR"/initvars.sh
-  {
-    echo "#!/bin/bash"
-    echo ""
-    echo "set -e"
-    echo ""
-    echo "export APIGEE_NAMESPACE=${VAR_APIGEE_NAMESPACE}"
-    echo "export ENV_NAME=${VAR_ENV_NAME}"
-    echo "export ENV_GROUP=${VAR_ENV_GROUP}"
-    echo "export DOMAIN=${VAR_DOMAIN}"
-    echo "export REGION=${VAR_REGION}"
-    echo ""
-    echo "export PROJECT_ID=${VAR_PROJECT_ID}"
-    echo "export ORG_NAME=${VAR_ORG_NAME}"
-    echo "export CLUSTER_NAME=${VAR_CLUSTER_NAME}"
-  } >> "$WORK_DIR"/initvars.sh
-  chmod +x "$WORK_DIR"/initvars.sh
-}
-
 function setEnvVariables() {
   {
     echo "export APIGEE_NAMESPACE=${VAR_APIGEE_NAMESPACE}"
@@ -114,12 +94,5 @@ setEnvVariables
 
 echo "Step- Docker Installation";
 installDocker;
-
-
-#echo "Step- Prep vars file";
-#prepEnvVarsFile
-
-#echo "Step- Launch install-core"
-#"$WORK_DIR"/scripts/install-core.sh
 
 

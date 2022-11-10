@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-output "cluster_name" {
-  description = "Cluster name."
-  value       = module.gke-cluster.name
+output "vpc_self_link" {
+  description = "Project VPC Link"
+  value       = module.vpc.self_link
 }
 
-output "cluster_region" {
-  description = "Cluster location."
-  value       = module.gke-cluster.location
+output "subnet_self_links" {
+  description = "Subnet self links"
+  value       = module.vpc.subnet_self_links["${var.region}/${var.subnets[0].name}"]
 }
 
+output "vpc_network_name" {
+  description = "VPC network name"
+  value       = local.vpc_network_name
+}
+
+output "sub_network_name" {
+  description = "Subnet name"
+  value       = local.sub_network_name
+}

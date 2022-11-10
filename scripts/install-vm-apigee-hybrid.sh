@@ -43,7 +43,8 @@ function logIntoK3DCluster() {
     echo "Error in starting the K3D cluster on the instance";
     exit 1;
   else
-    echo "Successfully started K3D cluster"
+    echo "K3D cluster running, logging in..."
+    KUBECONFIG=$(k3d kubeconfig write hybrid-cluster); export KUBECONFIG
   fi
 }
 
@@ -57,7 +58,7 @@ function hybridPostInstallEnvoyIngressSetup() {
   echo "$DOCKER_REGISTRY_PORT"
 
   
-  RESULT=$(kubectl get namespace | { grep envoy-ns || true; } | wc -l); echo "$RESULT"
+  RESULT=$(kubectl get namespace | { grep envoy-ns || true; } | wc -l);
   if [[ $RESULT -eq 0 ]]; then
     kubectl create namespace envoy-ns
   fi
@@ -103,13 +104,17 @@ function hybridPostInstallEnvoyIngressValidation() {
 
 parse_args "${@}"
 
+gcloud config set project "$PROJECT_ID"
+gcloud auth login "$ORG_ADMIN"
+TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+
 echo "Step- Validate Docker Install"
 validateDockerInstall
 
 echo "Step- Validatevars";
 validateVars
 
-if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER != 0 ]]; then
+if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   echo "Step- Start K3D cluster";
   installK3DCluster;
 fi
