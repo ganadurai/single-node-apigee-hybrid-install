@@ -10,9 +10,9 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ## Modes of deployment
 
-* [Deploy Apigee Hybrid on a single node GKE cluster](#gke-deploy-with-terraform-and-hybrid-install)
+* [Deploy Apigee Hybrid on a single node GKE cluster](#apigee-hybrid-on-a-single-node-gke-cluster)
 
-* [Deploy Apigee Hybrid on a single VM instance](#gcp-vm-deploy-with-terraform-and-hybrid-install)
+* [Deploy Apigee Hybrid on a single VM instance](#apigee-hybrid-on-a-single-vm-instance)
 
 ## Apigee Hybrid on a single node GKE cluster
 
