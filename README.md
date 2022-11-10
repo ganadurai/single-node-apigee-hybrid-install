@@ -101,6 +101,8 @@ If following this installation outside of CloudShell, follow the next two steps 
     ```bash
     cd $WORK_DIR/scripts
     ```
+    
+1. Choose from one of the below deployment models:
 
 * Execute Hybrid installation with a new GCP project and Apigee org created within it.
     ```bash
@@ -116,7 +118,12 @@ If following this installation outside of CloudShell, follow the next two steps 
     ```bash
     ./install-gke-apigee-hybrid.sh --setup-all
     ```
-
+    
+1. Post installation, log into the cluster and view the pods.
+    ```bash
+    gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
+    kubectl -n apigee get pods
+    ```
 
 ## Apigee Hybrid on a single VM instance
 
