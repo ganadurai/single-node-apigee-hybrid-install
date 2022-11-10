@@ -16,6 +16,6 @@
 
 output "project_id" {
   description = "Project Id"
-  value       = module.apigee.project_id
+  value       = module.apigee[0].project_id
 }
 
