@@ -152,7 +152,7 @@ function installApigeeOrg() {
   if [ -z "$last_project_id" ] || [ last_project_id != "$PROJECT_ID" ]; then
     echo "Clearing up the terraform state"
     rm -Rf .terraform*
-    rm terraform.tfstate
+    rm -f terraform.tfstate
   fi
   terraform init
   terraform plan -var "apigee_org_create=true" \
