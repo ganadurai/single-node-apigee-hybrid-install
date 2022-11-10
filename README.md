@@ -104,17 +104,17 @@ If following this installation outside of CloudShell, follow the next two steps 
     
 1. Choose from one of the below deployment models:
 
-* Execute Hybrid installation with a new GCP project and Apigee org created within it.
+* Create GCP project, Apigee Org and deploy Apigee Hybrid
     ```bash
     ./install-gke-apigee-hybrid.sh --project-create --setup-all
     ```
     
-* Execute Hybrid installation on an existing GCP project with Apigee org created within it.
+* Create Apigee Org within an existing GCP Project and deploy Apigee Hybrid.
     ```bash
     ./install-gke-apigee-hybrid.sh --apigee-org-create --setup-all
     ```
 
-* Execute Hybrid installation on an existing GCP project with Apigee hybrid org instantiated already.
+* Deploy Apigee Hybrid on an existing GCP project with Apigee Org instantiated already.
     ```bash
     ./install-gke-apigee-hybrid.sh --setup-all
     ```
@@ -127,9 +127,6 @@ If following this installation outside of CloudShell, follow the next two steps 
 
 ## Apigee Hybrid on a single VM instance
 
-Minimum Spec needed :  4vCPU, 16GB RAM
-
-Choose one from the two options below:
 * [Execute the installation on a GCP VM.](#gcp-vm-installation)
 * [Execute the installation on Standalone VM.](#standalone-vm-hybrid-install)
  
