@@ -12,9 +12,9 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 * [Deploy Apigee Hybrid on a single node GKE cluster](#gke-deploy-with-terraform-and-hybrid-install)
 
-* [Deploy Apigee Hybrid on a VM instance](#gcp-vm-deploy-with-terraform-and-hybrid-install)
+* [Deploy Apigee Hybrid on a single VM instance](#gcp-vm-deploy-with-terraform-and-hybrid-install)
 
-## GKE Deploy (with terraform) and Hybrid Install
+## Apigee Hybrid on a single node GKE cluster
 
 ### Prerequisites
 
@@ -118,7 +118,7 @@ If following this installation outside of CloudShell, follow the next two steps 
     ```
 
 
-## Deploy Apigee Hybrid on VM instance
+## Apigee Hybrid on a single VM instance
 
 Minimum Spec needed :  4vCPU, 16GB RAM
 
