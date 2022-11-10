@@ -105,11 +105,11 @@ parse_args() {
 
 function checkAndApplyOrgconstranints() {
     echo "checking constraints.."
-    gcloud alpha resource-manager org-policies describe \
-        constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | grep ALLOW
-    RESULT=$?
-    echo "RESULT=$RESULT"
-    if [[ $RESULT -ne 0 ]]; then
+
+    
+    RESULT=$(gcloud alpha resource-manager org-policies describe \
+        constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l); echo "$RESULT"
+    if [[ $RESULT -eq 0 ]]; then
         gcloud alpha resource-manager org-policies set-policy \
             --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
         echo "Waiting 30s for org-policy take into effect! "
