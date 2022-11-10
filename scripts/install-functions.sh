@@ -328,43 +328,13 @@ function fatal() {
 # Print help text.
 ################################################################################
 usage() {
-    local FLAGS_1 FLAGS_2
-
-    # Flags that require an argument
-    FLAGS_1="$(
-        cat <<EOF
-    --org             <ORGANIZATION_NAME>           Set the Apigee Organization.
-                                                    If not set, the project configured
-                                                    in gcloud will be used.
-    --env             <ENVIRONMENT_NAME>            Set the Apigee Environment.
-                                                    If not set, a random environment
-                                                    within the organization will be
-                                                    selected.
-    --envgroup        <ENVIRONMENT_GROUP_NAME>      Set the Apigee Environment Group.
-                                                    If not set, a random environment
-                                                    group within the organization
-                                                    will be selected.
-    --domain          <ENVIRONMENT_GROUP_HOSTNAME>  Set the hostname. This will be
-                                                    used to generate self signed
-                                                    certificates.
-    --namespace       <APIGEE_NAMESPACE>            The name of the namespace where
-                                                    apigee components will be installed.
-                                                    Defaults to "apigee".
-    --cluster-name    <CLUSTER_NAME>                The Kubernetes cluster name.
-    --cluster-region  <CLUSTER_REGION>              The region in which the
-                                                    Kubernetes cluster resides.
-    --gcp-project-id  <GCP_PROJECT_ID>              The GCP Project ID where the
-                                                    Kubernetes cluster exists.
-                                                    This can be different from
-                                                    the Apigee Organization name.
-    --token           <GCP_AUTH_TOKEN>              The GCP Project User Admin Token
-                                                    Check README for details.
-EOF
-    )"
+    local FLAGS_2
 
     # Flags that DON'T require an argument
     FLAGS_2="$(
         cat <<EOF
+    --project-create             Creates GCP project and enables the needed apis for setting up apigee
+    --apigee-org-create          Creates Apigee org within the assigned project.
     --create-cluster             Creates the GKE cluster or the VM instance that hosts
                                  container infrastructure.
     --skip-create-cluster        Skips creating the GKE cluster or the VM instance 
@@ -383,28 +353,20 @@ EOF
 
     cat <<EOF
     
-USAGE: ${SCRIPT_NAME} --cluster-name <CLUSTER_NAME> --cluster-region <CLUSTER_REGION> [FLAGS]...
-
 Helps with the installation of Apigee Hybrid. Can be used to either automate the
 complete installation, or execute individual tasks
-
-FLAGS that expect an argument:
-
-$FLAGS_1
-
-FLAGS without argument:
 
 $FLAGS_2
 
 EXAMPLES:
 
-    Setup everything:
+    Setsup everything on a existing project with an apigee org configured already:
         
-        $ ./${SCRIPT_NAME} --org apigee-hybrid --env eval --envgroup eval-group --domain eval.apigee.com --cluster-name hybrid-cluster --cluster-region us-west1 --setup-all
+        $ ./${SCRIPT_NAME} --setup-all
         
-    Only apply configuration and enable verbose logging:
+    Creates a new GCP project, configures Apigee org and installs Apigee Hybrid
 
-        $ ./${SCRIPT_NAME} --org apigee-hybrid --env eval --envgroup eval-group --domain eval.apigee.com --cluster-name hybrid-cluster --cluster-region us-west1 --create-cluster
+        $ ./${SCRIPT_NAME} --project-create --setup-all
 
 EOF
 }
