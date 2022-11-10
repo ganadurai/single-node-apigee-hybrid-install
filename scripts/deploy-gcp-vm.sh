@@ -184,6 +184,8 @@ if [[ $SHOULD_CREATE_VM == "1" ]]; then
   echo "Access the below url to confirm the existence of log entry 'startup-script exit status 0' this validates the bootup of the instance is successful (approx wait time 2mts)"
   echo "https://console.cloud.google.com/logs/query;query=startup-script%20exit%20status%200;?referrer=search&project=$PROJECT_ID"
   echo ""
+  echo "Waiting 2m for the vm to boot up.."
+  sleep 120s
   echo "Access the ssh console of the instance"
   echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$REGION-a/instances/vm-hybrid-instance-1"
   echo ""
