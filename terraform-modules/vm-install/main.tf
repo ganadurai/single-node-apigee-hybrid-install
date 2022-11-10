@@ -17,7 +17,7 @@
 locals {
   instance_name = var.hybrid_compute_instance.name
   instance_machine_type = var.hybrid_compute_instance.machine_type
-  instance_zone = var.hybrid_compute_instance.zone
+  instance_zone = var.ZONE
   instance_tags = var.hybrid_compute_instance.tags
   instance_boot_image = var.hybrid_compute_instance.boot_image
   instance_boot_size = var.hybrid_compute_instance.boot_size

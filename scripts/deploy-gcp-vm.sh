@@ -138,7 +138,8 @@ function createDestroyVM() {
         -var="ENV_NAME=$ENV_NAME" \
         -var="ENV_GROUP=$ENV_GROUP" \
         -var="DOMAIN=$DOMAIN" \
-        -var="REGION=$REGION";
+        -var="REGION=$REGION" \
+        -var="ZONE=$REGION-a";
     terraform "$1" -auto-approve \
         -var="PROJECT_ID=${PROJECT_ID}" \
         -var="ORG_ADMIN=${ORG_ADMIN}" \
@@ -149,9 +150,19 @@ function createDestroyVM() {
         -var="ENV_NAME=$ENV_NAME" \
         -var="ENV_GROUP=$ENV_GROUP" \
         -var="DOMAIN=$DOMAIN" \
-        -var="REGION=$REGION";
+        -var="REGION=$REGION" \
+        -var="ZONE=$REGION-a";
 
-  echo "$PROJECT_ID" > install-state.txt
+    echo "$PROJECT_ID" > install-state.txt
+
+    banner_info "Step- Validation and Next Steps...";
+    echo "Access the below url to confirm the existence of log entry confirming the bootup of the instance (approx wait time 2mts)"
+    echo "https://console.cloud.google.com/logs/query;query=startup-script%20exit%20status%200;?referrer=search&project=$PROJECT_ID"
+    echo ""
+    echo "Access the ssh console of the instance"
+    echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$REGION-a/instances/vm-hybrid-instance-1"
+
+
 }
 
 parse_args "${@}"

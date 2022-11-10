@@ -67,6 +67,11 @@ variable "REGION" {
   type        = string
 }
 
+variable "ZONE" {
+  description = "Deployment region"
+  type        = string
+}
+
 
 variable "network" {
   description = "Network name to be used for hosting the instance."

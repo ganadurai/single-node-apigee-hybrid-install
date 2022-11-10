@@ -40,9 +40,6 @@ If following this installation other than CloudShell, follow the next two steps 
     sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
     tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
 
-    # Host entry
-    sudo -- sh -c "echo 127.0.0.1       docker-registry >> /etc/hosts";
-
     # Docker Install
     sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -

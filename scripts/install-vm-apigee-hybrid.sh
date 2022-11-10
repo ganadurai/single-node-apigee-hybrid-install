@@ -43,7 +43,8 @@ function logIntoK3DCluster() {
     echo "Error in starting the K3D cluster on the instance";
     exit 1;
   else
-    echo "Successfully started K3D cluster"
+    echo "K3D cluster running, logging in..."
+    KUBECONFIG=$(k3d kubeconfig write hybrid-cluster); export KUBECONFIG
   fi
 }
 
