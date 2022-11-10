@@ -115,8 +115,10 @@ if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0
   installDeleteCluster "apply";
 fi
 
-banner_info "Step- Log into cluster";
-logIntoCluster;
+if [[ $CLUSTER_ACTION == "1" ]]; then
+  banner_info "Step- Log into cluster";
+  logIntoCluster;
+fi
 
 if [[ $SHOULD_PREP_OVERLAYS == "1" ]]; then
   banner_info "Step- Overlays prep for Install";

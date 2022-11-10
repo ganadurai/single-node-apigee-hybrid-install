@@ -417,6 +417,7 @@ arg_required() {
 ################################################################################
 parse_args() {
     export SHOULD_SKIP_INSTALL_CLUSTER="0"
+    export CLUSTER_ACTION="0"
     while [[ $# != 0 ]]; do
         case "${1}" in
         --project-create)
@@ -441,14 +442,17 @@ parse_args() {
             ;;
         --install-cert-manager)
             export SHOULD_INSTALL_CERT_MNGR="1"
+            export CLUSTER_ACTION="1"
             shift 1
             ;;
         --install-hybrid)
             export SHOULD_INSTALL_HYBRID="1"
+            export CLUSTER_ACTION="1"
             shift 1
             ;;
         --install-ingress)
             export SHOULD_INSTALL_INGRESS="1"
+            export CLUSTER_ACTION="1"
             shift 1
             ;;
         --setup-all)
@@ -457,6 +461,7 @@ parse_args() {
             export SHOULD_INSTALL_CERT_MNGR="1"
             export SHOULD_INSTALL_HYBRID="1"
             export SHOULD_INSTALL_INGRESS="1"
+            export CLUSTER_ACTION="1"
             shift 1
             ;;
         --delete-cluster)
