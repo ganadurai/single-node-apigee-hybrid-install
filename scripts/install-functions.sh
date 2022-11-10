@@ -290,7 +290,7 @@ function deploySampleProxyForValidation() {
   export MGMT_HOST="https://apigee.googleapis.com"
   PROXY_REVISION=$(curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/apis?action=import&name=apigee-hybrid-helloworld" \
         -H "Authorization: Bearer $TOKEN" --form file=@"$WORK_DIR/apigee-hybrid-helloworld.zip" | \
-    jq '.revision ');
+    jq '.revision'|cut -d '"' -f 2);
   if [[ -z $PROXY_REVISION ]]; then
     echo "Error in uploading the sample proxy to management api endpoint : $MGMT_HOST"
     exit 1;
