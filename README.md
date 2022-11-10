@@ -18,7 +18,7 @@ This implementation is an extension to the automated [Hybrid installation](https
 
 ### Prerequisites
 
-Execute this install toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
+Execute this toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
 
 If following this installation outside of CloudShell, follow the next two steps to get the needed tools and libraries.
 
