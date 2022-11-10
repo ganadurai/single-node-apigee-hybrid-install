@@ -159,7 +159,8 @@ function installApigeeOrg() {
     -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
   terraform apply -auto-approve -var "apigee_org_create=true" \
     -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
-  "$(terraform output -raw project_id)" > install-state.txt
+  
+  echo "$PROJECT_ID" > install-state.txt
 }
 
 function fetchHybridInstall() {

@@ -44,7 +44,7 @@ function installDeleteCluster() {
   terraform "$1" -auto-approve \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
 
-  "$(terraform output -raw project_id)" > install-state.txt
+  echo "$PROJECT_ID" > install-state.txt
 }
 
 function logIntoCluster() {
