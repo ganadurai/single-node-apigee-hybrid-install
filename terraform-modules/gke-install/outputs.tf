@@ -24,8 +24,3 @@ output "cluster_region" {
   value       = module.gke-cluster.location
 }
 
-output "project_id" {
-  description = "Project Id"
-  value       = module.gke-cluster.project_id
-}
-
