@@ -108,7 +108,7 @@ function checkAndApplyOrgconstranints() {
 
     
     RESULT=$(gcloud alpha resource-manager org-policies describe \
-        constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l); echo "$RESULT"
+        constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l);
     if [[ $RESULT -eq 0 ]]; then
         gcloud alpha resource-manager org-policies set-policy \
             --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
@@ -121,7 +121,7 @@ function createDestroyVM() {
     cd "$WORK_DIR/terraform-modules/vm-install"
 
     last_project_id=$(cat install-state.txt)
-    if [ -z "$last_project_id" ] || [ last_project_id != "$PROJECT_ID" ]; then
+    if [ "$last_project_id" != "" ] || [ "$last_project_id" != "$PROJECT_ID" ]; then
         echo "Clearing up the terraform state"
         rm -Rf .terraform*
         rm -f terraform.tfstate

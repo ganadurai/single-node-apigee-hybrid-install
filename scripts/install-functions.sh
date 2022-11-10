@@ -149,7 +149,7 @@ function installApigeeOrg() {
   cd "$WORK_DIR"/terraform-modules/apigee-install
 
   last_project_id=$(cat install-state.txt)
-  if [ -z "$last_project_id" ] || [ last_project_id != "$PROJECT_ID" ]; then
+  if [ "$last_project_id" != "" ] || [ "$last_project_id" != "$PROJECT_ID" ]; then
     echo "Clearing up the terraform state"
     rm -Rf .terraform*
     rm -f terraform.tfstate
