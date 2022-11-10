@@ -104,6 +104,7 @@ parse_args() {
 }
 
 function checkAndApplyOrgconstranints() {
+    echo "checking constraints.."
     gcloud alpha resource-manager org-policies describe \
         constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | grep ALLOW
     RESULT=$?
