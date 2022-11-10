@@ -1,4 +1,4 @@
-# Single VM (all-in-one) Hybrid Installation
+# Single Node (all-in-one) Hybrid Installation
 
 Are you worried about the cost associated with setting up Apigee Hybrid for simple tests and validation? As per the [installation documents](https://cloud.google.com/apigee/docs/hybrid/v1.8/install-create-cluster.html) you need 6 nodes (3 stateful + 3 stateless). This would cost you more than $800 per month. This tool customizes the pod resources (CPU and Memory) to a minimum and you can set up Apigee Hybrid (all-in-one) on a Single node (4vCPU, 16GB RAM). 
 
@@ -10,9 +10,9 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ## Modes of deployment
 
-* [Deploy Apigee Hybrid on a single node GKE](#gke-deploy-with-terraform-and-hybrid-install)
+* [Deploy Apigee Hybrid on a single node GKE cluster](#gke-deploy-with-terraform-and-hybrid-install)
 
-* [Deploy Apigee Hybrid on VM instance](#gcp-vm-deploy-with-terraform-and-hybrid-install)
+* [Deploy Apigee Hybrid on a VM instance](#gcp-vm-deploy-with-terraform-and-hybrid-install)
 
 ## GKE Deploy (with terraform) and Hybrid Install
 
