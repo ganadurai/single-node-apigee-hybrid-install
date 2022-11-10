@@ -16,6 +16,6 @@
 
 output "project_id" {
   description = "Project Id"
-  value       = module.gke-cluster.project_id
+  value       = module.apigee.project_id
 }
 
