@@ -1,12 +1,12 @@
 # Single Node (all-in-one) Hybrid Installation
 
-Are you worried about the cost associated with setting up Apigee Hybrid for simple tests and validation? As per the [installation documents](https://cloud.google.com/apigee/docs/hybrid/v1.8/install-create-cluster.html) you need 6 nodes (3 stateful + 3 stateless). This would cost you more than $800 per month. This tool customizes the pod resources (CPU and Memory) to a minimum and you can set up Apigee Hybrid (all-in-one) on a Single node (4vCPU, 16GB RAM). 
+For executing simple tests or validation in a Hybrid deployment are you worried about the cost associated and the time consumed in the setups?? 
 
-If deploying in a GCP environment, this tool can execute the following: setting up a GCP Project, deploying Apigee org, deployingGKE cluster with a single node and validating the setup. If you prefer to deploy GKE cluster on an existing GCP project and Apigee org, its supported too
+This tool solves these concerns. It overrides the resource needs for the Hybrid containers and make it possible to deploy on a single VM node (4vCPU, 16GB RAM). This makes the cost associated with Hybird installation less than $100 per month instead of more than $800.
 
-This tool also provides end-to-end automation of setting up Hybrid on a simple VM instance thats **not** attached to a Kubernetes cluster.
+This tool also provides end-to-end automation of creating a GCP project, configuring an Apigee org and deploying Hybrid on the instance.
 
-This is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide). This deployment model is aimed for just  testing and sandbox purposes, **NOT for production deployments**. Also please note, this set up is **NOT covered under any form of Google support**. 
+This implementation is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide). This deployment model is aimed for just testing and sandbox purposes, **NOT for production deployments**. Also please note, this set up is **NOT covered under any form of Google support**. 
 
 ## Modes of deployment
 
