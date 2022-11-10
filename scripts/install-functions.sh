@@ -295,7 +295,7 @@ function deploySampleProxyForValidation() {
     echo "Error in uploading the sample proxy to management api endpoint : $MGMT_HOST"
     exit 1;
   fi
-  curl -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/environments/eval/apis/apigee-hybrid-helloworld/revisions/$PROXY_REVISION/deployments?override=true" \
+  curl -s -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/environments/eval/apis/apigee-hybrid-helloworld/revisions/$PROXY_REVISION/deployments?override=true" \
         -H "Authorization: Bearer $TOKEN"
   echo "Waiting for proxy deployment and ready for testing, 60s"
   sleep 60

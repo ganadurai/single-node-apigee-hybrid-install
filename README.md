@@ -10,20 +10,17 @@ This is an extension to the automated [Hybrid installation](https://cloud.google
 
 ## Modes of deployment
 
-* [Deploy single node GKE with terraform and install Apigee Hybrid](#gke-deploy-with-terraform-and-hybrid-install)
+* [Deploy Apigee Hybrid on a single node GKE](#gke-deploy-with-terraform-and-hybrid-install)
 
-* [Deploy gcp VM instance with terraform and install Apigee Hybrid](#gcp-vm-deploy-with-terraform-and-hybrid-install)
-
-* [On a existing VM Instance, install Apigee Hybrid](#standalone-vm-hybrid-install)
-
+* [Deploy Apigee Hybrid on VM instance](#gcp-vm-deploy-with-terraform-and-hybrid-install)
 
 ## GKE Deploy (with terraform) and Hybrid Install
 
 ### Prerequisites
 
-**Recommended:**  run the GKE installation from within the Cloudshell of GCP console. All the needed tools is already configured. 
+Execute this install toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
 
-If following this installation other than CloudShell, follow the next two steps to get the needed tools and libraries.
+If following this installation outside of CloudShell, follow the next two steps to get the needed tools and libraries.
 
 1. Install Terraform on the machine that initiates the install. [Linux Install](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
@@ -52,6 +49,7 @@ If following this installation other than CloudShell, follow the next two steps 
 
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
     ```
+    
 ### Download install libraries
 
 1. Prepare the directories
@@ -100,41 +98,24 @@ If following this installation other than CloudShell, follow the next two steps 
 
 ### Install and Validate
 
-This install can be done on a brand new GCP project and Apigee org setup. OR, can be installed on a existing GCP project and Apigee org. 
-    
-1. To create new project, setup apigee org, create single node GKE cluster and install Hybrid runtime. execute the below command:  (takes around ~30 minutes)
-    ```bash
-    ./install-gke-apigee-hybrid.sh \
-    --gcp-project-id $PROJECT_ID \
-    --org $ORG_NAME \
-    --org-admin $ORG_ADMIN \
-    --env $ENV_NAME \
-    --envgroup $ENV_GROUP \
-    --domain $DOMAIN \
-    --cluster-name $CLUSTER_NAME \
-    --cluster-region $REGION \
-    --token $TOKEN \
-    --project-create true \
-    --org-create true \
-    --billing-account-id $BILLING_ACCOUNT_ID \
-    --setup-all
-    ```
-
-
-1. Execute the hybrid runtime install on an existing project with apigee hybrid org configured already. (takes around ~20 minutes)
+1. Step into the install directory
     ```bash
     cd $WORK_DIR/scripts
-    ./install-gke-apigee-hybrid.sh \
-    --gcp-project-id $PROJECT_ID \
-    --org $ORG_NAME \
-    --org-admin $ORG_ADMIN \
-    --env $ENV_NAME \
-    --envgroup $ENV_GROUP \
-    --domain $DOMAIN \
-    --cluster-name $CLUSTER_NAME \
-    --cluster-region $REGION \
-    --token $TOKEN \
-    --setup-all
+    ```
+
+* Execute Hybrid installation with a new GCP project and Apigee org created within it.
+    ```bash
+    ./install-gke-apigee-hybrid.sh --project-create --setup-all
+    ```
+    
+* Execute Hybrid installation on an existing GCP project with Apigee org created within it.
+    ```bash
+    ./install-gke-apigee-hybrid.sh --apigee-org-create --setup-all
+    ```
+
+* Execute Hybrid installation on an existing GCP project with Apigee hybrid org instantiated already.
+    ```bash
+    ./install-gke-apigee-hybrid.sh --setup-all
     ```
 
 
