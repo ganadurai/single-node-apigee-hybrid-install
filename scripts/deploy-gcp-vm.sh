@@ -30,8 +30,7 @@ usage() {
         cat <<EOF
     --project-create             Creates GCP project and enables the needed apis for setting up apigee
     --apigee-org-create          Creates Apigee org within the assigned project.
-    --create-vm                  Creates the the VM instance that hosts
-                                 container infrastructure.
+    --create-vm                  Creates the the VM instance that hosts container infrastructure.
     --delete-vm                  Deletes the the VM instance
     --help                       Display usage information.
 EOF
@@ -108,6 +107,7 @@ function checkAndApplyOrgconstranints() {
     gcloud alpha resource-manager org-policies describe \
         constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | grep ALLOW
     RESULT=$?
+    echo "RESULT=$RESULT"
     if [[ $RESULT -ne 0 ]]; then
         gcloud alpha resource-manager org-policies set-policy \
             --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
