@@ -259,22 +259,12 @@ Choose one from the two options below:
     ```bash
     cd $WORK_DIR/scripts
     
-    ./install-vm-apigee-hybrid.sh \
-    --gcp-project-id $PROJECT_ID \
-    --org $ORG_NAME \
-    --org-admin $ORG_ADMIN \
-    --env $ENV_NAME \
-    --envgroup $ENV_GROUP \
-    --domain $DOMAIN \
-    --cluster-name $CLUSTER_NAME \
-    --cluster-region $REGION \
-    --token $TOKEN \
-    --setup-all
+    ./install-vm-apigee-hybrid.sh --setup-all
     ```
   
 1. Test and validate the execution of proxy within the hybrid installation. 
     ```bash
-    curl localhost:30080/hello-world -H 'Host: $DOMAIN'
+    curl localhost:30080/apigee-hybrid-helloworld -H 'Host: $DOMAIN'
     ```
 
 ## Tunning of pod resource requests

@@ -58,7 +58,7 @@ function hybridPostInstallEnvoyIngressSetup() {
   echo "$DOCKER_REGISTRY_PORT"
 
   
-  RESULT=$(kubectl get namespace | { grep envoy-ns || true; } | wc -l); echo "$RESULT"
+  RESULT=$(kubectl get namespace | { grep envoy-ns || true; } | wc -l);
   if [[ $RESULT -eq 0 ]]; then
     kubectl create namespace envoy-ns
   fi
@@ -103,6 +103,10 @@ function hybridPostInstallEnvoyIngressValidation() {
 }
 
 parse_args "${@}"
+
+gcloud config set project "$PROJECT_ID"
+gcloud auth login "$ORG_ADMIN"
+TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
 
 echo "Step- Validate Docker Install"
 validateDockerInstall
