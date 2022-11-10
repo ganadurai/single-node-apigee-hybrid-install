@@ -82,9 +82,8 @@ If following this installation outside of CloudShell, follow the next two steps 
     export ENV_NAME=<environment name>
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
-    export APIGEE_NAMESPACE="apigee"
     export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-    export BILLING_ACCOUNT_ID=<billing account id> #If creating new GCP project;
+    export BILLING_ACCOUNT_ID=<billing account-id> #Required, if opted to let the tool to spin up a GCP project
     ```
 
 1. Execute the gcloud auth and fetch the token
@@ -93,7 +92,7 @@ If following this installation outside of CloudShell, follow the next two steps 
     ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
-    TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+    TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
 
 ### Install and Validate
@@ -124,11 +123,12 @@ If following this installation outside of CloudShell, follow the next two steps 
 Minimum Spec needed :  4vCPU, 16GB RAM
 
 Choose one from the two options below:
-  to deploy Apigee Hybrid on an existing VM or create a new GCP VM with the option to create on a new GCP   
+* Execute the installation on a GCP VM.
+* Execute the installation on any VM.
+ 
+### GCP VM Installation
 
-### Prerequisites
-
-1. Install Terraform on the machine that initiates the install.
+1. Execute this installation toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
 
 1. Setup Environment variables
     ```bash
@@ -139,7 +139,7 @@ Choose one from the two options below:
     export ENV_NAME=<environment name>
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
-    export APIGEE_NAMESPACE="apigee"
+    export BILLING_ACCOUNT_ID=<billing account-id> #Required, if opted to let the tool to spin up a GCP project
     ```
 
 1. Execute the gcloud auth and fetch the token
@@ -148,7 +148,7 @@ Choose one from the two options below:
     ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
-    TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+    TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
 
 1. Prepare the directories
@@ -164,14 +164,21 @@ Choose one from the two options below:
     export WORK_DIR=$(pwd)
     ```
 
-1. Execute the terraform commands
+1. Execute installation
     ```bash
-    $WORK_DIR/scripts/deploy-gcp-vm.sh
+    cd $WORK_DIR/scripts/
+    
+    # If you prefer the VM to be created with an new Project with Apigee org configured use the commande below
+    ./deploy-gcp-vm.sh --project-create --create-vm
+    
+    # If you prefer the VM to be created within an existing Project with Apigee org
+    ./deploy-gcp-vm.sh --create-vm
+    
     ```
 
-1. Checkout [gcp cloud logging](https://console.cloud.google.com/logs/query;query=resource.type%3D%22gce_instance%22%0Astartup-script%20exit%20status%200) for the project where the VM is created, wait for startup script completion for installation of Docker (should see an entry 'startup-script exit status 0'. Should not take more than 3 minutes)
+1. Checkout the instructions at the end of the installation output. 
 
-1. Execute the installation on the deployed VM, [follow the steps starting here.](#install-and-validation)
+1. SSH into the created VM to complete the Hybrid installation, [follow the steps starting here.](#install-and-validation)
     
 
 ## Standalone VM Hybrid Install
@@ -205,7 +212,7 @@ Choose one from the two options below:
     printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
     ```
 
-1. Confirm the below docker command executed successfully. If not make sure docker is installed (if above step is followed for docker install, relaunch the ssh session)
+1. Confirm docker is ready and running on the VM instance
     ```bash
     docker images
     ```
@@ -242,7 +249,6 @@ Choose one from the two options below:
     export ENV_GROUP=<environment group name>
     export DOMAIN=<environment group hostname>
     export ORG_ADMIN=<gcp account email>
-    export APIGEE_NAMESPACE="apigee"
     ```
 
 ### Install and Validation
@@ -250,9 +256,10 @@ Choose one from the two options below:
 1. Execute the gcloud auth and fetch the token
     ```bash
     gcloud config set project $PROJECT_ID
+    ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
-    TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+    TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
 
 1. Run the execution, this installs the needed libraries, K3D cluster, creates the overlay files, deploy the Hybrid containers and Ingress Envoy proxy. (takes around ~20 minutes)
