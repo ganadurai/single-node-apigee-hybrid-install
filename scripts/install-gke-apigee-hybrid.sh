@@ -28,6 +28,12 @@ function installTools() {
 function installDeleteCluster() {
   cd "$WORK_DIR"/terraform-modules/gke-install
 
+  last_project_id=$(cat install-state.txt)
+  if [ -z "$last_project_id" ] || [ last_project_id != "$PROJECT_ID" ]; then
+    rm -Rf .terraform*
+    rm terraform.tfstate
+  fi
+
   envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
     "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
 
@@ -36,6 +42,8 @@ function installDeleteCluster() {
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
   terraform "$1" -auto-approve \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
+
+  "$(terraform output -raw project_id)" > install-state.txt
 }
 
 function logIntoCluster() {
