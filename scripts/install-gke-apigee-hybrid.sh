@@ -30,6 +30,7 @@ function installDeleteCluster() {
 
   last_project_id=$(cat install-state.txt)
   if [ -z "$last_project_id" ] || [ last_project_id != "$PROJECT_ID" ]; then
+    echo "Clearing up the terraform state"
     rm -Rf .terraform*
     rm terraform.tfstate
   fi
