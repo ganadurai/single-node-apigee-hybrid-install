@@ -24,37 +24,10 @@ This deployment model is intended ONLY for testing and sandbox purposes, **NOT f
 
 Execute this toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
 
-If following this installation outside of CloudShell, follow the next two steps to get the needed tools and libraries.
+If following this installation outside of CloudShell, refer to this section](#libraries) to install the needed tools/libraries for this implementation.
 
-1. Install Terraform on the machine that initiates the install. [Linux Install](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-
-1. Install the tools needed on the machine where the deployment is executed. (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance, if missing in the instance where the setup is executed.
-    ```bash
-    sudo apt update
-    sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
-    sudo apt-get install git -y
-    sudo apt-get install jq -y
-    sudo apt-get install google-cloud-sdk-kpt -y
-    sudo apt-get install kubectl -y
-    sudo apt-get install wget -y
-
-    sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
-    tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
-
-    # Docker Install
-    sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-    echo "Waiting for 10s..."
-    sleep 10
-    sudo apt-get update
-    sudo apt install --yes docker-ce
-    sudo usermod -aG docker $USER
-
-    printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
-    ```
     
-### Download install libraries
+### Download installation source
 
 1. Prepare the directories
     ```bash
@@ -321,3 +294,34 @@ If further customization of the resources on the pods is needed, adjust the valu
     $WORK_DIR/scripts/pod-resources.sh
     $WORK_DIR/scripts/node-resources.sh
     ```
+
+## Support Tools Install
+
+### Libraries
+    ```bash
+    sudo apt update
+    sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
+    sudo apt-get install git -y
+    sudo apt-get install jq -y
+    sudo apt-get install google-cloud-sdk-kpt -y
+    sudo apt-get install kubectl -y
+    sudo apt-get install wget -y
+
+    sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
+    tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
+    ```
+
+ ### Docker Install
+    ```
+    sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+    echo "Waiting for 10s..."
+    sleep 10
+    sudo apt-get update
+    sudo apt install --yes docker-ce
+    sudo usermod -aG docker $USER
+
+    printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
+    ```
+    
