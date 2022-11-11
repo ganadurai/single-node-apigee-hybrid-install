@@ -7,19 +7,10 @@ This tool solves your concerns.
 * Reduces the cost of running Apigee Hybrid to a minimum of $100 per month, compared to the standard Hybrid operating cost of $800 or more
 * Provides end-to-end automation, starting with setup of GCP project, configuring an Apigee org and deploying Hybrid on an instance. (single step install)
 
-This implementation is built on top of the currently revamped Hybrid installation procedures. It follows the recommended Kustomize tool overrides to keep the Hybrid container resources to a minimum so all resources can be stood up on a single VM node (4vCPU, 16GB RAM).
+This implementation is built on top of the currently revamped [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide) procedures. It follows the recommended [Kustomize tool overrides](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide#kustomize-and-components) approach to keep the Hybrid container resources to a minimum, so all resources can be stood up on a single VM node (4vCPU, 16GB RAM).
 
-This deployment model is ONLY intended for testing and sandbox purposes, NOT for production deployments. This setup is NOT covered under any form of Google support.
+This deployment model is intended ONLY for testing and sandbox purposes, **NOT for production deployments**. This setup is **NOT covered under any form of Google support**.
 
-
-
-For executing simple tests or validation in a Hybrid deployment are you concerned about the cost associated and the time consumed in the setups?? 
-
-This tool solves these concerns. It overrides the resource needs for the Hybrid containers and make it possible to deploy on a single VM node (4vCPU, 16GB RAM). This makes the cost associated with Hybird installation less than $100 per month instead of more than $800.
-
-This tool also provides end-to-end automation of creating a GCP project, configuring an Apigee org and deploying Hybrid on a instance.
-
-This implementation is an extension to the automated [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide). This deployment model is aimed for just testing and sandbox purposes, **NOT for production deployments**. Also please note, this set up is **NOT covered under any form of Google support**. 
 
 ## Modes of deployment
 
