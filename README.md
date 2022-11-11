@@ -24,7 +24,7 @@ This deployment model is intended ONLY for testing and sandbox purposes, **NOT f
 
 Execute this toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
 
-If following this installation outside of CloudShell, refer to this section](#libraries) to install the needed tools/libraries for this implementation.
+If following this installation outside of CloudShell, refer to this [section](#libraries) to install the needed tools/libraries for this implementation.
 
     
 ### Download installation source
