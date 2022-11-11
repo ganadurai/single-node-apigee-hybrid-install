@@ -1,6 +1,19 @@
 # Single Node (all-in-one) Hybrid Installation
 
-For executing simple tests or validation in a Hybrid deployment are you worried about the cost associated and the time consumed in the setups?? 
+For simple tests and validation of Apigee Hybrid, are you concerned about the high platform cost and the effort involved in setting it up?
+
+This tool solves your concerns. 
+
+* Reduces the cost of running Apigee Hybrid to a minimum of $100 per month, compared to the standard Hybrid operating cost of $800 or more
+* Provides end-to-end automation, starting with setup of GCP project, configuring an Apigee org and deploying Hybrid on an instance. (single step install)
+
+This implementation is built on top of the currently revamped Hybrid installation procedures. It follows the recommended Kustomize tool overrides to keep the Hybrid container resources to a minimum so all resources can be stood up on a single VM node (4vCPU, 16GB RAM).
+
+This deployment model is ONLY intended for testing and sandbox purposes, NOT for production deployments. This setup is NOT covered under any form of Google support.
+
+
+
+For executing simple tests or validation in a Hybrid deployment are you concerned about the cost associated and the time consumed in the setups?? 
 
 This tool solves these concerns. It overrides the resource needs for the Hybrid containers and make it possible to deploy on a single VM node (4vCPU, 16GB RAM). This makes the cost associated with Hybird installation less than $100 per month instead of more than $800.
 
