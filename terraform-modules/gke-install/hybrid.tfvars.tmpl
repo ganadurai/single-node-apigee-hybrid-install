@@ -26,7 +26,7 @@ gke_cluster = {
   region                    = "$REGION"
 }
 
-node_locations_data = ["$REGION-a"]
+node_locations_data = ["$CLUSTER_NODE_ZONE"]
 
 vpc_self_link = "https://www.googleapis.com/compute/v1/projects/$PROJECT_ID/global/networks/$VPC_NETWORK_NAME"
 

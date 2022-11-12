@@ -35,6 +35,9 @@ function installDeleteCluster() {
     rm -f terraform.tfstate
   fi
 
+  CLUSTER_NODE_ZONE=$(gcloud compute zones list --filter="region:us-east1" --limit=1 --format=json | \
+    jq '.[0].name' | cut -d '"' -f 2); export CLUSTER_NODE_ZONE;
+
   envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
     "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
 

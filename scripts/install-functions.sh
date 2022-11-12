@@ -196,6 +196,9 @@ function installApigeeOrg() {
   echo "$PROJECT_ID" > install-state.txt
 }
 
+#function checkNetworkExisits() {
+#}
+
 function fetchHybridInstall() {
   if [[ -d $WORK_DIR/../apigee-hybrid-install ]]; then #if the script is re-ran, clean it and pull a fresh copy
     rm -Rf "$WORK_DIR/../apigee-hybrid-install"
