@@ -45,33 +45,7 @@ variable "project_create" {
   default     = false
 }
 
-variable "network" {
-  description = "Network name to be used for hosting the instance."
-  type        = string
-  default     = "hybrid-runtime-cluster-vpc"
-}
-
 variable "region" {
   description = "Entities region"
   type        = string
-  default     = "us-central1"
-}
-
-variable "subnets" {
-  description = "Subnetwork name to be used for hosting the instance."
-  type = list(object({
-    name          = string
-    ip_cidr_range = string
-    region        = string
-    secondary_ip_range = map(string)
-  }))
-  default = [{
-    name          = "hybrid-runtime-cluster-vpc-subnetwork"
-    ip_cidr_range = "10.0.0.0/24"
-    region        = "us-central1"
-    secondary_ip_range = {
-      pods = "10.100.0.0/20"
-      services = "10.101.0.0/23"
-    }
-  }]
 }

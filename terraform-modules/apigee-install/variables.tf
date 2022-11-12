@@ -28,7 +28,6 @@ variable "apigee_org_create" {
 variable "ax_region" {
   description = "GCP region for storing Apigee analytics data (see https://cloud.google.com/apigee/docs/api-platform/get-started/install-cli)."
   type        = string
-  default     = "us-central1"
 }
 
 variable "apigee_envgroups" {

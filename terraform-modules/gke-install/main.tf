@@ -33,6 +33,9 @@ module "gke-cluster" {
     master_ipv4_cidr_block  = var.gke_cluster.master_ip_cidr
     master_global_access    = true
   }
+  depends_on = [
+    module.vpc
+  ]
 }
 
 module "gke-nodepool-default" {
@@ -65,6 +68,9 @@ resource "google_compute_firewall" "allow-master-webhook" {
   source_ranges = [
     var.gke_cluster.master_ip_cidr,
   ]
+  depends_on = [
+    module.gke-cluster
+  ]
 }
 
 module "nat" {
@@ -73,4 +79,14 @@ module "nat" {
   region         = var.gke_cluster.region
   name           = "nat-${var.gke_cluster.region}"
   router_network = var.vpc_self_link
+  depends_on = [
+    module.gke-cluster
+  ]
+}
+
+module "vpc" {
+  source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-vpc?ref=v16.0.0"
+  project_id = module.project.project_id
+  name       = var.network
+  subnets    = var.subnets
 }

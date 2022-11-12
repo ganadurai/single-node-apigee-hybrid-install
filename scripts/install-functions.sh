@@ -140,12 +140,37 @@ function installDeleteProject() {
   cd "$WORK_DIR"/terraform-modules/project-install
   terraform init
   terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
-  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" -var "project_create=true"
+  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  -var "project_create=true" -var "region=$REGION"
   terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
-  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" -var "project_create=true"
+  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  -var "project_create=true" -var "region=$REGION"
 }
 
 function installApigeeOrg() {
+
+  # If the tool is initializing Apigee Org create, enabling the needed APIs 
+  if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
+    echo "Enabling the needed APIs"
+    gcloud services enable \
+      apigee.googleapis.com \
+      apigeeconnect.googleapis.com \
+      cloudresourcemanager.googleapis.com \
+      compute.googleapis.com \
+      container.googleapis.com \
+      pubsub.googleapis.com \
+      sourcerepo.googleapis.com \
+      logging.googleapis.com --project "$PROJECT_ID"
+
+    echo "Setting IAM role"
+    gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+      --member user:admin@"$ORG_ADMIN" \
+      --role roles/apigee.admin
+
+    echo "Wait for 10s API enablement to synchronize.."
+    sleep 10
+  fi
+
   cd "$WORK_DIR"/terraform-modules/apigee-install
 
   last_project_id=$(cat install-state.txt)
@@ -156,9 +181,11 @@ function installApigeeOrg() {
   fi
   terraform init
   terraform plan -var "apigee_org_create=true" \
-    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
+    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
+    -var "ax_region=$REGION"
   terraform apply -auto-approve -var "apigee_org_create=true" \
-    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
+    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
+    -var "ax_region=$REGION"
   
   echo "$PROJECT_ID" > install-state.txt
 }
