@@ -106,16 +106,10 @@ function validateVars() {
 
   if [[ -z $VPC_NETWORK_NAME ]]; then
     VPC_NETWORK_NAME="hybrid-runtime-cluster-vpc"; export VPC_NETWORK_NAME;
-    IS_CREATE_VPC="true"; export IS_CREATE_VPC
-  else 
-    IS_CREATE_VPC="false"; export IS_CREATE_VPC
   fi
 
   if [[ -z $SUB_NETWORK_NAME ]]; then
     SUB_NETWORK_NAME="hybrid-runtime-cluster-vpc-subnetwork"; export SUB_NETWORK_NAME;
-    IS_CREATE_VPC="true"; export IS_CREATE_VPC
-  else 
-    IS_CREATE_VPC="false"; export IS_CREATE_VPC
   fi
 }
 
