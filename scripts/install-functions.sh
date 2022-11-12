@@ -461,8 +461,8 @@ parse_args() {
             export SHOULD_INSTALL_CLUSTER="1"
             export SHOULD_PREP_OVERLAYS="1"
             export SHOULD_INSTALL_CERT_MNGR="1"
-            export SHOULD_INSTALL_HYBRID="1"
-            export SHOULD_INSTALL_INGRESS="1"
+            #export SHOULD_INSTALL_HYBRID="1"
+            #export SHOULD_INSTALL_INGRESS="1"
             export CLUSTER_ACTION="1"
             shift 1
             ;;

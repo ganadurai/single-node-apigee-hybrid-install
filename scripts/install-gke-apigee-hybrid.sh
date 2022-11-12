@@ -155,3 +155,5 @@ if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
   banner_info "Step- Validation of proxy execution";
   hybridPostInstallIngressGatewayValidation;
 fi
+
+banner_info "COMPLETE"
