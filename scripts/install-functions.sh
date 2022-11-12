@@ -166,7 +166,7 @@ function installApigeeOrg() {
 
     echo "Setting IAM role"
     gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-      --member user:admin@"$ORG_ADMIN" \
+      --member user:"$ORG_ADMIN" \
       --role roles/apigee.admin
 
     echo "Wait for 10s API enablement to synchronize.."
