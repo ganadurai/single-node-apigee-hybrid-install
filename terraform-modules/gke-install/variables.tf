@@ -69,6 +69,12 @@ variable "nodepool_autoscaling_config" {
   }
 }
 
+variable create_vpc {
+  description = "Flag to control VPC create"
+  type        = boolean
+  default     = false
+}
+
 variable "network" {
   description = "Network name to be used for hosting the instance."
   type        = string

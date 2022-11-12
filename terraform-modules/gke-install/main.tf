@@ -89,4 +89,5 @@ module "vpc" {
   project_id = module.project.project_id
   name       = var.network
   subnets    = var.subnets
+  count      = var.create_vpc ? 1 : 0
 }
