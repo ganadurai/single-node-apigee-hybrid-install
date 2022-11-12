@@ -86,7 +86,7 @@ module "nat" {
 
 module "vpc" {
   source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-vpc?ref=v16.0.0"
-  project_id = module.project.project_id
+  project_id = var.project_id
   name       = var.network
   subnets    = var.subnets
   count      = var.create_vpc ? 1 : 0
