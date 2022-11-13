@@ -236,15 +236,6 @@ If following this installation outside of CloudShell, refer to this [section](#l
 
 ### Install and Validation
 
-1. Execute the gcloud auth and fetch the token
-    ```bash
-    gcloud config set project $PROJECT_ID
-    ORG_ADMIN="<gcp account email>"
-    gcloud auth login $ORG_ADMIN
-
-    TOKEN=$(gcloud auth print-access-token); export TOKEN;
-    ```
-
 1. Run the execution, this installs the needed libraries, K3D cluster, creates the overlay files, deploy the Hybrid containers and Ingress Envoy proxy. (takes around ~20 minutes)
     ```bash
     cd $WORK_DIR/scripts

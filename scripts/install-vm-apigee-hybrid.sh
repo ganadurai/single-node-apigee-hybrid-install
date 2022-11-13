@@ -104,15 +104,15 @@ function hybridPostInstallEnvoyIngressValidation() {
 
 parse_args "${@}"
 
+echo "Step- Validatevars";
+validateVars
+
 gcloud config set project "$PROJECT_ID"
 gcloud auth login "$ORG_ADMIN"
 TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
 
 echo "Step- Validate Docker Install"
 validateDockerInstall
-
-echo "Step- Validatevars";
-validateVars
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   echo "Step- Start K3D cluster";
