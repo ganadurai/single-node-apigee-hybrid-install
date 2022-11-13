@@ -190,7 +190,7 @@ if [[ $SHOULD_CREATE_VM == "1" ]]; then
   echo "Waiting 2m for the vm to boot up.."
   sleep 120s
   echo "Access the ssh console of the instance"
-  echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$REGION-a/instances/vm-hybrid-instance-1"
+  echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$NODE_ZONE/instances/vm-hybrid-instance-1"
   echo ""
 fi
 
