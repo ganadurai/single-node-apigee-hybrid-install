@@ -59,7 +59,7 @@ function installDeleteCluster() {
     rm -f terraform.tfstate
   fi
 
-  CLUSTER_NODE_ZONE=$(gcloud compute zones list --filter="region:us-east1" --limit=1 --format=json | \
+  CLUSTER_NODE_ZONE=$(gcloud compute zones list --filter="region:$REGION" --limit=1 --format=json | \
     jq '.[0].name' | cut -d '"' -f 2); export CLUSTER_NODE_ZONE;
 
   NETWORKS=$(gcloud compute networks list --format=json \
