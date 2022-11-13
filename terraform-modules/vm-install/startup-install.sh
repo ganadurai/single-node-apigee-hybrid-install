@@ -28,6 +28,8 @@ function initVars() {
   ORG_NAME=${VAR_ORG_NAME}; export ORG_NAME;
   CLUSTER_NAME=${VAR_CLUSTER_NAME}; export CLUSTER_NAME;
   TOKEN=${VAR_TOKEN}; export TOKEN;
+
+  USERANDGROUP="$(echo "${VAR_ORG_ADMIN}" | tr . "_" | tr "@" "_")"; export USERANDGROUP
 }
 
 function installTools() {  
@@ -52,6 +54,7 @@ function fetchSingleNodeInstall() {
   git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
   cd single-node-apigee-hybrid-install
   git checkout qa1-fixes
+  sudo chown -R "$USERANDGROUP":"$USERANDGROUP" /opt/install/single-node-apigee-hybrid-install
   WORK_DIR=$(pwd);export WORK_DIR
   #sudo chmod 777 -R "$WORK_DIR"
 }
@@ -81,7 +84,7 @@ function installDocker() {
   sleep 10
   sudo apt-get update
   sudo apt install --yes docker-ce
-  sudo usermod -aG docker "$(echo ${VAR_ORG_ADMIN} | tr . "_" | tr "@" "_")"
+  sudo usermod -aG docker "$USERANDGROUP"
 }
 
 echo "Step- Install the needed tools/libraries";
