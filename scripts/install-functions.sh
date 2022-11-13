@@ -163,11 +163,15 @@ function validateAXRegion() {
                         asia-east1 \
                         asia-southeast1 \
                         asia-southeast2)
-  match=$(echo "${SUPPORTED_AX_REGIONS[@]:0}" | grep -o "$AX_REGION") 
-  if [[ -n $match ]]; then
+  REGION_CONTAINS=$(echo "${SUPPORTED_AX_REGIONS[@]:0}" | { grep "$AX_REGION" || true; } | wc -l);
+  if [[ $REGION_CONTAINS -eq 1 ]]; then
     echo "Region $AX_REGION supported for Analytics !"
   else
-    echo "Region $AX_REGION is not supported, use one of ${SUPPORTED_AX_REGIONS[*]} in the env variable AX_REGION";
+    echo ""
+    echo "Region $AX_REGION is not supported, set one of the below regions in env valiable AX_REGION"
+    echo "${SUPPORTED_AX_REGIONS[*]}";
+    echo ""
+    exit 1;
   fi 
 }
 
