@@ -103,20 +103,6 @@ parse_args() {
     fi
 }
 
-function checkAndApplyOrgconstranints() {
-    echo "checking constraints.."
-
-    
-    RESULT=$(gcloud alpha resource-manager org-policies describe \
-        constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l);
-    if [[ $RESULT -eq 0 ]]; then
-        gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
-        echo "Waiting 60s for org-policy take into effect! "
-        sleep 60
-    fi
-}
-
 function createDestroyVM() {
     cd "$WORK_DIR/terraform-modules/vm-install"
 
@@ -168,6 +154,8 @@ validateVars
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   banner_info "Step- Install Project"
   installDeleteProject "apply";
+else
+  enableAPIsAndOrgAdmin;
 fi
 
 banner_info "Check and Apply org constranints"

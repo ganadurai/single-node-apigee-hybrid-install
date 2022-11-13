@@ -175,31 +175,60 @@ function validateAXRegion() {
   fi 
 }
 
+function checkAndApplyOrgconstranints() {
+    echo "checking and applying constraints.."
+
+    gcloud alpha resource-manager org-policies set-policy \
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/disableServiceAccountKeyCreation.yaml"
+
+    gcloud alpha resource-manager org-policies set-policy \
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/requireOsLogin.yaml"
+
+    gcloud alpha resource-manager org-policies set-policy \
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/requireShieldedVm.yaml"
+
+    RESULT=$(gcloud alpha resource-manager org-policies describe \
+        constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l);
+    if [[ $RESULT -eq 0 ]]; then
+        gcloud alpha resource-manager org-policies set-policy \
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
+        echo "Waiting 60s for org-policy take into effect! "
+        sleep 60
+    fi
+}
+
+function enableAPIsAndOrgAdmin() {
+  echo "Enabling the needed APIs"
+  gcloud services enable \
+    apigee.googleapis.com \
+    apigeeconnect.googleapis.com \
+    cloudresourcemanager.googleapis.com \
+    compute.googleapis.com \
+    container.googleapis.com \
+    pubsub.googleapis.com \
+    sourcerepo.googleapis.com \
+    logging.googleapis.com --project "$PROJECT_ID"
+
+  echo "Setting IAM role"
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member user:"$ORG_ADMIN" \
+    --role roles/apigee.admin
+
+  echo "Wait for 10s API enablement to synchronize.."
+  sleep 10
+}
+
 function installApigeeOrg() {
 
   validateAXRegion;
 
-  # If the tool is initializing Apigee Org create, enabling the needed APIs 
-  if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
-    echo "Enabling the needed APIs"
-    gcloud services enable \
-      apigee.googleapis.com \
-      apigeeconnect.googleapis.com \
-      cloudresourcemanager.googleapis.com \
-      compute.googleapis.com \
-      container.googleapis.com \
-      pubsub.googleapis.com \
-      sourcerepo.googleapis.com \
-      logging.googleapis.com --project "$PROJECT_ID"
-
-    echo "Setting IAM role"
-    gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-      --member user:"$ORG_ADMIN" \
-      --role roles/apigee.admin
-
-    echo "Wait for 10s API enablement to synchronize.."
-    sleep 10
+  if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
+    echo ""; #Rewrite if condition
+  else
+    enableAPIsAndOrgAdmin;
   fi
+
+  
 
   cd "$WORK_DIR"/terraform-modules/apigee-install
 
@@ -211,7 +240,7 @@ function installApigeeOrg() {
   fi
   
   echo "$PROJECT_ID" > install-state.txt
-  
+
   terraform init
   terraform plan -var "apigee_org_create=true" \
     -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
