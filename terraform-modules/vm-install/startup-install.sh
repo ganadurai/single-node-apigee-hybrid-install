@@ -50,9 +50,10 @@ function fetchSingleNodeInstall() {
   sudo chmod 777 -R /opt/install
   cd /opt/install
   git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
+  git checkout qa1-fixes
   cd single-node-apigee-hybrid-install
   WORK_DIR=$(pwd);export WORK_DIR
-  sudo chmod 777 -R "$WORK_DIR"
+  #sudo chmod 777 -R "$WORK_DIR"
 }
 
 function setEnvVariables() {
