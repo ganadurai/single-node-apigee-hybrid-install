@@ -147,7 +147,33 @@ function installDeleteProject() {
   -var "project_create=true" -var "region=$REGION"
 }
 
+function validateAXRegion() {
+  if [[ -z "$AX_REGION" ]]; then
+    AX_REGION=$REGION;export AX_REGION;
+  fi
+
+  SUPPORTED_AX_REGIONS=(asia-northeast1 \
+                        europe-west1 \
+                        us-central1 \
+                        us-east1 \
+                        us-west1 \
+                        australia-southeast1 \
+                        europe-west2 \
+                        asia-south1 \
+                        asia-east1 \
+                        asia-southeast1 \
+                        asia-southeast2)
+  match=$(echo "${SUPPORTED_AX_REGIONS[@]:0}" | grep -o "$AX_REGION") 
+  if [[ -n $match ]]; then
+    echo "Region $AX_REGION supported for Analytics !"
+  else
+    echo "Region $AX_REGION is not supported, use one of ${SUPPORTED_AX_REGIONS[*]} in the env variable AX_REGION";
+  fi 
+}
+
 function installApigeeOrg() {
+
+  validateAXRegion;
 
   # If the tool is initializing Apigee Org create, enabling the needed APIs 
   if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
@@ -182,7 +208,7 @@ function installApigeeOrg() {
   terraform init
   terraform plan -var "apigee_org_create=true" \
     -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
-    -var "ax_region=$REGION"
+    -var "ax_region=$AX_REGION"
   terraform apply -auto-approve -var "apigee_org_create=true" \
     -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
     -var "ax_region=$REGION"
