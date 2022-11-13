@@ -104,12 +104,12 @@ function hybridPostInstallEnvoyIngressValidation() {
 
 parse_args "${@}"
 
-echo "Step- Validatevars";
-validateVars
-
 gcloud config set project "$PROJECT_ID"
 gcloud auth login "$ORG_ADMIN"
 TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
+
+echo "Step- Validatevars";
+validateVars
 
 echo "Step- Validate Docker Install"
 validateDockerInstall
