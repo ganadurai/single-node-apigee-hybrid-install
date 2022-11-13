@@ -127,6 +127,9 @@ function createDestroyVM() {
         rm -f terraform.tfstate
     fi
 
+    NODE_ZONE=$(gcloud compute zones list --filter="region:us-east1" --limit=1 --format=json | \
+    jq '.[0].name' | cut -d '"' -f 2); export NODE_ZONE;
+
     terraform init;
     terraform plan \
         -var="PROJECT_ID=${PROJECT_ID}" \
@@ -139,7 +142,7 @@ function createDestroyVM() {
         -var="ENV_GROUP=$ENV_GROUP" \
         -var="DOMAIN=$DOMAIN" \
         -var="REGION=$REGION" \
-        -var="ZONE=$REGION-a";
+        -var="ZONE=$NODE_ZONE";
     terraform "$1" -auto-approve \
         -var="PROJECT_ID=${PROJECT_ID}" \
         -var="ORG_ADMIN=${ORG_ADMIN}" \
@@ -151,7 +154,7 @@ function createDestroyVM() {
         -var="ENV_GROUP=$ENV_GROUP" \
         -var="DOMAIN=$DOMAIN" \
         -var="REGION=$REGION" \
-        -var="ZONE=$REGION-a";
+        -var="ZONE=$NODE_ZONE";
 
     echo "$PROJECT_ID" > install-state.txt
 

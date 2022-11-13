@@ -157,9 +157,11 @@ If following this installation outside of CloudShell, refer to this [section](#l
     
     ```
 
-1. Checkout the instructions at the end of the installation output. 
+1. Review the instructions at the end of the installation output. 
 
-1. SSH into the created VM to complete the Hybrid installation, [follow the steps starting here.](#install-and-validation)
+1. SSH into the created VM
+
+1. To complete the Hybrid installation, [follow the steps starting here.](#install-and-validation)
     
 
 ## Standalone VM Hybrid Install
