@@ -73,13 +73,13 @@ function installDeleteCluster() {
   envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
     "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
 
+  echo "$PROJECT_ID" > install-state.txt
+
   terraform init
   terraform plan \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
   terraform "$1" -auto-approve \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
-
-  echo "$PROJECT_ID" > install-state.txt
 }
 
 function logIntoCluster() {

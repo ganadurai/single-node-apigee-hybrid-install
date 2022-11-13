@@ -209,6 +209,9 @@ function installApigeeOrg() {
     rm -Rf .terraform*
     rm -f terraform.tfstate
   fi
+  
+  echo "$PROJECT_ID" > install-state.txt
+  
   terraform init
   terraform plan -var "apigee_org_create=true" \
     -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
@@ -216,8 +219,6 @@ function installApigeeOrg() {
   terraform apply -auto-approve -var "apigee_org_create=true" \
     -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
     -var "ax_region=$AX_REGION"
-  
-  echo "$PROJECT_ID" > install-state.txt
 }
 
 #function checkNetworkExisits() {
