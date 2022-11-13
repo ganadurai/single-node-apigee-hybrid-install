@@ -18,6 +18,9 @@ set -e
 
 cd "$WORK_DIR/terraform-modules/vm-install"
 
+NODE_ZONE=$(gcloud compute zones list --filter="region:$REGION" --limit=1 --format=json | \
+    jq '.[0].name' | cut -d '"' -f 2); export NODE_ZONE;
+
 terraform init;
 terraform plan \
     -var="PROJECT_ID=${PROJECT_ID}" \
