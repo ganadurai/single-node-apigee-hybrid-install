@@ -154,6 +154,7 @@ validateVars
 if [[ $SHOULD_DELETE_VM == "1" ]]; then
   banner_info "Step- Destroy VM"
   createDestroyVM "destroy";
+  exit 0;
 fi
 
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
@@ -163,13 +164,13 @@ else
   enableAPIsAndOrgAdmin;
 fi
 
-banner_info "Check and Apply org constranints"
-checkAndApplyOrgconstranints;
-
 if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
   banner_info "Step- Install Apigee Org"
   installApigeeOrg;
 fi
+
+banner_info "Check and Apply org constranints"
+checkAndApplyOrgconstranints;
 
 if [[ $SHOULD_CREATE_VM == "1" ]]; then
   banner_info "Step- Create VM"
