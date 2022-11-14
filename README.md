@@ -149,7 +149,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ```bash
     cd $WORK_DIR/scripts/
     
-    # If you prefer the VM to be created with an new Project with Apigee org configured use the commande below
+    # If you prefer the VM to be created on a new Project with Apigee org configured use the command below
     ./deploy-gcp-vm.sh --project-create --create-vm
     
     # If you prefer the VM to be created within an existing Project with Apigee org

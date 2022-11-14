@@ -151,6 +151,11 @@ parse_args "${@}"
 banner_info "Step- Validatevars";
 validateVars
 
+if [[ $SHOULD_DELETE_VM == "1" ]]; then
+  banner_info "Step- Destroy VM"
+  createDestroyVM "destroy";
+fi
+
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   banner_info "Step- Install Project"
   installDeleteProject "apply";
@@ -180,11 +185,6 @@ if [[ $SHOULD_CREATE_VM == "1" ]]; then
   echo "Access the ssh console of the instance"
   echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$NODE_ZONE/instances/vm-hybrid-instance-1"
   echo ""
-fi
-
-if [[ $SHOULD_DELETE_VM == "1" ]]; then
-  banner_info "Step- Destroy VM"
-  createDestroyVM "destroy";
 fi
 
 
