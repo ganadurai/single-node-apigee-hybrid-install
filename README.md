@@ -33,6 +33,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ```bash
     mkdir ~/install
     cd ~/install
+    export INSTALL_DIR=$(pwd)
     ```
     
 1. Install the repos 
@@ -84,6 +85,8 @@ If following this installation outside of CloudShell, refer to this [section](#l
 * Create GCP project, Apigee Org and deploy Apigee Hybrid
     ```bash
     ./install-gke-apigee-hybrid.sh --project-create --setup-all
+
+    # Note: Coninue of the warning message that the project does'nt exist yet.
     ```
     
 * Create Apigee Org within an existing GCP Project and deploy Apigee Hybrid.

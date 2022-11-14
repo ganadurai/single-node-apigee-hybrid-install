@@ -138,6 +138,16 @@ function installTools() {
 
 function installDeleteProject() {
   cd "$WORK_DIR"/terraform-modules/project-install
+
+  last_project_id=$(cat install-state.txt)
+  if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
+    echo "Clearing up the terraform state"
+    rm -Rf .terraform*
+    rm -f terraform.tfstate
+  fi
+  
+  echo "$PROJECT_ID" > install-state.txt
+  
   terraform init
   terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
   -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
@@ -227,8 +237,6 @@ function installApigeeOrg() {
   else
     enableAPIsAndOrgAdmin;
   fi
-
-  
 
   cd "$WORK_DIR"/terraform-modules/apigee-install
 
