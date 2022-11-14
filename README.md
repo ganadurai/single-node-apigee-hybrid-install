@@ -66,7 +66,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
 1. Execute the gcloud auth and fetch the token
     ```bash
     gcloud config set project $PROJECT_ID
-    ORG_ADMIN="<gcp account email>"
+    export ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
     TOKEN=$(gcloud auth print-access-token); export TOKEN;

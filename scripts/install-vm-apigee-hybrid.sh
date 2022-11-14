@@ -154,4 +154,6 @@ if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
   deleteK3DCluster;
 fi
 
+banner_info "COMPLETE"
+
 
