@@ -86,7 +86,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ```bash
     ./install-gke-apigee-hybrid.sh --project-create --setup-all
 
-    # Note: Coninue of the warning message that the project does'nt exist yet.
+    # Note: Coninue of the warning message that the project doesn't exist yet.
     ```
     
 * Create Apigee Org within an existing GCP Project and deploy Apigee Hybrid.
