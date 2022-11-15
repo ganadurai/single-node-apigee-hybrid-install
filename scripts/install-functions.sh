@@ -246,6 +246,9 @@ function installApigeeOrg() {
     rm -Rf .terraform*
     rm -f terraform.tfstate
   fi
+
+  envsubst < "$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars.tmpl" > \
+    "$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
   
   echo "$PROJECT_ID" > install-state.txt
 
