@@ -72,7 +72,7 @@ variable "nodepool_autoscaling_config" {
 variable create_vpc {
   description = "Flag to control VPC create"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "network" {

@@ -38,13 +38,13 @@ function installDeleteCluster() {
   CLUSTER_NODE_ZONE=$(gcloud compute zones list --filter="region:$REGION" --limit=1 --format=json | \
     jq '.[0].name' | cut -d '"' -f 2); export CLUSTER_NODE_ZONE;
 
-  NETWORKS=$(gcloud compute networks list --format=json \
-    --filter="name:hybrid-runtime-cluster-vpc" | jq length)
-  if [[ NETWORKS -eq 0 ]]; then
-    IS_CREATE_VPC="true"; export IS_CREATE_VPC
-  else
-    IS_CREATE_VPC="false"; export IS_CREATE_VPC
-  fi
+  #NETWORKS=$(gcloud compute networks list --format=json \
+  #  --filter="name:hybrid-runtime-cluster-vpc" | jq length)
+  #if [[ NETWORKS -eq 0 ]]; then
+  #  IS_CREATE_VPC="true"; export IS_CREATE_VPC
+  #else
+  #  IS_CREATE_VPC="false"; export IS_CREATE_VPC
+  #fi
 
   envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
     "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
