@@ -86,7 +86,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ```bash
     ./install-gke-apigee-hybrid.sh --project-create --setup-all
 
-    # Note: Coninue of the warning message that the project doesn't exist yet.
+    # Note: Coninue on the warning message that the project doesn't exist yet.
     ```
     
 * Create Apigee Org within an existing GCP Project and deploy Apigee Hybrid.
@@ -112,7 +112,27 @@ If following this installation outside of CloudShell, refer to this [section](#l
  
 ### GCP VM Installation
 
-1. Execute this installation toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
+### Prerequisites
+
+Execute this toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
+
+If following this installation outside of CloudShell, refer to this [section](#libraries) to install the needed tools/libraries for this implementation.
+
+    
+### Download installation source
+
+1. Prepare the directories
+    ```bash
+    mkdir ~/install
+    cd ~/install
+    export INSTALL_DIR=$(pwd)
+    ```
+    
+1. Install the repos 
+    ```bash
+    git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
+    cd single-node-apigee-hybrid-install
+    export WORK_DIR=$(pwd) 
 
 1. Setup Environment variables
     ```bash
@@ -129,23 +149,10 @@ If following this installation outside of CloudShell, refer to this [section](#l
 1. Execute the gcloud auth and fetch the token
     ```bash
     gcloud config set project $PROJECT_ID
-    ORG_ADMIN="<gcp account email>"
+    export ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
     TOKEN=$(gcloud auth print-access-token); export TOKEN;
-    ```
-
-1. Prepare the directories
-    ```bash
-    mkdir ~/install
-    cd ~/install
-    ```
-    
-1. Install the repo on the machine that executes the install
-    ```bash
-    git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
-    cd single-node-apigee-hybrid-install
-    export WORK_DIR=$(pwd)
     ```
 
 1. Execute installation
