@@ -33,6 +33,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ```bash
     mkdir ~/install
     cd ~/install
+    export INSTALL_DIR=$(pwd)
     ```
     
 1. Install the repos 
@@ -66,7 +67,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
 1. Execute the gcloud auth and fetch the token
     ```bash
     gcloud config set project $PROJECT_ID
-    ORG_ADMIN="<gcp account email>"
+    export ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
     TOKEN=$(gcloud auth print-access-token); export TOKEN;
@@ -84,6 +85,8 @@ If following this installation outside of CloudShell, refer to this [section](#l
 * Create GCP project, Apigee Org and deploy Apigee Hybrid
     ```bash
     ./install-gke-apigee-hybrid.sh --project-create --setup-all
+
+    # Note: Coninue on the warning message that the project doesn't exist yet.
     ```
     
 * Create Apigee Org within an existing GCP Project and deploy Apigee Hybrid.
@@ -109,7 +112,29 @@ If following this installation outside of CloudShell, refer to this [section](#l
  
 ### GCP VM Installation
 
-1. Execute this installation toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
+### Prerequisites
+
+Execute this toolkit from within the Cloudshell of GCP console. (All the needed tools for this install is already configured and available). 
+
+If following this installation outside of CloudShell, refer to this [section](#libraries) to install the needed tools/libraries for this implementation.
+
+    
+### Download installation source
+
+1. Prepare the directories
+    ```bash
+    mkdir ~/install
+    cd ~/install
+    export INSTALL_DIR=$(pwd)
+    ```
+    
+1. Install the repos 
+    ```bash
+    git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
+    cd single-node-apigee-hybrid-install
+    export WORK_DIR=$(pwd) 
+
+### Setup Environment variables and tokens
 
 1. Setup Environment variables
     ```bash
@@ -126,47 +151,41 @@ If following this installation outside of CloudShell, refer to this [section](#l
 1. Execute the gcloud auth and fetch the token
     ```bash
     gcloud config set project $PROJECT_ID
-    ORG_ADMIN="<gcp account email>"
+    export ORG_ADMIN="<gcp account email>"
     gcloud auth login $ORG_ADMIN
 
     TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
 
-1. Prepare the directories
-    ```bash
-    mkdir ~/install
-    cd ~/install
-    ```
-    
-1. Install the repo on the machine that executes the install
-    ```bash
-    git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
-    cd single-node-apigee-hybrid-install
-    export WORK_DIR=$(pwd)
-    ```
+### Install and Validate
 
 1. Execute installation
     ```bash
     cd $WORK_DIR/scripts/
     
-    # If you prefer the VM to be created with an new Project with Apigee org configured use the commande below
+    # If you prefer the VM to be created on a new Project with Apigee org configured use the command below
     ./deploy-gcp-vm.sh --project-create --create-vm
     
+    # If you prefer the VM to be created on an existing Project.
+    ./deploy-gcp-vm.sh --apigee-org-create --create-vm
+
     # If you prefer the VM to be created within an existing Project with Apigee org
     ./deploy-gcp-vm.sh --create-vm
     
     ```
 
-1. Checkout the instructions at the end of the installation output. 
+1. Review the instructions at the end of the installation output. 
 
-1. SSH into the created VM to complete the Hybrid installation, [follow the steps starting here.](#install-and-validation)
+1. SSH into the created VM
+
+1. To complete the Hybrid installation, [follow the steps starting here.](#install-and-validation)
     
 
 ## Standalone VM Hybrid Install
 
 ### Prerequisites
 
-1. Following tools are needed for this setup (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance.
+1. Following tools are needed for this setup (git, [gcloud cli](https://cloud.google.com/sdk/docs/install#linux), google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance.
     ```bash
     sudo apt update
     sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
@@ -233,15 +252,6 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ```
 
 ### Install and Validation
-
-1. Execute the gcloud auth and fetch the token
-    ```bash
-    gcloud config set project $PROJECT_ID
-    ORG_ADMIN="<gcp account email>"
-    gcloud auth login $ORG_ADMIN
-
-    TOKEN=$(gcloud auth print-access-token); export TOKEN;
-    ```
 
 1. Run the execution, this installs the needed libraries, K3D cluster, creates the overlay files, deploy the Hybrid containers and Ingress Envoy proxy. (takes around ~20 minutes)
     ```bash

@@ -16,11 +16,6 @@
 
 data "google_client_config" "provider" {}
 
-locals {
-  vpc_network_name = var.network
-  sub_network_name = var.subnets[0].name
-}
-
 module "project" {
   source          = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/project?ref=v16.0.0"
   name            = var.project_id
@@ -46,11 +41,4 @@ module "project" {
       "user:${var.org_admin}"
     ]
   }
-}
-
-module "vpc" {
-  source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-vpc?ref=v16.0.0"
-  project_id = module.project.project_id
-  name       = var.network
-  subnets    = var.subnets
 }

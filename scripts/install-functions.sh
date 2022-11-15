@@ -138,14 +138,106 @@ function installTools() {
 
 function installDeleteProject() {
   cd "$WORK_DIR"/terraform-modules/project-install
+
+  last_project_id=$(cat install-state.txt)
+  if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
+    echo "Clearing up the terraform state"
+    rm -Rf .terraform*
+    rm -f terraform.tfstate
+  fi
+  
+  echo "$PROJECT_ID" > install-state.txt
+
   terraform init
   terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
-  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" -var "project_create=true"
+  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  -var "project_create=true" -var "region=$REGION"
   terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
-  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" -var "project_create=true"
+  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  -var "project_create=true" -var "region=$REGION"
+}
+
+function validateAXRegion() {
+  if [[ -z "$AX_REGION" ]]; then
+    AX_REGION=$REGION;export AX_REGION;
+  fi
+
+  SUPPORTED_AX_REGIONS=(asia-northeast1 \
+                        europe-west1 \
+                        us-central1 \
+                        us-east1 \
+                        us-west1 \
+                        australia-southeast1 \
+                        europe-west2 \
+                        asia-south1 \
+                        asia-east1 \
+                        asia-southeast1 \
+                        asia-southeast2)
+  REGION_CONTAINS=$(echo "${SUPPORTED_AX_REGIONS[@]:0}" | { grep "$AX_REGION" || true; } | wc -l);
+  if [[ $REGION_CONTAINS -eq 1 ]]; then
+    echo "Region $AX_REGION supported for Analytics !"
+  else
+    echo ""
+    echo "Region $AX_REGION is not supported, set one of the below regions in env valiable AX_REGION"
+    echo "${SUPPORTED_AX_REGIONS[*]}";
+    echo ""
+    exit 1;
+  fi 
+}
+
+function checkAndApplyOrgconstranints() {
+    echo "checking and applying constraints.."
+
+    gcloud alpha resource-manager org-policies set-policy \
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/disableServiceAccountKeyCreation.yaml"
+
+    gcloud alpha resource-manager org-policies set-policy \
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/requireOsLogin.yaml"
+
+    gcloud alpha resource-manager org-policies set-policy \
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/requireShieldedVm.yaml"
+
+    RESULT=$(gcloud alpha resource-manager org-policies describe \
+        constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l);
+    if [[ $RESULT -eq 0 ]]; then
+        gcloud alpha resource-manager org-policies set-policy \
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
+        echo "Waiting 60s for org-policy take into effect! "
+        sleep 60
+    fi
+}
+
+function enableAPIsAndOrgAdmin() {
+  echo "Enabling the needed APIs"
+  gcloud services enable \
+    apigee.googleapis.com \
+    apigeeconnect.googleapis.com \
+    cloudresourcemanager.googleapis.com \
+    compute.googleapis.com \
+    container.googleapis.com \
+    pubsub.googleapis.com \
+    sourcerepo.googleapis.com \
+    logging.googleapis.com --project "$PROJECT_ID"
+
+  echo "Setting IAM role"
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member user:"$ORG_ADMIN" \
+    --role roles/apigee.admin
+
+  echo "Wait for 10s API enablement to synchronize.."
+  sleep 10
 }
 
 function installApigeeOrg() {
+
+  validateAXRegion;
+
+  if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
+    echo ""; #Rewrite if condition
+  else
+    enableAPIsAndOrgAdmin;
+  fi
+
   cd "$WORK_DIR"/terraform-modules/apigee-install
 
   last_project_id=$(cat install-state.txt)
@@ -154,14 +246,23 @@ function installApigeeOrg() {
     rm -Rf .terraform*
     rm -f terraform.tfstate
   fi
-  terraform init
-  terraform plan -var "apigee_org_create=true" \
-    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
-  terraform apply -auto-approve -var "apigee_org_create=true" \
-    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
+
+  envsubst < "$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars.tmpl" > \
+    "$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars"
   
   echo "$PROJECT_ID" > install-state.txt
+
+  terraform init
+  terraform plan -var "apigee_org_create=true" \
+    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
+    -var "ax_region=$AX_REGION"
+  terraform apply -auto-approve -var "apigee_org_create=true" \
+    -var "project_id=$PROJECT_ID" --var-file="$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars" \
+    -var "ax_region=$AX_REGION"
 }
+
+#function checkNetworkExisits() {
+#}
 
 function fetchHybridInstall() {
   if [[ -d $WORK_DIR/../apigee-hybrid-install ]]; then #if the script is re-ran, clean it and pull a fresh copy
@@ -295,7 +396,7 @@ function deploySampleProxyForValidation() {
     echo "Error in uploading the sample proxy to management api endpoint : $MGMT_HOST"
     exit 1;
   fi
-  curl -s -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/environments/eval/apis/apigee-hybrid-helloworld/revisions/$PROXY_REVISION/deployments?override=true" \
+  curl -s -X POST "$MGMT_HOST/v1/organizations/$ORG_NAME/environments/$ENV_NAME/apis/apigee-hybrid-helloworld/revisions/$PROXY_REVISION/deployments?override=true" \
         -H "Authorization: Bearer $TOKEN"
   echo "Waiting for proxy deployment and ready for testing, 60s"
   sleep 60

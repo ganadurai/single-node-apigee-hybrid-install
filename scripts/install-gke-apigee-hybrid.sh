@@ -35,16 +35,27 @@ function installDeleteCluster() {
     rm -f terraform.tfstate
   fi
 
+  CLUSTER_NODE_ZONE=$(gcloud compute zones list --filter="region:$REGION" --limit=1 --format=json | \
+    jq '.[0].name' | cut -d '"' -f 2); export CLUSTER_NODE_ZONE;
+
+  #NETWORKS=$(gcloud compute networks list --format=json \
+  #  --filter="name:hybrid-runtime-cluster-vpc" | jq length)
+  #if [[ NETWORKS -eq 0 ]]; then
+  #  IS_CREATE_VPC="true"; export IS_CREATE_VPC
+  #else
+  #  IS_CREATE_VPC="false"; export IS_CREATE_VPC
+  #fi
+
   envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
     "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
+
+  echo "$PROJECT_ID" > install-state.txt
 
   terraform init
   terraform plan \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
   terraform "$1" -auto-approve \
     --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
-
-  echo "$PROJECT_ID" > install-state.txt
 }
 
 function logIntoCluster() {
@@ -121,6 +132,7 @@ installTools
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   banner_info "Step- Install Cluster"
+  checkAndApplyOrgconstranints;
   installDeleteCluster "apply";
 fi
 
@@ -155,3 +167,5 @@ if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
   banner_info "Step- Validation of proxy execution";
   hybridPostInstallIngressGatewayValidation;
 fi
+
+banner_info "COMPLETE"

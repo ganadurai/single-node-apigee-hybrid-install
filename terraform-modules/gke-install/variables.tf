@@ -38,15 +38,6 @@ variable "gke_cluster" {
     master_ip_cidr           = string
     master_authorized_ranges = map(string)
   })
-  default = {
-    name                      = "hybrid-cluster"
-    location                  = "us-central1"
-    master_authorized_ranges  = {
-      "internet" = "0.0.0.0/0"
-    }
-    master_ip_cidr            = "192.168.0.0/28"
-    region                    = "us-central1"
-  }
 }
 
 variable "node_preemptible_runtime" {
@@ -76,4 +67,25 @@ variable "nodepool_autoscaling_config" {
     min_node_count = 1
     max_node_count = 1
   }
+}
+
+variable create_vpc {
+  description = "Flag to control VPC create"
+  type        = bool
+  default     = true
+}
+
+variable "network" {
+  description = "Network name to be used for hosting the instance."
+  type        = string
+}
+
+variable "subnets" {
+  description = "Subnetwork name to be used for hosting the instance."
+  type = list(object({
+    name          = string
+    ip_cidr_range = string
+    region        = string
+    secondary_ip_range = map(string)
+  }))
 }

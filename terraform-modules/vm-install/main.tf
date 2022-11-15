@@ -49,7 +49,7 @@ module "hybrid_vm" {
   network_interfaces = [{
 
     network                  = module.vpc_network.self_link
-    subnetwork               = module.vpc_network.subnet_self_links["${var.hybrid_compute_instance.region}/${var.subnetwork.name}"]
+    subnetwork               = module.vpc_network.subnet_self_links["${var.REGION}/${var.subnetwork.name}"]
 
     subnetwork_project = var.PROJECT_ID
     
@@ -87,7 +87,7 @@ module "vpc_network" {
     {
     name          = var.subnetwork.name
     ip_cidr_range = var.subnetwork.cidr
-    region        = var.hybrid_compute_instance.region
+    region        = var.REGION
     }
   ]
 }

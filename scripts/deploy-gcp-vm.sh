@@ -103,20 +103,6 @@ parse_args() {
     fi
 }
 
-function checkAndApplyOrgconstranints() {
-    echo "checking constraints.."
-
-    
-    RESULT=$(gcloud alpha resource-manager org-policies describe \
-        constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l);
-    if [[ $RESULT -eq 0 ]]; then
-        gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
-        echo "Waiting 60s for org-policy take into effect! "
-        sleep 60
-    fi
-}
-
 function createDestroyVM() {
     cd "$WORK_DIR/terraform-modules/vm-install"
 
@@ -126,6 +112,11 @@ function createDestroyVM() {
         rm -Rf .terraform*
         rm -f terraform.tfstate
     fi
+
+    NODE_ZONE=$(gcloud compute zones list --filter="region:$REGION" --limit=1 --format=json | \
+    jq '.[0].name' | cut -d '"' -f 2); export NODE_ZONE;
+
+    echo "$PROJECT_ID" > install-state.txt
 
     terraform init;
     terraform plan \
@@ -139,7 +130,7 @@ function createDestroyVM() {
         -var="ENV_GROUP=$ENV_GROUP" \
         -var="DOMAIN=$DOMAIN" \
         -var="REGION=$REGION" \
-        -var="ZONE=$REGION-a";
+        -var="ZONE=$NODE_ZONE";
     terraform "$1" -auto-approve \
         -var="PROJECT_ID=${PROJECT_ID}" \
         -var="ORG_ADMIN=${ORG_ADMIN}" \
@@ -151,9 +142,7 @@ function createDestroyVM() {
         -var="ENV_GROUP=$ENV_GROUP" \
         -var="DOMAIN=$DOMAIN" \
         -var="REGION=$REGION" \
-        -var="ZONE=$REGION-a";
-
-    echo "$PROJECT_ID" > install-state.txt
+        -var="ZONE=$NODE_ZONE";
 
 }
 
@@ -162,18 +151,26 @@ parse_args "${@}"
 banner_info "Step- Validatevars";
 validateVars
 
+if [[ $SHOULD_DELETE_VM == "1" ]]; then
+  banner_info "Step- Destroy VM"
+  createDestroyVM "destroy";
+  exit 0;
+fi
+
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   banner_info "Step- Install Project"
   installDeleteProject "apply";
+else
+  enableAPIsAndOrgAdmin;
 fi
-
-banner_info "Check and Apply org constranints"
-checkAndApplyOrgconstranints;
 
 if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
   banner_info "Step- Install Apigee Org"
   installApigeeOrg;
 fi
+
+banner_info "Check and Apply org constranints"
+checkAndApplyOrgconstranints;
 
 if [[ $SHOULD_CREATE_VM == "1" ]]; then
   banner_info "Step- Create VM"
@@ -187,13 +184,8 @@ if [[ $SHOULD_CREATE_VM == "1" ]]; then
   echo "Waiting 2m for the vm to boot up.."
   sleep 120s
   echo "Access the ssh console of the instance"
-  echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$REGION-a/instances/vm-hybrid-instance-1"
+  echo "https://ssh.cloud.google.com/v2/ssh/projects/$PROJECT_ID/zones/$NODE_ZONE/instances/vm-hybrid-instance-1"
   echo ""
-fi
-
-if [[ $SHOULD_DELETE_VM == "1" ]]; then
-  banner_info "Step- Destroy VM"
-  createDestroyVM "destroy";
 fi
 
 

@@ -70,7 +70,7 @@ function hybridPostInstallEnvoyIngressSetup() {
   docker push \
   localhost:"$DOCKER_REGISTRY_PORT"/apigee-hybrid/single-node/envoy-proxy:v1
 
-  SERVICE_NAME=$(kubectl get svc -n "${APIGEE_NAMESPACE}" -l env=eval,app=apigee-runtime --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+  SERVICE_NAME=$(kubectl get svc -n "${APIGEE_NAMESPACE}" -l env="$ENV_NAME",app=apigee-runtime --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
   export SERVICE_NAME;
 
   #Validate the substitutin variables
@@ -108,11 +108,11 @@ gcloud config set project "$PROJECT_ID"
 gcloud auth login "$ORG_ADMIN"
 TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
 
-echo "Step- Validate Docker Install"
-validateDockerInstall
-
 echo "Step- Validatevars";
 validateVars
+
+echo "Step- Validate Docker Install"
+validateDockerInstall
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   echo "Step- Start K3D cluster";
@@ -153,5 +153,7 @@ fi
 if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
   deleteK3DCluster;
 fi
+
+banner_info "COMPLETE"
 
 

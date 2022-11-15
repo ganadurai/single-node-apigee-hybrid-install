@@ -1,0 +1,3 @@
+booleanPolicy:
+  enforced: false
+constraint: constraints/compute.requireOsLogin
