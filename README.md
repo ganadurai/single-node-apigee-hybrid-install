@@ -134,6 +134,8 @@ If following this installation outside of CloudShell, refer to this [section](#l
     cd single-node-apigee-hybrid-install
     export WORK_DIR=$(pwd) 
 
+### Setup Environment variables and tokens
+
 1. Setup Environment variables
     ```bash
     export PROJECT_ID=<gcp-project-id>
@@ -154,6 +156,8 @@ If following this installation outside of CloudShell, refer to this [section](#l
 
     TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
+
+### Install and Validate
 
 1. Execute installation
     ```bash
