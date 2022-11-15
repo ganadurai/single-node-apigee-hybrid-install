@@ -166,6 +166,9 @@ If following this installation outside of CloudShell, refer to this [section](#l
     # If you prefer the VM to be created on a new Project with Apigee org configured use the command below
     ./deploy-gcp-vm.sh --project-create --create-vm
     
+    # If you prefer the VM to be created on an existing Project.
+    ./deploy-gcp-vm.sh --apigee-org-create --create-vm
+
     # If you prefer the VM to be created within an existing Project with Apigee org
     ./deploy-gcp-vm.sh --create-vm
     
@@ -182,7 +185,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
 
 ### Prerequisites
 
-1. Following tools are needed for this setup (git, google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance.
+1. Following tools are needed for this setup (git, [gcloud cli](https://cloud.google.com/sdk/docs/install#linux), google-cloud-sdk-gke-gcloud-auth-plugin, jq, kpt, kubectl, wget, docker). Execute the below commands to setup the tools in the instance.
     ```bash
     sudo apt update
     sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
