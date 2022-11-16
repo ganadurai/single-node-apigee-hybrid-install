@@ -54,7 +54,6 @@ function fetchSingleNodeInstall() {
   cd /opt/install
   git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
   cd single-node-apigee-hybrid-install
-  git checkout qa1-fixes
   
   USERANDGROUP="$(echo "${VAR_ORG_ADMIN}" | tr . "_" | tr "@" "_")"; export USERANDGROUP
   sudo chown -R "$USERANDGROUP":"$USERANDGROUP" /opt/install/single-node-apigee-hybrid-install
