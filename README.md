@@ -287,7 +287,7 @@ If further customization of the resources on the pods is needed, adjust the valu
     ```bash
     ENVOY_POD=$(kubectl -n envoy-ns get pods -l app=envoy-proxy \
     --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-    SERVICE_NAME=$(kubectl get svc -n ${APIGEE_NAMESPACE} -l env=eval,app=apigee-runtime \
+    SERVICE_NAME=$(kubectl get svc -n ${APIGEE_NAMESPACE} -l env="$ENV_NAME",app=apigee-runtime \
     --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
     kubectl -n envoy-ns exec --stdin --tty $ENVOY_POD -- \
     curl https://${SERVICE_NAME}.${APIGEE_NAMESPACE}.svc.cluster.local:8443/hello-world -k -H 'Host: $DOMAIN'
