@@ -52,6 +52,12 @@ function fillResourceValues() {
 }
 
 function moveResourcesSpecsToHybridInstall() {
+  
+  if [[ -z $VM_HOST ]]; then # For non-gcp instance
+      cp -R "${WORK_DIR}/overlays/apigee-controller/googleDefaultCreds" \
+        "$HYBRID_INSTALL_DIR/overlays/controllers/apigee-controller/components"    
+  fi
+
   cp -R "${WORK_DIR}/overlays/datastore/cassandra-resources" \
         "$HYBRID_INSTALL_DIR/overlays/instances/instance1/datastore/components"
 

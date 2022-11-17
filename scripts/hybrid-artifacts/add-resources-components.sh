@@ -27,7 +27,7 @@ function addComponents() { # params kustomizationFile, componentEntries
       components_items=$(yq '.components' "$kustomizationFile" --unwrapScalar=false)
       components_items_count=$(echo "$components_items" | wc -l)
       #echo "components_items_count - $components_items_count"
-      if [[ $components_items_count -eq 1 ]] && [[ $components_items == "null" ]]; then
+      if [[ $components_items_count -eq 1 ]] && [[ $components_items == "null" || $components_items == "" ]]; then
         # To add the components on empty list
         #echo "adding first element.. $componentEntry"
         yq -i '.components[0]="'"$componentEntry"'"' "$kustomizationFile"  
@@ -38,7 +38,34 @@ function addComponents() { # params kustomizationFile, componentEntries
         yq -i '.components += "'"$componentEntry"'"' "$kustomizationFile" 
       fi
   done
-} 
+}
+
+function addComponentsNew() { # params kustomizationFile, componentEntries
+  kustomizationFile=$1
+  componentEntries=$2
+
+  for componentEntry in "${componentEntries[@]}"
+  do
+      #TO find the length of items in the components
+      #echo "Scanning file .."
+      components_items=$(yq '.components' "$kustomizationFile" --unwrapScalar=false)
+      components_items_count=$(echo "$components_items" | wc -l)
+      echo "components_items_count - $components_items_count"
+      echo "components_items=$components_items"
+      echo "components_items length=${#components_items[@]}"
+      echo "components_items[0]=${components_items[0]}"
+      if [[ $components_items_count -eq 1 ]] && [[ $components_items == "null" || $components_items == "" ]]; then
+        # To add the components on empty list
+        echo "adding first element.. $componentEntry"
+        yq -i '.components[0]="'"$componentEntry"'"' "$kustomizationFile"  
+      else
+        echo "adding additional element.. $componentEntry"
+        #yq -i '.components['"$components_items_count"']="'"$componentEntry"'"' "$kustomizationFile"
+        #yq -i '.components += '"$componentEntry" "$kustomizationFile" 
+        yq -i '.components += "'"$componentEntry"'"' "$kustomizationFile" 
+      fi
+  done
+}
 
 function simpleTest() {
   #TO find the length of items in the components

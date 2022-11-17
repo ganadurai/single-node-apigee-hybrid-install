@@ -54,7 +54,7 @@ function fetchSingleNodeInstall() {
   cd /opt/install
   git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
   cd single-node-apigee-hybrid-install
-  git checkout qa1-fixes
+  git checkout local-machine
   
   USERANDGROUP="$(echo "${VAR_ORG_ADMIN}" | tr . "_" | tr "@" "_")"; export USERANDGROUP
   sudo chown -R "$USERANDGROUP":"$USERANDGROUP" /opt/install/single-node-apigee-hybrid-install
@@ -75,6 +75,7 @@ function setEnvVariables() {
     echo "export ORG_NAME=${VAR_ORG_NAME}"
     echo "export CLUSTER_NAME=${VAR_CLUSTER_NAME}"
     echo "export WORK_DIR=$WORK_DIR"
+    echo "export VM_HOST=GCP"
   } >> /etc/profile
 }
 

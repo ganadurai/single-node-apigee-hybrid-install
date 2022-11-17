@@ -283,6 +283,13 @@ function hybridPreInstallOverlaysPrep() {
   echo "Moving resource overlays into Hybrid install source"
   moveResourcesSpecsToHybridInstall;
 
+  if [[ -z $VM_HOST ]]; then # For non-gcp instance
+    echo "Updating controller kustomization"
+    controllerKustomizationFile="$HYBRID_INSTALL_DIR/overlays/controllers/apigee-controller/kustomization.yaml";
+    controllerComponentEntries=("./components/googleDefaultCreds")
+    addComponents "$controllerKustomizationFile" "${controllerComponentEntries[@]}"  
+  fi
+
   echo "Updating datastore kustomization"
   datastoreKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/datastore/kustomization.yaml";
   datastoreComponentEntries=("./components/cassandra-resources")
