@@ -107,7 +107,8 @@ function createDestroyVM() {
     cd "$WORK_DIR/terraform-modules/vm-install"
 
     last_project_id=$(cat install-state.txt)
-    if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
+    #if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
+    if [ "$last_project_id" != "$PROJECT_ID" ]; then
         echo "Clearing up the terraform state"
         rm -Rf .terraform*
         rm -f terraform.tfstate
