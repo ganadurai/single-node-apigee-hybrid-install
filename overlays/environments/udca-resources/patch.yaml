@@ -27,10 +27,10 @@ spec:
           limits:
             memory: 512Mi
           requests:
-            cpu: "100m" # kpt-set: ${FLUENTD_CPU}
-            memory: "64Mi" # kpt-set: ${FLUENTD_MEM}
+            cpu: "25m" # kpt-set: ${FLUENTD_CPU}
+            memory: "32Mi" # kpt-set: ${FLUENTD_MEM}
       - name: apigee-udca
         resources:
           requests:
-            cpu: "100m" # kpt-set: ${UDCA_CPU}
-            memory: "128Mi" # kpt-set: ${UDCA_MEM}
+            cpu: "50m" # kpt-set: ${UDCA_CPU}
+            memory: "64Mi" # kpt-set: ${UDCA_MEM}

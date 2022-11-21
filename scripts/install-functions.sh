@@ -265,13 +265,33 @@ function installApigeeOrg() {
 #}
 
 function fetchHybridInstall() {
-  if [[ -d $WORK_DIR/../apigee-hybrid-install ]]; then #if the script is re-ran, clean it and pull a fresh copy
-    rm -Rf "$WORK_DIR/../apigee-hybrid-install"
+
+  if [[ -z $HYBRID_INSTALL_DIR ]]; then
+    
+    #if the dir exists already
+    if [[ -d $WORK_DIR/../apigee-hybrid-install ]]; then
+      rm -Rf "$WORK_DIR/../apigee-hybrid-install"
+    fi
+
+    cd "$WORK_DIR/.."
+    git clone https://github.com/apigee/apigee-hybrid-install.git
+    HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
+
+  else
+    #If its a re-run of install
+    cd "$HYBRID_INSTALL_DIR"
+    git restore overlays
   fi
 
-  cd "$WORK_DIR/.."
-  git clone https://github.com/apigee/apigee-hybrid-install.git
-  HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
+  #if [[ -d $WORK_DIR/../apigee-hybrid-install ]]; then #if the script is re-ran, clean it and pull a fresh copy
+    #rm -Rf "$WORK_DIR/../apigee-hybrid-install"
+  #fi
+
+  #cd "$WORK_DIR/.."
+  #git clone https://github.com/apigee/apigee-hybrid-install.git
+  #HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
+
+  
 }
 
 function hybridPreInstallOverlaysPrep() {
@@ -284,10 +304,17 @@ function hybridPreInstallOverlaysPrep() {
   moveResourcesSpecsToHybridInstall;
 
   if [[ -z $VM_HOST ]]; then # For non-gcp instance
-    echo "Updating controller kustomization"
+
+    echo "Updating apigee-controller kustomization"
     controllerKustomizationFile="$HYBRID_INSTALL_DIR/overlays/controllers/apigee-controller/kustomization.yaml";
     controllerComponentEntries=("./components/googleDefaultCreds")
-    addComponents "$controllerKustomizationFile" "${controllerComponentEntries[@]}"  
+    addComponents "$controllerKustomizationFile" "${controllerComponentEntries[@]}" 
+
+    echo "Updating apigee-ingressgateway-manager kustomization"
+    ingressManagerKustomizationFile="$HYBRID_INSTALL_DIR/overlays/controllers/apigee-ingressgateway-manager/kustomization.yaml";
+    ingressManagerComponentEntries=("./components/resources")
+    addComponents "$ingressManagerKustomizationFile" "${ingressManagerComponentEntries[@]}" 
+
   fi
 
   echo "Updating datastore kustomization"

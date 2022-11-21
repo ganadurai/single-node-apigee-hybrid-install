@@ -21,6 +21,9 @@ spec:
       containers:
       - name: apigee-cassandra
         resources:
+          limits:
+            cpu: 1 # kpt-set: ${CASSANDRA_CPU_LIMIT}
+            memory: "3Gi" # kpt-set: ${CASSANDRA_MEM_LIMIT}
           requests:
-            cpu: 250m
-            memory: "256Mi" # kpt-set: ${CASSANDRA_MEM}
+            cpu: 250m # kpt-set: ${CASSANDRA_CPU}
+            memory: "1Gi" # kpt-set: ${CASSANDRA_MEM}

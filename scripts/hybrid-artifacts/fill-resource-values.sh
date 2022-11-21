@@ -16,11 +16,13 @@
 
 set -e
 
-function fillResourceValues() {
+function fillResourceValuesV4() {
   kpt fn eval "${WORK_DIR}/overlays/" \
       --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
-      CASSANDRA_CPU="250m" \
-      CASSANDRA_MEM="256Mi" \
+      CASSANDRA_CPU="500m" \
+      CASSANDRA_MEM="512Mi" \
+      CASSANDRA_CPU_LIMIT="2" \
+      CASSANDRA_MEM_LIMIT="4Gi" \
       RUNTIME_CPU="200m" \
       RUNTIME_MEM="256Mi" \
       SYNCHRONIZER_CPU="100m" \
@@ -51,11 +53,52 @@ function fillResourceValues() {
       METRICSADPTR_PROMETHEUS_AGG_MEM="64Mi"
 }
 
+#For V2 machine
+function fillResourceValues() {
+  echo "Filling in resources for V2 machine"
+  kpt fn eval "${WORK_DIR}/overlays/" \
+      --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
+      CASSANDRA_CPU="250m" \
+      CASSANDRA_MEM="1Gi" \
+      CASSANDRA_CPU_LIMIT="1" \
+      CASSANDRA_MEM_LIMIT="3Gi" \
+      RUNTIME_CPU="150m" \
+      RUNTIME_MEM="128Mi" \
+      SYNCHRONIZER_CPU="50m" \
+      SYNCHRONIZER_MEM="64Mi" \
+      FLUENTD_CPU="25m" \
+      FLUENTD_MEM="32Mi" \
+      UDCA_CPU="50m" \
+      UDCA_MEM="64Mi" \
+      CONNECT_CPU="50m" \
+      CONNECT_MEM="32Mi" \
+      INGRESS_GTWY_CPU="50m" \
+      INGRESS_GTWY_MEM="32Mi" \
+      MART_CPU="50m" \
+      MART_MEM="32Mi" \
+      WATCHER_CPU="25m" \
+      WATCHER_MEM="32Mi" \
+      METRICSAPP_STACKDRIVER_CPU="25m" \
+      METRICSAPP_STACKDRIVER_MEM="32Mi" \
+      METRICSAPP_PROMETHEUS_CPU="25m" \
+      METRICSAPP_PROMETHEUS_MEM="32Mi" \
+      METRICSPROXY_PROMETHEUS_CPU="25m" \
+      METRICSPROXY_PROMETHEUS_MEM="32Mi" \
+      METRICSPROXY_STACKDRIVER_CPU="25m" \
+      METRICSPROXY_STACKDRIVER_MEM="32Mi" \
+      METRICSPROXY_PROMETHEUS_AGG_CPU="25m" \
+      METRICSPROXY_PROMETHEUS_AGG_MEM="32Mi" \
+      METRICSADPTR_PROMETHEUS_AGG_CPU="25m" \
+      METRICSADPTR_PROMETHEUS_AGG_MEM="32Mi"
+}
+
 function moveResourcesSpecsToHybridInstall() {
   
   if [[ -z $VM_HOST ]]; then # For non-gcp instance
       cp -R "${WORK_DIR}/overlays/apigee-controller/googleDefaultCreds" \
-        "$HYBRID_INSTALL_DIR/overlays/controllers/apigee-controller/components"    
+        "$HYBRID_INSTALL_DIR/overlays/controllers/apigee-controller/components"
+      cp -R "${WORK_DIR}/overlays/apigee-ingressgateway-manager/resources" \
+        "$HYBRID_INSTALL_DIR/overlays/controllers/apigee-ingressgateway-manager/components"    
   fi
 
   cp -R "${WORK_DIR}/overlays/datastore/cassandra-resources" \

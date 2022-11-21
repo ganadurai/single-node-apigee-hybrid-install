@@ -25,5 +25,5 @@ spec:
       - name: apigee-runtime
         resources:
           requests:
-            cpu: "200m" # kpt-set: ${RUNTIME_CPU}
-            memory: "256Mi" # kpt-set: ${RUNTIME_MEM}
+            cpu: "150m" # kpt-set: ${RUNTIME_CPU}
+            memory: "128Mi" # kpt-set: ${RUNTIME_MEM}

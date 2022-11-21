@@ -25,5 +25,5 @@ spec:
       - name: apigee-synchronizer
         resources:
           requests:
-            cpu: "100m" # kpt-set: ${SYNCHRONIZER_CPU}
-            memory: "128Mi" # kpt-set: ${SYNCHRONIZER_MEM}
+            cpu: "50m" # kpt-set: ${SYNCHRONIZER_CPU}
+            memory: "64Mi" # kpt-set: ${SYNCHRONIZER_MEM}

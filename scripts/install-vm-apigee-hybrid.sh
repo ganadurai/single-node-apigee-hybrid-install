@@ -27,7 +27,7 @@ function installK3DCluster() {
   if [[ -z "$docker_registry_port_mapping" ]]; then
     echo "Installing K3D"
     curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-    k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
+    k3d cluster create -p "443:443" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
   fi
 }
 
@@ -105,7 +105,7 @@ function hybridPostInstallEnvoyIngressValidation() {
 parse_args "${@}"
 
 gcloud config set project "$PROJECT_ID"
-gcloud auth login "$ORG_ADMIN"
+#gcloud auth login "$ORG_ADMIN"
 TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
 
 echo "Step- Validatevars";

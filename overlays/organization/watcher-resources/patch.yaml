@@ -25,5 +25,5 @@ spec:
       - name: apigee-watcher
         resources:
           requests:
-            cpu: "100m" # kpt-set: ${WATCHER_CPU}
+            cpu: "25m" # kpt-set: ${WATCHER_CPU}
             memory: "32Mi" # kpt-set: ${WATCHER_MEM}

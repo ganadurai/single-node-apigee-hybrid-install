@@ -20,6 +20,13 @@ spec:
     spec:
       containers:
       - name: manager
+        resources:
+          limits:
+            cpu: 2
+            memory: 1Gi
+          requests:
+            cpu: 1
+            memory: 512Mi
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /opt/apigee/sa/client_secret.json

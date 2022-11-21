@@ -25,16 +25,16 @@ spec:
             cpu: "500m"
             memory: 5Gi
           requests:
-            cpu: "150m" # kpt-set: ${METRICSAPP_STACKDRIVER_CPU}
-            memory: "64Mi" # kpt-set: ${METRICSAPP_STACKDRIVER_MEM}
+            cpu: "25m" # kpt-set: ${METRICSAPP_STACKDRIVER_CPU}
+            memory: "32Mi" # kpt-set: ${METRICSAPP_STACKDRIVER_MEM}
       - name: apigee-prometheus-app
         resources:
           limits:
             cpu: "1"
             memory: 10Gi
           requests:
-            cpu: "150m" # kpt-set: ${METRICSAPP_PROMETHEUS_CPU}
-            memory: "64Mi" # kpt-set: ${METRICSAPP_PROMETHEUS_MEM}
+            cpu: "25m" # kpt-set: ${METRICSAPP_PROMETHEUS_CPU}
+            memory: "32Mi" # kpt-set: ${METRICSAPP_PROMETHEUS_MEM}
     metricsProxy:
       containers:
       - name: apigee-prometheus-proxy
@@ -43,28 +43,28 @@ spec:
             cpu: "500m"
             memory: 10Gi
           requests:
-            cpu: "125m" # kpt-set: ${METRICSPROXY_PROMETHEUS_CPU}
-            memory: "64Mi" # kpt-set: ${METRICSPROXY_PROMETHEUS_MEM}
+            cpu: "25m" # kpt-set: ${METRICSPROXY_PROMETHEUS_CPU}
+            memory: "32Mi" # kpt-set: ${METRICSPROXY_PROMETHEUS_MEM}
       - name: apigee-stackdriver-exporter
         resources:
           limits:
             cpu: "500m"
             memory: 10Gi
           requests:
-            cpu: "125m" # kpt-set: ${METRICSPROXY_STACKDRIVER_CPU}
-            memory: "64Mi" # kpt-set: ${METRICSPROXY_STACKDRIVER_MEM}
+            cpu: "25m" # kpt-set: ${METRICSPROXY_STACKDRIVER_CPU}
+            memory: "32Mi" # kpt-set: ${METRICSPROXY_STACKDRIVER_MEM}
       - name: apigee-prometheus-agg
         resources:
           limits:
             cpu: "500m"
             memory: 10Gi
           requests:
-            cpu: "125m" # kpt-set: ${METRICSPROXY_PROMETHEUS_AGG_CPU}
-            memory: "64Mi" # kpt-set: ${METRICSPROXY_PROMETHEUS_AGG_MEM}
+            cpu: "25m" # kpt-set: ${METRICSPROXY_PROMETHEUS_AGG_CPU}
+            memory: "32Mi" # kpt-set: ${METRICSPROXY_PROMETHEUS_AGG_MEM}
     metricsAdapter:
       containers:
       - name: apigee-prometheus-adapter
         resources:
           requests:
-            cpu: "50m" # kpt-set: ${METRICSADPTR_PROMETHEUS_AGG_CPU}
-            memory: 64Mi # kpt-set: ${METRICSADPTR_PROMETHEUS_AGG_MEM}
+            cpu: "25m" # kpt-set: ${METRICSADPTR_PROMETHEUS_AGG_CPU}
+            memory: 32Mi # kpt-set: ${METRICSADPTR_PROMETHEUS_AGG_MEM}

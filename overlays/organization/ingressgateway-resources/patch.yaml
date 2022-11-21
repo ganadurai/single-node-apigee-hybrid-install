@@ -29,5 +29,5 @@ spec:
             cpu: "2"
             memory: 1Gi
           requests:
-            cpu: "150m" # kpt-set: ${INGRESS_GTWY_CPU}
-            memory: "64Mi" # kpt-set: ${INGRESS_GTWY_MEM}
+            cpu: "50m" # kpt-set: ${INGRESS_GTWY_CPU}
+            memory: "32Mi" # kpt-set: ${INGRESS_GTWY_MEM}
