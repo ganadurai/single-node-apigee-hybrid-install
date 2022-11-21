@@ -92,6 +92,10 @@ function hybridPostInstallIngressGatewayValidation() {
   echo "$OUTPUT"
   if [[ "$OUTPUT" == *"200"* ]]; then
     printf "\n\nSUCCESS: Hybrid is successfully installed\n\n"
+    echo ""
+    echo "Test the deployed sample proxy:"
+    echo curl -s \"https://$DOMAIN/apigee-hybrid-helloworld\" --resolve \"$DOMAIN:443:$INGRESS_IP_ADDRESS\" -k -i
+    echo "";echo "";
   else
     printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
   fi
