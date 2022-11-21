@@ -97,6 +97,10 @@ function hybridPostInstallEnvoyIngressValidation() {
   printf "\n%s" "$OUTPUT"
   if [[ "$OUTPUT" == *"200"* ]]; then
     printf "\n\nSUCCESS: Hybrid is successfully installed\n\n"
+    echo ""
+    echo "Test the deployed sample proxy:"
+    echo curl localhost:30080/apigee-hybrid-helloworld -H \"Host: $DOMAIN\" -i
+    echo "";echo "";
   else
     printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
   fi
