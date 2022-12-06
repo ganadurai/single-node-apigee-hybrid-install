@@ -27,7 +27,14 @@ function addComponents() { # params kustomizationFile, componentEntries
       components_items=$(yq '.components' "$kustomizationFile" --unwrapScalar=false)
       components_items_count=$(echo "$components_items" | wc -l)
       #echo "components_items_count - $components_items_count"
-      if [[ $components_items_count -eq 1 ]] && [[ $components_items == "null" ]]; then
+      #echo "components_items - $components_items"
+
+      empty_items=0
+      if [[ $components_items == "" ]] || [[ $components_items == "null" ]]; then
+        empty_items=1
+      fi
+
+      if [[ $components_items_count -eq 1 ]] && [[ $empty_items -eq 1 ]]; then
         # To add the components on empty list
         #echo "adding first element.. $componentEntry"
         yq -i '.components[0]="'"$componentEntry"'"' "$kustomizationFile"  
@@ -44,9 +51,14 @@ function simpleTest() {
   #TO find the length of items in the components
   components_items=$(yq '.components' "$WORK_DIR/test-kustomization.yaml")
   components_items_count=$(echo "$components_items" | wc -l)
-
+  echo "$components_items"
   echo "$components_items_count"
-  if [[ $components_items_count -eq 1 ]] && [[ $components_items == "null" ]]; then
+
+  empty_items=0
+  if [[ $components_items == "" ]] || [[ $components_items == "null" ]]; then
+    empty_items=1
+  fi
+  if [[ $components_items_count -eq 1 ]] && [[ empty_items -eq 1 ]]; then
     # To add the components on empty list
     echo "adding"
     yq -i '.components[0]="./components/cassandra-resources"' "$WORK_DIR/test-kustomization.yaml"  
@@ -55,6 +67,8 @@ function simpleTest() {
   fi
 }
 
+#For UNIT TEST
 #kustomizationFile="$WORK_DIR/test-kustomization.yaml";
 #componentEntries=("./components/cassandra-resources" "./components/http-proxy")
 #addComponents "$kustomizationFile" "${componentEntries[@]}"
+

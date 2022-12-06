@@ -3,3 +3,4 @@ terraform-modules/*/.terraform.lock.hcl
 terraform-modules/*/.terraform/
 terraform-modules/*/terraform.tfstate
 terraform-modules/*/terraform.tfstate.backup
+scripts/hybrid-artifacts/test-*.yaml
