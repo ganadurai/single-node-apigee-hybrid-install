@@ -1,3 +1,5 @@
+***This deployment model is intended ONLY for testing and sandbox purposes, **NOT for production deployments**. This setup is **NOT covered under any form of Google support**.***
+
 # Single Node (all-in-one) Hybrid Installation
 
 For simple tests and validation of Apigee Hybrid, are you concerned about the high platform cost and the effort involved in setting it up?
