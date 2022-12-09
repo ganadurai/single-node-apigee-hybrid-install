@@ -287,7 +287,7 @@ function hybridPreInstallOverlaysPrep() {
 
   echo "Updating datastore kustomization"
   datastoreKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/datastore/kustomization.yaml";
-  datastoreComponentEntries=("./components/cassandra-resources")
+  datastoreComponentEntries=("./components/cassandra-resources" "./components/multi-region")
   addComponents "$datastoreKustomizationFile" "${datastoreComponentEntries[@]}"
 
   echo "Updating organization kustomization"
