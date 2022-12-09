@@ -87,6 +87,9 @@ function moveResourcesSpecsToHybridInstall() {
   cp -R "${WORK_DIR}/overlays/datastore/cassandra-resources" \
         "$HYBRID_INSTALL_DIR/overlays/instances/instance1/datastore/components"
 
+  cp -R "${WORK_DIR}/overlays/datastore/multi-region" \
+        "$HYBRID_INSTALL_DIR/overlays/instances/instance1/datastore/components"
+
   cp -R "${WORK_DIR}/overlays/environments/runtime-resources" \
         "$HYBRID_INSTALL_DIR/overlays/instances/instance1/environments/test/components"
 
