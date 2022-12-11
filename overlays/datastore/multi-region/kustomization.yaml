@@ -17,7 +17,7 @@ kind: Component
 
 namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 
-# resources:
+resources:
 # - ./cassandra-data-replication.yaml
 
 patches:

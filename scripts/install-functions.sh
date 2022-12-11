@@ -62,6 +62,7 @@ function validateVars() {
   if [[ -z $ORG_NAME ]]; then
     echo "Environment variable ORG_NAME is not set, setting to PROJECT_ID"
     ORG_NAME=$PROJECT_ID; export ORG_NAME;
+    ORGANIZATION_NAME=$PROJECT_ID; export ORGANIZATION_NAME;
   fi
 
   if [[ -z $ENV_NAME ]]; then
@@ -110,6 +111,19 @@ function validateVars() {
 
   if [[ -z $SUB_NETWORK_NAME ]]; then
     SUB_NETWORK_NAME="hybrid-runtime-cluster-vpc-subnetwork"; export SUB_NETWORK_NAME;
+  fi
+
+  if [[ $SHOULD_PREP_OVERLAYS_ADD_REGION == "1" ]]; then
+    if [[ -z $SEED_IP_ADDRESS ]]; then
+      echo "SEED_IP_ADDRESS is not set, execute the below on the primary kubenetes cluster.., fetch the node associated with apigee-cassandra-default-0 pod : "
+      echo "kubectl get pods -n ${APIGEE_NAMESPACE} -o wide"
+      exit 1
+    fi
+    if [[ -z $SOURCE_CASSANDRA_DC_NAME ]]; then
+      echo "SOURCE_CASSANDRA_DC_NAME is not set, execute the below on the primary kubenetes cluster.. "
+      echo "kubectl get apigeedatastore -n ${APIGEE_NAMESPACE} -o=jsonpath='{.items[*].spec.components.cassandra.properties.datacenter}'"
+      exit 1
+    fi
   fi
 }
 
@@ -278,6 +292,7 @@ function fetchHybridInstall() {
 
 function hybridPreInstallOverlaysPrep() {
 
+  #clone to apigee-hybrid library
   fetchHybridInstall;
 
   echo "Filling in resource values"
@@ -309,6 +324,21 @@ function hybridPreInstallOverlaysPrep() {
   telemetryKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/telemetry/kustomization.yaml";
   componentEntries=("./components/telemetry-resources")
   addComponents "$telemetryKustomizationFile" "${componentEntries[@]}"
+}
+
+function hybridPreInstallOverlaysPrepForRegionExpansion() {
+
+  yq -i '.spec.components.cassandra.properties.multiRegionSeedHost="'"$SEED_IP_ADDRESS"'"' \
+    "${WORK_DIR}/overlays/datastore/multi-region/patch.yaml"
+
+  kpt fn eval "${WORK_DIR}/overlays/datastore/multi-region/cassandra-data-replication.yaml" \
+      --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
+      SOURCE_CASSANDRA_DC_NAME="$SOURCE_CASSANDRA_DC_NAME"
+
+  echo "Updating multi-region kustomization"
+  multiRegionKustomizationFile="${WORK_DIR}/overlays/datastore/multi-region/kustomization.yaml";
+  resourceEntries=("./cassandra-data-replication.yaml")
+  addChildElements "$multiRegionKustomizationFile" ".resources" "${resourceEntries[@]}"
 }
 
 function hybridInstall() {
@@ -454,6 +484,7 @@ usage() {
                                  access the deployed proxy 
     --setup-all                  Used to execute all the tasks that can be performed
                                  by the script.
+    --setup-all-add-region       Expand to multi-region.
     --delete-cluster             Delete cluster.
     --help                       Display usage information.
 EOF
@@ -534,6 +565,16 @@ parse_args() {
         --setup-all)
             export SHOULD_INSTALL_CLUSTER="1"
             export SHOULD_PREP_OVERLAYS="1"
+            export SHOULD_INSTALL_CERT_MNGR="1"
+            export SHOULD_INSTALL_HYBRID="1"
+            export SHOULD_INSTALL_INGRESS="1"
+            export CLUSTER_ACTION="1"
+            shift 1
+            ;;
+        --setup-all-add-region)
+            export SHOULD_INSTALL_CLUSTER="1"
+            export SHOULD_PREP_OVERLAYS="1"
+            export SHOULD_PREP_OVERLAYS_ADD_REGION="1"
             export SHOULD_INSTALL_CERT_MNGR="1"
             export SHOULD_INSTALL_HYBRID="1"
             export SHOULD_INSTALL_INGRESS="1"
