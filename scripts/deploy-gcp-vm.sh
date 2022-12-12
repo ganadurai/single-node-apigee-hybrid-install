@@ -60,6 +60,7 @@ EOF
 # Parse command line arguments.
 ################################################################################
 parse_args() {
+    export SHOULD_SKIP_INSTALL_NETWORK="0"
     export SHOULD_SKIP_INSTALL_CLUSTER="0"
     export CLUSTER_ACTION="0"
     while [[ $# != 0 ]]; do

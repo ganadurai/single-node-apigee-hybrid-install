@@ -19,7 +19,7 @@ data "google_client_config" "provider" {}
 
 resource "google_compute_firewall" "allow-master-webhook" {
   project   = var.project_id
-  name      = "gke-master-apigee-webhooks"
+  name      = "gke-master-apigee-webhooks-${var.region}"
   network   = var.vpc_self_link
   direction = "INGRESS"
   allow {

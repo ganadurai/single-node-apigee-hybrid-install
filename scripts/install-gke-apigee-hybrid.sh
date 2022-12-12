@@ -28,6 +28,16 @@ function installTools() {
 function installDeleteNetwork() {
   cd "$WORK_DIR"/terraform-modules/network-install
 
+  if [[ -z $SUB_NETWORK_NAME_IP_CIDR_RANGE ]]; then
+    SUB_NETWORK_NAME_IP_CIDR_RANGE="10.0.0.0/24"; export SUB_NETWORK_NAME_IP_CIDR_RANGE;
+  fi
+  if [[ -z $SUB_NETWORK_SECONDARY_PODS ]]; then
+    SUB_NETWORK_SECONDARY_PODS="10.100.0.0/20"; export SUB_NETWORK_SECONDARY_PODS;
+  fi
+  if [[ -z $SUB_NETWORK_SECONDARY_SRVICES ]]; then
+    SUB_NETWORK_SECONDARY_SRVICES="10.101.0.0/23"; export SUB_NETWORK_SECONDARY_SRVICES;
+  fi
+
   last_project_id=$(cat install-state.txt)
   if [ "$last_project_id" != "$PROJECT_ID" ]; then
     echo "Clearing up the terraform state"
@@ -35,16 +45,16 @@ function installDeleteNetwork() {
     rm -f terraform.tfstate
   fi
 
-  envsubst < "$WORK_DIR/terraform-modules/gke-install/network.tfvars.tmpl" > \
-    "$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+  envsubst < "$WORK_DIR/terraform-modules/network-install/network.tfvars.tmpl" > \
+    "$WORK_DIR/terraform-modules/network-install/network.tfvars"
 
   echo "$PROJECT_ID" > install-state.txt
 
   terraform init
   terraform plan \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+    --var-file="$WORK_DIR/terraform-modules/network-install/network.tfvars"
   terraform "$1" -auto-approve \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+    --var-file="$WORK_DIR/terraform-modules/network-install/network.tfvars"
 
 }
 

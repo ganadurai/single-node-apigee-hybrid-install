@@ -40,7 +40,7 @@ module "gke-nodepool-default" {
   project_id         = var.project_id
   cluster_name       = var.gke_cluster.name
   location           = var.gke_cluster.location
-  name               = "apigee-default-nodepool"
+  name               = "${var.gke_cluster.name}-apigee-default-nodepool"
   node_machine_type  = var.node_machine_type
   node_preemptible   = var.node_preemptible_runtime
   initial_node_count = 1
