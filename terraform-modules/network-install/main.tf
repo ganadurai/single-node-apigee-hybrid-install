@@ -28,10 +28,7 @@ resource "google_compute_firewall" "allow-master-webhook" {
   }
   target_tags = ["apigee-hybrid"]
   source_ranges = [
-    var.gke_cluster.master_ip_cidr,
-  ]
-  depends_on = [
-    module.gke-cluster
+    var.master_ip_cidr,
   ]
 }
 

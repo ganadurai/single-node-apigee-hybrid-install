@@ -44,3 +44,8 @@ variable "subnets" {
     secondary_ip_range = map(string)
   }))
 }
+
+variable "master_ip_cidr" {
+  description = "Source ip cidr for firewall"
+  default     = "192.168.0.0/28"
+}

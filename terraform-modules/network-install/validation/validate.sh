@@ -36,21 +36,25 @@ function installDeleteNetwork() {
     rm -f terraform.tfstate
   fi
 
-  envsubst < "$WORK_DIR/terraform-modules/gke-install/network.tfvars.tmpl" > \
-    "$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+  envsubst < "$WORK_DIR/terraform-modules/network-install/network.tfvars.tmpl" > \
+    "$WORK_DIR/terraform-modules/network-install/network.tfvars"
 
   echo "$PROJECT_ID" > install-state.txt
 
   terraform init
   terraform plan \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+    --var-file="$WORK_DIR/terraform-modules/network-install/network.tfvars"
   terraform "$1" -auto-approve \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+    --var-file="$WORK_DIR/terraform-modules/network-install/network.tfvars"
 
 }
 
 SUB_NETWORK_NAME_IP_CIDR_RANGE="11.0.0.0/24"; export SUB_NETWORK_NAME_IP_CIDR_RANGE;
 SUB_NETWORK_SECONDARY_PODS="11.100.0.0/20"; export SUB_NETWORK_SECONDARY_PODS;
 SUB_NETWORK_SECONDARY_SRVICES="11.101.0.0/23"; export SUB_NETWORK_SECONDARY_SRVICES;
+
+VPC_NETWORK_NAME="hybrid-runtime-cluster-vpc-2"; export VPC_NETWORK_NAME;
+SUB_NETWORK_NAME="hybrid-runtime-cluster-vpc-subnetwork-2"; export SUB_NETWORK_NAME;
+
 
 installDeleteNetwork "apply";
