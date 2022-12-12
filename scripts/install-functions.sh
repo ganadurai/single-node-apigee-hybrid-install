@@ -248,7 +248,7 @@ function installApigeeOrg() {
   validateAXRegion;
 
   if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
-    echo ""; #Rewrite if condition
+    echo ""; #Skipping because the terraform project creation enables the apis.
   else
     enableAPIsAndOrgAdmin;
   fi
