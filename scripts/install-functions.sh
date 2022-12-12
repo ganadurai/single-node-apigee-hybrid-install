@@ -343,6 +343,8 @@ function hybridPreInstallOverlaysPrepForRegionExpansion() {
 
 function hybridInstall() {
   
+  initializeResourceValues;
+
   printf "\nInstalling and Setting up Hybrid containers\n"
   RESULT=0
   OUTPUT=$("$HYBRID_INSTALL_DIR"/tools/apigee-hybrid-setup.sh \
@@ -540,12 +542,12 @@ parse_args() {
             export SHOULD_INSTALL_NETWORK="1"
             shift 1
             ;;
-        --create-cluster)
-            export SHOULD_INSTALL_CLUSTER="1"
-            shift 1
-            ;;
         --skip-create-network)
             export SHOULD_SKIP_INSTALL_NETWORK="1"
+            shift 1
+            ;;
+        --create-cluster)
+            export SHOULD_INSTALL_CLUSTER="1"
             shift 1
             ;;
         --skip-create-cluster)

@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
+set -e      
 
-function fillResourceValues() {
-  
+function initializeResourceValues() {
   export CASSANDRA_CPU="250m"
   export CASSANDRA_MEM="256Mi"
   export RUNTIME_CPU="200m"
@@ -48,7 +47,12 @@ function fillResourceValues() {
   export METRICSPROXY_PROMETHEUS_AGG_MEM="64Mi"
   export METRICSADPTR_PROMETHEUS_AGG_CPU="50m"
   export METRICSADPTR_PROMETHEUS_AGG_MEM="64Mi"
+}
 
+function fillResourceValues() {
+  
+  initializeResourceValues;
+  
   kpt fn eval "${WORK_DIR}/overlays/" \
       --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
       CASSANDRA_CPU=$CASSANDRA_CPU \
