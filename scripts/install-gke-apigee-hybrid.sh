@@ -25,6 +25,29 @@ function installTools() {
 
 }
 
+function installDeleteNetwork() {
+  cd "$WORK_DIR"/terraform-modules/network-install
+
+  last_project_id=$(cat install-state.txt)
+  if [ "$last_project_id" != "$PROJECT_ID" ]; then
+    echo "Clearing up the terraform state"
+    rm -Rf .terraform*
+    rm -f terraform.tfstate
+  fi
+
+  envsubst < "$WORK_DIR/terraform-modules/gke-install/network.tfvars.tmpl" > \
+    "$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+
+  echo "$PROJECT_ID" > install-state.txt
+
+  terraform init
+  terraform plan \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+  terraform "$1" -auto-approve \
+    --var-file="$WORK_DIR/terraform-modules/gke-install/network.tfvars"
+
+}
+
 function installDeleteCluster() {
   cd "$WORK_DIR"/terraform-modules/gke-install
 
@@ -134,6 +157,11 @@ fi
 
 banner_info "Step - Install Tools"
 installTools
+
+if [[ $SHOULD_INSTALL_NETWORK == "1" ]] && [[ $SHOULD_SKIP_INSTALL_NETWORK == "0" ]]; then
+  banner_info "Step- Install Network"
+  installDeleteNetwork "apply";
+fi
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   banner_info "Step- Install Cluster"

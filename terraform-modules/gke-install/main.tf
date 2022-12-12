@@ -33,9 +33,6 @@ module "gke-cluster" {
     master_ipv4_cidr_block  = var.gke_cluster.master_ip_cidr
     master_global_access    = true
   }
-  depends_on = [
-    module.vpc
-  ]
 }
 
 module "gke-nodepool-default" {
@@ -53,41 +50,4 @@ module "gke-nodepool-default" {
   depends_on = [
     module.gke-cluster
   ]
-}
-
-resource "google_compute_firewall" "allow-master-webhook" {
-  project   = var.project_id
-  name      = "gke-master-apigee-webhooks"
-  network   = var.vpc_self_link
-  direction = "INGRESS"
-  allow {
-    protocol = "tcp"
-    ports    = ["9443"]
-  }
-  target_tags = ["apigee-hybrid"]
-  source_ranges = [
-    var.gke_cluster.master_ip_cidr,
-  ]
-  depends_on = [
-    module.gke-cluster
-  ]
-}
-
-module "nat" {
-  source         = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-cloudnat?ref=v16.0.0"
-  project_id     = var.project_id
-  region         = var.gke_cluster.region
-  name           = "nat-${var.gke_cluster.region}"
-  router_network = var.vpc_self_link
-  depends_on = [
-    module.gke-cluster
-  ]
-}
-
-module "vpc" {
-  source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-vpc?ref=v16.0.0"
-  project_id = var.project_id
-  name       = var.network
-  subnets    = var.subnets
-  count      = var.create_vpc ? 1 : 0
 }

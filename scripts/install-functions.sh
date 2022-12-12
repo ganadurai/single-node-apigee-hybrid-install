@@ -523,6 +523,7 @@ arg_required() {
 # Parse command line arguments.
 ################################################################################
 parse_args() {
+    export SHOULD_SKIP_INSTALL_NETWORK="0"
     export SHOULD_SKIP_INSTALL_CLUSTER="0"
     export CLUSTER_ACTION="0"
     while [[ $# != 0 ]]; do
@@ -535,8 +536,16 @@ parse_args() {
             export SHOULD_CREATE_APIGEE_ORG="1"
             shift 1
             ;;
+        --create-network)
+            export SHOULD_INSTALL_NETWORK="1"
+            shift 1
+            ;;
         --create-cluster)
             export SHOULD_INSTALL_CLUSTER="1"
+            shift 1
+            ;;
+        --skip-create-network)
+            export SHOULD_SKIP_INSTALL_NETWORK="1"
             shift 1
             ;;
         --skip-create-cluster)
@@ -563,6 +572,7 @@ parse_args() {
             shift 1
             ;;
         --setup-all)
+            export SHOULD_INSTALL_NETWORK="1"
             export SHOULD_INSTALL_CLUSTER="1"
             export SHOULD_PREP_OVERLAYS="1"
             export SHOULD_INSTALL_CERT_MNGR="1"
@@ -572,6 +582,7 @@ parse_args() {
             shift 1
             ;;
         --setup-all-add-region)
+            export SHOULD_INSTALL_NETWORK="1"
             export SHOULD_INSTALL_CLUSTER="1"
             export SHOULD_PREP_OVERLAYS="1"
             export SHOULD_PREP_OVERLAYS_ADD_REGION="1"
@@ -605,6 +616,7 @@ parse_args() {
 
     if [[ "${SHOULD_CREATE_PROJECT}"    != "1" && 
           "${SHOULD_CREATE_APIGEE_ORG}" != "1" &&
+          "${SHOULD_INSTALL_NETWORK}"   != "1" &&
           "${SHOULD_INSTALL_CLUSTER}"   != "1" &&
           "${SHOULD_PREP_OVERLAYS}"     != "1" &&
           "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&

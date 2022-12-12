@@ -68,24 +68,3 @@ variable "nodepool_autoscaling_config" {
     max_node_count = 1
   }
 }
-
-variable create_vpc {
-  description = "Flag to control VPC create"
-  type        = bool
-  default     = true
-}
-
-variable "network" {
-  description = "Network name to be used for hosting the instance."
-  type        = string
-}
-
-variable "subnets" {
-  description = "Subnetwork name to be used for hosting the instance."
-  type = list(object({
-    name          = string
-    ip_cidr_range = string
-    region        = string
-    secondary_ip_range = map(string)
-  }))
-}
