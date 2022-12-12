@@ -328,6 +328,7 @@ function hybridPreInstallOverlaysPrep() {
 
 function hybridPreInstallOverlaysPrepForRegionExpansion() {
 
+  #Add an entry "multiRegionSeedHost" under element properties
   yq -i '.spec.components.cassandra.properties.multiRegionSeedHost="'"$SEED_IP_ADDRESS"'"' \
     "${WORK_DIR}/overlays/datastore/multi-region/patch.yaml"
 
