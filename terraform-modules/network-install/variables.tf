@@ -47,5 +47,11 @@ variable "subnets" {
 
 variable "master_ip_cidr" {
   description = "Source ip cidr for firewall"
+  type        = string
   default     = "192.168.0.0/28"
+}
+
+variable "region" {
+  description = "Region"
+  type        = string
 }

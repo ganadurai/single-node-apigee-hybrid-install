@@ -35,8 +35,8 @@ resource "google_compute_firewall" "allow-master-webhook" {
 module "nat" {
   source         = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/net-cloudnat?ref=v16.0.0"
   project_id     = var.project_id
-  region         = var.gke_cluster.region
-  name           = "nat-${var.gke_cluster.region}"
+  region         = var.region
+  name           = "nat-${var.region}"
   router_network = var.vpc_self_link
 }
 
