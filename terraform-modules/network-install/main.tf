@@ -30,6 +30,9 @@ resource "google_compute_firewall" "allow-master-webhook" {
   source_ranges = [
     var.master_ip_cidr,
   ]
+  depends_on = [
+    module.vpc
+  ]
 }
 
 module "nat" {
@@ -38,6 +41,9 @@ module "nat" {
   region         = var.region
   name           = "nat-${var.region}"
   router_network = var.vpc_self_link
+  depends_on = [
+    module.vpc
+  ]
 }
 
 module "vpc" {
