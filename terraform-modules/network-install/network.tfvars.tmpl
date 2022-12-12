@@ -24,10 +24,10 @@ network = "$VPC_NETWORK_NAME"
 
 subnets = [{
   name          = "$SUB_NETWORK_NAME"
-  ip_cidr_range = "10.0.0.0/24"
+  ip_cidr_range = "$SUB_NETWORK_NAME_IP_CIDR_RANGE"
   region        = "$REGION"
   secondary_ip_range = {
-    pods = "10.100.0.0/20"
-    services = "10.101.0.0/23"
+    pods = "$SUB_NETWORK_SECONDARY_PODS"
+    services = "$SUB_NETWORK_SECONDARY_SRVICES"
   }
 }]
