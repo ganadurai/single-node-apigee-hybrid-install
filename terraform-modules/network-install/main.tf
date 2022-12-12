@@ -38,9 +38,6 @@ module "nat" {
   region         = var.gke_cluster.region
   name           = "nat-${var.gke_cluster.region}"
   router_network = var.vpc_self_link
-  depends_on = [
-    module.gke-cluster
-  ]
 }
 
 module "vpc" {
