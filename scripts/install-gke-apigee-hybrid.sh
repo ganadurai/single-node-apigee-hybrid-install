@@ -71,7 +71,7 @@ function installDeleteCluster() {
   if [ -z "$ADDTL_CLUSTER_SAME_REGION" ]; then
     MASTER_IP_CIDR="192.168.0.0/28";export MASTER_IP_CIDR;
   else
-    MASTER_IP_CIDR="172.16.0.0/12";export MASTER_IP_CIDR;
+    MASTER_IP_CIDR="172.16.0.0/28";export MASTER_IP_CIDR;
     echo "Clearing up the terraform state"
     rm -Rf .terraform*
     rm -f terraform.tfstate
