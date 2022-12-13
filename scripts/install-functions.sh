@@ -487,7 +487,7 @@ usage() {
                                  access the deployed proxy 
     --setup-all                  Used to execute all the tasks that can be performed
                                  by the script.
-    --setup-all-add-region       Expand to multi-region.
+    --setup-all-add-cluster      Expand to multi-cluster-region.
     --delete-cluster             Delete cluster.
     --help                       Display usage information.
 EOF
@@ -584,7 +584,7 @@ parse_args() {
             export CLUSTER_ACTION="1"
             shift 1
             ;;
-        --setup-all-add-region)
+        --setup-all-add-cluster)
             export SHOULD_INSTALL_NETWORK="1"
             export SHOULD_INSTALL_CLUSTER="1"
             export SHOULD_PREP_OVERLAYS="1"
