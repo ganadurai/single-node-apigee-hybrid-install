@@ -53,7 +53,7 @@ variable "master_ip_cidr" {
 
 variable "source_ranges" {
   description = "Source ip cidr for firewall"
-  type        = list(string())
+  type        = list(string)
 }
 
 variable "region" {
