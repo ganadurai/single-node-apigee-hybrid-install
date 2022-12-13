@@ -51,6 +51,11 @@ variable "master_ip_cidr" {
   default     = "192.168.0.0/28,172.16.0.16/28"
 }
 
+variable "source_ranges" {
+  description = "Source ip cidr for firewall"
+  type        = list(string())
+}
+
 variable "region" {
   description = "Region"
   type        = string

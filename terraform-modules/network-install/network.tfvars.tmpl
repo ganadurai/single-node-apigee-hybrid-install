@@ -24,6 +24,11 @@ network = "$VPC_NETWORK_NAME"
 
 region = "$REGION"
 
+source_ranges = [
+  "192.168.0.0/28",
+  "172.16.0.16/28"
+]
+
 subnets = [{
   name          = "$SUB_NETWORK_NAME"
   ip_cidr_range = "$SUB_NETWORK_NAME_IP_CIDR_RANGE"

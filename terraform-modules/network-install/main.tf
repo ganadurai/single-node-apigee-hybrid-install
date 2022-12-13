@@ -26,10 +26,12 @@ resource "google_compute_firewall" "allow-master-webhook" {
     protocol = "tcp"
     ports    = ["9443"]
   }
-  //target_tags = ["apigee-hybrid"]
+  /*target_tags = ["apigee-hybrid"]
   source_ranges = [
     var.master_ip_cidr
   ]
+  */
+  source_ranges = var.source_ranges
   depends_on = [
     module.vpc
   ]
