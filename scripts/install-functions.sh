@@ -336,6 +336,9 @@ function hybridPreInstallOverlaysPrepForRegionExpansion() {
       --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
       SOURCE_CASSANDRA_DC_NAME="$SOURCE_CASSANDRA_DC_NAME"
 
+  cp "${WORK_DIR}/overlays/datastore/multi-region/kustomization-src.yaml" \
+    "${WORK_DIR}/overlays/datastore/multi-region/kustomization.yaml"
+
   echo "Updating multi-region kustomization"
   multiRegionKustomizationFile="${WORK_DIR}/overlays/datastore/multi-region/kustomization.yaml";
   resourceEntries=("./cassandra-data-replication.yaml")
