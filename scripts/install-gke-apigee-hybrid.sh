@@ -60,10 +60,18 @@ function installDeleteNetwork() {
 
 function installDeleteCluster() {
   cd "$WORK_DIR"/terraform-modules/gke-install
-
+  
   last_project_id=$(cat install-state.txt)
-  #if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
   if [ "$last_project_id" != "$PROJECT_ID" ]; then
+    echo "Clearing up the terraform state"
+    rm -Rf .terraform*
+    rm -f terraform.tfstate
+  fi
+
+  if [ -z "$ADDTL_CLUSTER_SAME_REGION" ]; then
+    MASTER_IP_CIDR="192.168.0.0/28";export MASTER_IP_CIDR;
+  else
+    MASTER_IP_CIDR="192.169.0.0/28";export MASTER_IP_CIDR;
     echo "Clearing up the terraform state"
     rm -Rf .terraform*
     rm -f terraform.tfstate
@@ -71,14 +79,6 @@ function installDeleteCluster() {
 
   CLUSTER_NODE_ZONE=$(gcloud compute zones list --filter="region:$REGION" --limit=1 --format=json | \
     jq '.[0].name' | cut -d '"' -f 2); export CLUSTER_NODE_ZONE;
-
-  #NETWORKS=$(gcloud compute networks list --format=json \
-  #  --filter="name:hybrid-runtime-cluster-vpc" | jq length)
-  #if [[ NETWORKS -eq 0 ]]; then
-  #  IS_CREATE_VPC="true"; export IS_CREATE_VPC
-  #else
-  #  IS_CREATE_VPC="false"; export IS_CREATE_VPC
-  #fi
 
   envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
     "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"

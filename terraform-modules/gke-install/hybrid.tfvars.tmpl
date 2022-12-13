@@ -16,14 +16,13 @@
 
 project_id = "$PROJECT_ID" 
 
-/** master_ip_cidr            = "192.168.0.0/28" **/
-
 gke_cluster = {
   name                      = "$CLUSTER_NAME"
   location                  = "$REGION"
   master_authorized_ranges  = {
     "internet" = "0.0.0.0/0"
   }
+  master_ip_cidr            = "$MASTER_IP_CIDR"
   region                    = "$REGION"
 }
 
