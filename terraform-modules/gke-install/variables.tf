@@ -54,7 +54,7 @@ variable "node_locations_data" {
 variable "node_machine_type" {
   description = "Machine type for node pool"
   type        = string
-  default     = "e2-standard-4"
+  default     = "e2-standard-8"
 }
 
 variable "nodepool_autoscaling_config" {
