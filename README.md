@@ -101,10 +101,23 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ./install-gke-apigee-hybrid.sh --setup-all
     ```
     
-1. Post installation, log into the cluster and view the pods.
+3. Post installation, log into the cluster, view and confirm the running pods.
     ```bash
     gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
     kubectl -n apigee get pods
+    ```
+
+4. Test the proxy deployed in the environment
+    ```bash
+    gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
+    
+    export INGRESS_IP_ADDRESS=$(kubectl -n apigee get svc -l app=apigee-ingressgateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')
+    export DOMAIN="test.hapigee.com"
+    
+    curl "https://$DOMAIN/apigee-hybrid-helloworld" --resolve "$DOMAIN:443:$INGRESS_IP_ADDRESS" -k -i
+
+    # If deploying a new proxy, update the above curl with the basepath of the proxy.
+    
     ```
 
 ## Apigee Hybrid on a single VM instance
