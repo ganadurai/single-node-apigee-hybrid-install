@@ -280,6 +280,12 @@ If following this installation outside of CloudShell, refer to this [section](#l
     curl localhost:30080/apigee-hybrid-helloworld -H 'Host: $DOMAIN'
     ```
 
+1. Log into the cluster and validate the pods
+    ```bash
+    KUBECONFIG=$(k3d kubeconfig write hybrid-cluster); export KUBECONFIG
+    kubectl -n apigee get pods
+    ```
+
 ## Tunning of pod resource requests
 
 If further customization of the resources on the pods is needed, adjust the values within the file $WORK_DIR/scripts/fill-resource-values.sh
