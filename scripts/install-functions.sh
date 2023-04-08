@@ -273,9 +273,8 @@ function fetchHybridInstall() {
 function prepHybridInstallDirs() {
 
   #fetchHybridInstall;  
-
-  cd "$INSTALL_DIR"
-  export APIGEECTL_BASE=apigeectl-$PROJECT_ID
+  
+  export APIGEECTL_BASE=$WORK_DIR/../apigeectl-$PROJECT_ID
   export APIGEECTL_HOME=$APIGEECTL_BASE/apigeectl
   export HYBRID_FILES=$APIGEECTL_BASE/hybrid-files
 
