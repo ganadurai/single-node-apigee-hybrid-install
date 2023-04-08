@@ -146,10 +146,10 @@ function installDeleteProject() {
   terraform init
   terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
   -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
-  -var "project_create=true" -var "region=$REGION"
+  -var "project_create=true" -var "region=$REGION" -var project_parent="$ORG_ID"
   terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
   -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
-  -var "project_create=true" -var "region=$REGION"
+  -var "project_create=true" -var "region=$REGION" -var project_parent="$ORG_ID"
 }
 
 function validateAXRegion() {
