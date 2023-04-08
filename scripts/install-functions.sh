@@ -316,11 +316,11 @@ function hybridInstall() {
 
   banner_info "Step- Setting up Certs";
   openssl req  -nodes -new -x509 -keyout "$HYBRID_FILES/certs/keystore_$ENV_GROUP.key" -out "$HYBRID_FILES/certs/keystore_$ENV_GROUP.pem" -subj '/CN='$DOMAIN'' -days 3650
-  ls certs/
+  ls "$HYBRID_FILES"/certs/
 
   UNIQUE_INSTANCE_IDENTIFIER=$(cat /proc/sys/kernel/random/uuid);echo $UNIQUE_INSTANCE_IDENTIFIER
-  echo "$UNIQUE_INSTANCE_IDENTIFIER" > ./UNIQUE_INSTANCE_IDENTIFIER.txt
-  cat ./UNIQUE_INSTANCE_IDENTIFIER.txt
+  echo "$UNIQUE_INSTANCE_IDENTIFIER" > "$HYBRID_FILES"/UNIQUE_INSTANCE_IDENTIFIER.txt
+  cat "$HYBRID_FILES"/UNIQUE_INSTANCE_IDENTIFIER.txt
 
   cat <<EOF >> "$HYBRID_FILES/overrides/overrides.yaml"
 gcp:
