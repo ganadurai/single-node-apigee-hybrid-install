@@ -39,18 +39,6 @@ function validateVars() {
       #echo "WORK_DIR=$WORK_DIR"
   fi
 
-  if [[ -z $HYBRID_INSTALL_DIR ]]; then
-      cd "$INSTALL_DIR"
-    
-      export APIGEECTL_BASE=apigeectl-$PROJECT_ID
-      export APIGEECTL_HOME=$APIGEECTL_BASE/apigeectl
-      export HYBRID_FILES=$APIGEECTL_BASE/hybrid-files
-
-      mkdir "$APIGEECTL_BASE"
-      cd "$APIGEECTL_BASE"
-
-  fi
-
   if [[ -z $PROJECT_CREATE ]]; then
     PROJECT_CREATE=false;
   fi
