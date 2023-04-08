@@ -40,9 +40,15 @@ function validateVars() {
   fi
 
   if [[ -z $HYBRID_INSTALL_DIR ]]; then
-      #echo "Environment variable HYBRID_INSTALL_DIR setting now..."
-      HYBRID_INSTALL_DIR="$(pwd)/../../apigee-hybrid-install"; export HYBRID_INSTALL_DIR;
-      #echo "HYBRID_INSTALL_DIR=$HYBRID_INSTALL_DIR"
+      cd "$INSTALL_DIR"
+    
+      export APIGEECTL_BASE=apigeectl-$PROJECT_ID
+      export APIGEECTL_HOME=$APIGEECTL_BASE/apigeectl
+      export HYBRID_FILES=$APIGEECTL_BASE/hybrid-files
+
+      mkdir "$APIGEECTL_BASE"
+      cd "$APIGEECTL_BASE"
+
   fi
 
   if [[ -z $PROJECT_CREATE ]]; then
@@ -276,60 +282,254 @@ function fetchHybridInstall() {
   HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
 }
 
-function hybridPreInstallOverlaysPrep() {
+function prepHybridInstallDirs() {
 
-  fetchHybridInstall;
+  #fetchHybridInstall;  
 
-  echo "Filling in resource values"
-  fillResourceValues;
-  echo "Moving resource overlays into Hybrid install source"
-  moveResourcesSpecsToHybridInstall;
+  cd "$INSTALL_DIR"
+  export APIGEECTL_BASE=apigeectl-$PROJECT_ID
+  export APIGEECTL_HOME=$APIGEECTL_BASE/apigeectl
+  export HYBRID_FILES=$APIGEECTL_BASE/hybrid-files
 
-  echo "Updating datastore kustomization"
-  datastoreKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/datastore/kustomization.yaml";
-  datastoreComponentEntries=("./components/cassandra-resources")
-  addComponents "$datastoreKustomizationFile" "${datastoreComponentEntries[@]}"
+  mkdir "$APIGEECTL_BASE"
+  cd "$APIGEECTL_BASE"
+  VERSION=$(curl -s \
+    https://storage.googleapis.com/apigee-release/hybrid/apigee-hybrid-setup/current-version.txt?ignoreCache=1)
+  echo "APIGEE HYBRID Version = $VERSION"
 
-  echo "Updating organization kustomization"
-  organizationKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/organization/kustomization.yaml";
-  componentEntries=("./components/connect-resources" "./components/ingressgateway-resources" "./components/mart-resources" "./components/watcher-resources")
-  addComponents "$organizationKustomizationFile" "${componentEntries[@]}"
+  curl -LO  https://storage.googleapis.com/apigee-release/hybrid/apigee-hybrid-setup/$VERSION/apigeectl_linux_64.tar.gz
 
-  echo "Updating environment kustomization"
-  environmentKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/environments/test/kustomization.yaml";
-  componentEntries=("./components/runtime-resources" "./components/synchronizer-resources" "./components/udca-resources")
-  addComponents "$environmentKustomizationFile" "${componentEntries[@]}"
+  tar xvzf apigeectl_linux_64.tar.gz -C "$APIGEECTL_BASE"
+  mv *_linux_64 apigeectl
+  rm apigeectl_linux_64.tar.gz
 
-  echo "Updating redis kustomization"
-  redisKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/redis/kustomization.yaml";
-  componentEntries=("./components/redis-resources" "./components/redisenvoy-resources")
-  addComponents "$redisKustomizationFile" "${componentEntries[@]}"
+  mkdir "$HYBRID_FILES"
+  cd "$HYBRID_FILES"
 
-  echo "Updating telemetry kustomization"
-  telemetryKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/telemetry/kustomization.yaml";
-  componentEntries=("./components/telemetry-resources")
-  addComponents "$telemetryKustomizationFile" "${componentEntries[@]}"
+  mkdir overrides
+  mkdir certs
+
+  ln -s "$APIGEECTL_HOME"/tools tools
+  ln -s "$APIGEECTL_HOME"/config config
+  ln -s "$APIGEECTL_HOME"/templates templates
+  ln -s "$APIGEECTL_HOME"/plugins plugins
+  ls -l | grep ^l
 }
 
 function hybridInstall() {
   
-  printf "\nInstalling and Setting up Hybrid containers\n"
-  RESULT=0
-  OUTPUT=$("$HYBRID_INSTALL_DIR"/tools/apigee-hybrid-setup.sh \
-            --org "$ORG_NAME" --env "$ENV_NAME" --envgroup "$ENV_GROUP" \
-            --ingress-domain "$DOMAIN" --cluster-name "$CLUSTER_NAME" \
-            --cluster-region "$REGION" --gcp-project-id "$PROJECT_ID" \
-            --setup-all --verbose > /tmp/hybrid-install-output.txt)
-  printf "\nHybrid Install Result : %s\n" "$OUTPUT"
-  if [[ "$OUTPUT" -eq 1 ]]; then
-    if grep -q 'failed to call webhook: Post "https://cert-manager-webhook.cert-manager.svc:443/validate?timeout=10s"' /tmp/hybrid-install-output.txt  
-    then
-      RESULT=1
-    else
-      RESULT=-1
-    fi
-  fi
-  return $RESULT
+  banner_info "Step- Setting up Service accounts";
+  export SA_NAME=apigee-non-prod
+  export SA_EMAIL=apigee-non-prod@$PROJECT_ID.iam.gserviceaccount.com
+
+  "$HYBRID_FILES"/tools/create-service-account --env non-prod --dir "$HYBRID_FILES"/service-accounts
+  ls "$HYBRID_FILES"/service-accounts
+
+  banner_info "Step- Setting up Certs";
+  openssl req  -nodes -new -x509 -keyout "$HYBRID_FILES/certs/keystore_$ENV_GROUP.key" -out "$HYBRID_FILES/certs/keystore_$ENV_GROUP.pem" -subj '/CN='$DOMAIN'' -days 3650
+  ls certs/
+
+  UNIQUE_INSTANCE_IDENTIFIER=$(cat /proc/sys/kernel/random/uuid);echo $UNIQUE_INSTANCE_IDENTIFIER
+  echo "$UNIQUE_INSTANCE_IDENTIFIER" > ./UNIQUE_INSTANCE_IDENTIFIER.txt
+  cat ./UNIQUE_INSTANCE_IDENTIFIER.txt
+
+  cat <<EOF >> "$HYBRID_FILES/overrides/overrides.yaml"
+gcp:
+  region: $AX_REGION
+  projectID: $PROJECT_ID
+
+org: $ORG_NAME
+
+k8sCluster:
+  name: $CLUSTER_NAME
+  region: $CLUSTER_LOCATION # Must be the closest Google Cloud region to your cluster.
+
+instanceID: "$UNIQUE_INSTANCE_IDENTIFIER"
+
+virtualhosts:
+- name: $ENV_GROUP
+  selector:
+    app: apigee-ingressgateway
+    ingress_name: $ENV_GROUP-ingrs
+  sslCertPath: $HYBRID_FILES/certs/keystore_$ENV_GROUP.pem
+  sslKeyPath: $HYBRID_FILES/certs/keystore_$ENV_GROUP.key
+
+ao:
+  args:
+  # This configuration is introduced in hybrid v1.8
+    disableIstioConfigInAPIServer: true
+
+# This configuration is introduced in hybrid v1.8
+ingressGateways:
+- name: $ENV_GROUP-ingrs # maximum 17 characters. See Known issue 243167389.
+  replicaCountMin: 1
+  replicaCountMax: 1
+  resources:
+    limits:
+      cpu: 150m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+manager:
+  replicaCountMin: 1
+  replicaCountMax: 1
+  resources:
+    limits:
+      cpu: 150m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+envs:
+- name: $ENV_NAME
+  serviceAccountPaths:
+    synchronizer: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+    udca: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+    runtime: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+
+cassandra:
+  hostNetwork: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+
+mart:
+  replicaCountMin: 1
+  replicaCountMax: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  serviceAccountPath: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+
+synchronizer:
+  replicaCountMin: 1
+  replicaCountMax: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+runtime:
+  replicaCountMin: 1
+  replicaCountMax: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+redis:
+  resources:
+    requests:
+      cpu: 50m
+  envoy:
+    resources:
+      limits:
+        cpu: 200m
+      requests:
+        cpu: 50m
+
+fluentd:
+  resources:
+    limits:
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+connectAgent:
+  serviceAccountPath: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+
+metrics:
+  serviceAccountPath: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+  aggregator:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  app:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  appStackdriverExporter:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  proxy:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  proxyStackdriverExporter:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+
+
+udca:
+  replicaCountMin: 1
+  replicaCountMax: 1
+  fluentd:
+    resources:
+      cpu: 100m
+      memory: 128Mi
+  serviceAccountPath: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+
+watcher:
+  serviceAccountPath: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+
+logger:
+  enabled: false
+  serviceAccountPath: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
+
+EOF
+
+  TOKEN=$(gcloud config config-helper --force-auth-refresh --format json | jq -r '.credential.access_token'); echo "$TOKEN"
+  export TOKEN
+
+  curl -X POST -H "Authorization: Bearer ${TOKEN}" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/${ORG_NAME}:setSyncAuthorization" -d '{"identities":["'"serviceAccount:apigee-non-prod@${ORG_NAME}.iam.gserviceaccount.com"'"]}'
+
+  curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/${ORG_NAME}:getSyncAuthorization" -d ''
+
+  cd "$HYBRID_FILES"
+
+  "${APIGEECTL_HOME}"/apigeectl init -f overrides/overrides.yaml --dry-run=client
+  "${APIGEECTL_HOME}"/apigeectl init -f overrides/overrides.yaml	
+  echo "Waiting 3m for the apigee-system.."
+  sleep 180s
+  "${APIGEECTL_HOME}"/apigeectl check-ready -f overrides/overrides.yaml
+
+  kubectl get pods -n apigee-system 
+  kubectl get pods -n apigee
+
+  "${APIGEECTL_HOME}"/apigeectl apply -f overrides/overrides.yaml --dry-run=client
+  "${APIGEECTL_HOME}"/apigeectl apply -f overrides/overrides.yaml
+  echo "Waiting 6m for the apigee namespace.."
+  sleep 360s
+  "${APIGEECTL_HOME}"/apigeectl check-ready -f overrides/overrides.yaml
+
+  kubectl get pods -n apigee
 }
 
 function certManagerInstall() {
@@ -447,7 +647,6 @@ usage() {
                                  container infrastructure.
     --skip-create-cluster        Skips creating the GKE cluster or the VM instance 
                                  (if done already)that hosts container infrastructure.
-    --prep-overlay-files         Creates the overlay files for the spec requests for the pods
     --install-cert-manager       Installs the cert manager in the cluster
     --install-hybrid             Deploys the apigee hybrid runtime place
     --install-ingress            Creates the ingress service to serve as the gatway to 
@@ -512,10 +711,6 @@ parse_args() {
             export SHOULD_SKIP_INSTALL_CLUSTER="1"
             shift 1
             ;;
-        --prep-overlay-files)
-            export SHOULD_PREP_OVERLAYS="1"
-            shift 1
-            ;;
         --install-cert-manager)
             export SHOULD_INSTALL_CERT_MNGR="1"
             export CLUSTER_ACTION="1"
@@ -533,7 +728,7 @@ parse_args() {
             ;;
         --setup-all)
             export SHOULD_INSTALL_CLUSTER="1"
-            export SHOULD_PREP_OVERLAYS="1"
+            export SHOULD_PREP_HYBRID_INSTALL_DIRS="1"
             export SHOULD_INSTALL_CERT_MNGR="1"
             export SHOULD_INSTALL_HYBRID="1"
             export SHOULD_INSTALL_INGRESS="1"
@@ -565,7 +760,6 @@ parse_args() {
     if [[ "${SHOULD_CREATE_PROJECT}"    != "1" && 
           "${SHOULD_CREATE_APIGEE_ORG}" != "1" &&
           "${SHOULD_INSTALL_CLUSTER}"   != "1" &&
-          "${SHOULD_PREP_OVERLAYS}"     != "1" &&
           "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
           "${SHOULD_INSTALL_HYBRID}"    != "1" &&
           "${SHOULD_INSTALL_INGRESS}"   != "1" &&

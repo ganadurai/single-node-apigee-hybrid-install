@@ -126,11 +126,6 @@ fi
 echo "Step- Log into cluster";
 logIntoK3DCluster
 
-if [[ $SHOULD_PREP_OVERLAYS == "1" ]]; then
-  echo "Step- Overlays prep for Install";
-  hybridPreInstallOverlaysPrep;
-fi
-
 if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
   echo "Step- cert manager Install";
   certManagerInstall;

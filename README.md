@@ -33,15 +33,11 @@ If following this installation outside of CloudShell, refer to this [section](#l
     
 1. Install the repos 
     ```bash
+    cd $INSTALL_DIR
     git clone https://github.com/ganadurai/single-node-apigee-hybrid-install.git
     cd single-node-apigee-hybrid-install
     export WORK_DIR=$(pwd)
-    
-    cd $INSTALL_DIR  
-    
-    git clone https://github.com/apigee/apigee-hybrid-install.git
-    cd apigee-hybrid-install
-    export HYBRID_INSTALL_DIR=$(pwd)
+
     ```
 
 ### Setup Environment variables and tokens

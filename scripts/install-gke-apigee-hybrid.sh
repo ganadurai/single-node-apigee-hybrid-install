@@ -146,11 +146,10 @@ if [[ $CLUSTER_ACTION == "1" ]]; then
   logIntoCluster;
 fi
 
-if [[ $SHOULD_PREP_OVERLAYS == "1" ]]; then
+if [[ $SHOULD_PREP_HYBRID_INSTALL_DIRS == "1" ]]; then
   banner_info "Step- Overlays prep for Install";
-  hybridPreInstallOverlaysPrep;
+  prepHybridInstallDirs;
 fi
-
 
 if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
   banner_info "Step- cert manager Install";
