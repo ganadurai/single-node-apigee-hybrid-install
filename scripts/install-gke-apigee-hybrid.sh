@@ -147,7 +147,7 @@ if [[ $CLUSTER_ACTION == "1" ]]; then
 fi
 
 if [[ $SHOULD_PREP_HYBRID_INSTALL_DIRS == "1" ]]; then
-  banner_info "Step- Overlays prep for Install";
+  banner_info "Step- Prepare directories";
   prepHybridInstallDirs;
 fi
 

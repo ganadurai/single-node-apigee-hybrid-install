@@ -273,34 +273,36 @@ function fetchHybridInstall() {
 function prepHybridInstallDirs() {
 
   #fetchHybridInstall;  
-  
+
   export APIGEECTL_BASE=$WORK_DIR/../apigeectl-$PROJECT_ID
   export APIGEECTL_HOME=$APIGEECTL_BASE/apigeectl
   export HYBRID_FILES=$APIGEECTL_BASE/hybrid-files
 
-  mkdir "$APIGEECTL_BASE"
-  cd "$APIGEECTL_BASE"
-  VERSION=$(curl -s \
-    https://storage.googleapis.com/apigee-release/hybrid/apigee-hybrid-setup/current-version.txt?ignoreCache=1)
-  echo "APIGEE HYBRID Version = $VERSION"
+  if [ ! -d "$APIGEECTL_BASE" ]; then
+    mkdir "$APIGEECTL_BASE"
+    cd "$APIGEECTL_BASE"
+    VERSION=$(curl -s \
+      https://storage.googleapis.com/apigee-release/hybrid/apigee-hybrid-setup/current-version.txt?ignoreCache=1)
+    echo "APIGEE HYBRID Version = $VERSION"
 
-  curl -LO  https://storage.googleapis.com/apigee-release/hybrid/apigee-hybrid-setup/$VERSION/apigeectl_linux_64.tar.gz
+    curl -LO  https://storage.googleapis.com/apigee-release/hybrid/apigee-hybrid-setup/$VERSION/apigeectl_linux_64.tar.gz
 
-  tar xvzf apigeectl_linux_64.tar.gz -C "$APIGEECTL_BASE"
-  mv *_linux_64 apigeectl
-  rm apigeectl_linux_64.tar.gz
+    tar xvzf apigeectl_linux_64.tar.gz -C "$APIGEECTL_BASE"
+    mv *_linux_64 apigeectl
+    rm apigeectl_linux_64.tar.gz
 
-  mkdir "$HYBRID_FILES"
-  cd "$HYBRID_FILES"
+    mkdir "$HYBRID_FILES"
+    cd "$HYBRID_FILES"
 
-  mkdir overrides
-  mkdir certs
+    mkdir overrides
+    mkdir certs
 
-  ln -s "$APIGEECTL_HOME"/tools tools
-  ln -s "$APIGEECTL_HOME"/config config
-  ln -s "$APIGEECTL_HOME"/templates templates
-  ln -s "$APIGEECTL_HOME"/plugins plugins
-  ls -l | grep ^l
+    ln -s "$APIGEECTL_HOME"/tools tools
+    ln -s "$APIGEECTL_HOME"/config config
+    ln -s "$APIGEECTL_HOME"/templates templates
+    ln -s "$APIGEECTL_HOME"/plugins plugins
+    ls -l | grep ^l
+  fi
 }
 
 function hybridInstall() {
