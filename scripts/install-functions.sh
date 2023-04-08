@@ -320,9 +320,8 @@ function hybridInstall() {
 
   UNIQUE_INSTANCE_IDENTIFIER=$(cat /proc/sys/kernel/random/uuid);echo $UNIQUE_INSTANCE_IDENTIFIER
   echo "$UNIQUE_INSTANCE_IDENTIFIER" > "$HYBRID_FILES"/UNIQUE_INSTANCE_IDENTIFIER.txt
-  cat "$HYBRID_FILES"/UNIQUE_INSTANCE_IDENTIFIER.txt
-
-  cat <<EOF >> "$HYBRID_FILES/overrides/overrides.yaml"
+  
+  cat <<EOF > "$HYBRID_FILES/overrides/overrides.yaml"
 gcp:
   region: $AX_REGION
   projectID: $PROJECT_ID
