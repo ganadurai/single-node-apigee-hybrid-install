@@ -131,6 +131,20 @@ function installTools() {
 }
 
 function installDeleteProject() {
+
+  if [[ $1 == 'apply' ]] && [[ $DO_PROJECT_CREATE == 'false' ]]; then
+    gcloud services enable --project="${PROJECT_ID}" \
+      "apigee.googleapis.com" \
+      "apigeeconnect.googleapis.com" \
+      "cloudresourcemanager.googleapis.com" \
+      "cloudbilling.googleapis.com" \
+      "compute.googleapis.com" \
+      "container.googleapis.com" \
+      "pubsub.googleapis.com" \
+      "sourcerepo.googleapis.com" \
+      "logging.googleapis.com"
+  fi
+
   cd "$WORK_DIR"/terraform-modules/project-install
 
   last_project_id=$(cat install-state.txt)
