@@ -557,8 +557,8 @@ EOF
 
   "${APIGEECTL_HOME}"/apigeectl apply -f overrides/overrides.yaml --dry-run=client
   "${APIGEECTL_HOME}"/apigeectl apply -f overrides/overrides.yaml
-  echo "Waiting 6m for the apigee namespace.."
-  sleep 360s
+  echo "Waiting 10m for the apigee namespace.."
+  sleep 600s
   "${APIGEECTL_HOME}"/apigeectl check-ready -f overrides/overrides.yaml
 
   kubectl get pods -n apigee
