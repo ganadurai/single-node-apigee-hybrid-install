@@ -343,6 +343,13 @@ virtualhosts:
   sslKeyPath: $HYBRID_FILES/certs/keystore_$ENV_GROUP.key
 
 ao:
+  resources:
+    limits:
+      cpu: 150m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
   args:
   # This configuration is introduced in hybrid v1.8
     disableIstioConfigInAPIServer: true
@@ -354,20 +361,20 @@ ingressGateways:
   replicaCountMax: 1
   resources:
     limits:
-      cpu: 150m
+      cpu: 100m
       memory: 128Mi
     requests:
-      cpu: 100m
+      cpu: 75m
       memory: 128Mi
 manager:
   replicaCountMin: 1
   replicaCountMax: 1
   resources:
     limits:
-      cpu: 150m
+      cpu: 100m
       memory: 128Mi
     requests:
-      cpu: 100m
+      cpu: 75m
       memory: 128Mi
 
 envs:
@@ -410,6 +417,7 @@ runtime:
       memory: 256Mi
 
 redis:
+  replicaCount: 1
   resources:
     requests:
       cpu: 50m
@@ -429,6 +437,14 @@ fluentd:
       memory: 128Mi
 
 connectAgent:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 150m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
   serviceAccountPath: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
 
 metrics:
@@ -476,12 +492,23 @@ metrics:
 
 
 udca:
+  resources:
+    limits:
+      cpu: 150m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
   replicaCountMin: 1
   replicaCountMax: 1
   fluentd:
     resources:
-      cpu: 100m
-      memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
   serviceAccountPath: $HYBRID_FILES/service-accounts/$PROJECT_ID-apigee-non-prod.json
 
 watcher:
@@ -508,7 +535,10 @@ EOF
   sleep 180s
   "${APIGEECTL_HOME}"/apigeectl check-ready -f overrides/overrides.yaml
 
+  echo "Pods in apigee-system :"
   kubectl get pods -n apigee-system 
+  echo ""
+  echo "Pods in apigee :"
   kubectl get pods -n apigee
 
   "${APIGEECTL_HOME}"/apigeectl apply -f overrides/overrides.yaml --dry-run=client
