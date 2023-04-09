@@ -111,7 +111,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
 
 ## Tunning of pod resource requests
 
-If further customization of the resources on the pods is needed, adjust the values within the file $WORK_DIR/scripts/fill-resource-values.sh
+If further customization of the resources on the pods is needed, adjust the values within the file $WORK_DIR/scripts/hybrid-artifacts/hybrid-cluster-spec.sh
 
 ## Troubleshooting
 
