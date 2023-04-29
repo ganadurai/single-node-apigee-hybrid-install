@@ -32,10 +32,12 @@ module "project" {
     "sourcerepo.googleapis.com",
     "logging.googleapis.com"
   ]
+  /*
   policy_boolean = {
     "constraints/compute.requireShieldedVm" = false
     "constraints/iam.disableServiceAccountKeyCreation" = false
   }
+  */
   iam = {
     "roles/apigee.admin" = [
       "user:${var.org_admin}"
