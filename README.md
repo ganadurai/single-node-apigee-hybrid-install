@@ -63,6 +63,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ```bash
     gcloud config set project $PROJECT_ID
     export ORG_ADMIN="<gcp account email>"
+    export ORG_ID="organizations/<project-organization-id>" #For GCP trial this value is "organizations/0"
     gcloud auth login $ORG_ADMIN
 
     TOKEN=$(gcloud auth print-access-token); export TOKEN;
