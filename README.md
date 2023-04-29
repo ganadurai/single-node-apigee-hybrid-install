@@ -95,7 +95,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
     -var project_parent="$ORG_ID"
 
     terraform apply -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
-    -var "project_id=$PROJECT_ID" 
+    -var "project_id=$PROJECT_ID" \
     -var "org_admin=$ORG_ADMIN" \
     -var "project_create=false" \
     -var "region=$REGION" \
