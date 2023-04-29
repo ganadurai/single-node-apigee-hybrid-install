@@ -49,6 +49,8 @@ If following this installation outside of CloudShell, refer to this [section](#l
     export PROJECT_ID=<gcp-project-id>
     export ORG_NAME=<optional, apigee-org-name>
     export REGION=<region>
+    export CLUSTER_LOCATION=$REGION
+    export AX_REGION=<Pick a region where Apigee streams analytics https://cloud.google.com/apigee/docs/api-platform/get-started/install-cli#define-variables>
     export CLUSTER_NAME=<cluster-name>
     export ENV_NAME=<environment name>
     export ENV_GROUP=<environment group name>
