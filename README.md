@@ -42,6 +42,8 @@ If following this installation outside of CloudShell, refer to this [section](#l
 
 ### Setup Environment variables and tokens
 
+1. Manually create GCP Project
+
 1. Setup Environment variables
     ```bash
     export PROJECT_ID=<gcp-project-id>
@@ -64,6 +66,39 @@ If following this installation outside of CloudShell, refer to this [section](#l
     TOKEN=$(gcloud auth print-access-token); export TOKEN;
     ```
 
+1. Enable gcp apis
+    ```bash
+    gcloud services enable --project=${PROJECT_ID} \
+    "apigee.googleapis.com" \
+    "apigeeconnect.googleapis.com" \
+    "cloudresourcemanager.googleapis.com" \
+    "cloudbilling.googleapis.com" \
+    "compute.googleapis.com" \
+    "container.googleapis.com" \
+    "pubsub.googleapis.com" \
+    "sourcerepo.googleapis.com" \
+    "logging.googleapis.com"
+    ```
+
+1. Use terraform to configure the project (network, org-policies etc)
+    ```bash
+    cd $WORK_DIR/terraform-modules/project-install
+    
+    terraform init
+
+    terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
+    -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+    -var "project_create=false" -var "region=$REGION" \
+    -var project_parent="$ORG_ID"
+
+    terraform apply -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
+    -var "project_id=$PROJECT_ID" 
+    -var "org_admin=$ORG_ADMIN" \
+    -var "project_create=false" \
+    -var "region=$REGION" \
+    -var project_parent="$ORG_ID"
+    ```
+
 ### Install and Validate
 
 1. Step into the install directory
@@ -72,14 +107,7 @@ If following this installation outside of CloudShell, refer to this [section](#l
     ```
     
 1. Choose from one of the below deployment models:
-
-* Create GCP project, Apigee Org and deploy Apigee Hybrid
-    ```bash
-    ./install-gke-apigee-hybrid.sh --project-create --setup-all
-
-    # Note: Coninue on the warning message that the project doesn't exist yet.
-    ```
-    
+   
 * Create Apigee Org within an existing GCP Project and deploy Apigee Hybrid.
     ```bash
     ./install-gke-apigee-hybrid.sh --apigee-org-create --setup-all
