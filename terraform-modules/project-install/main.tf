@@ -32,11 +32,14 @@ module "project" {
     "sourcerepo.googleapis.com",
     "logging.googleapis.com"
   ]
-
+  
+  /*
+  This is needed with an valid org account
   policy_boolean = {
     "constraints/compute.requireShieldedVm" = false
     "constraints/iam.disableServiceAccountKeyCreation" = false
   }
+  */
   
   iam = {
     "roles/apigee.admin" = [

@@ -134,7 +134,11 @@ function installTools() {
 
 function installDeleteProject() {
 
-  if [[ $1 == 'apply' ]] && [[ $DO_PROJECT_CREATE == 'false' ]]; then
+  gcloud projects create $PROJECT_ID
+  gcloud alpha billing projects link $PROJECT_ID --billing-account=$BILLING_ACCOUNT_ID
+
+  #if [[ $1 == 'apply' ]] && [[ $DO_PROJECT_CREATE == 'false' ]]; then
+  #  echo "Enabling org policies.."
     gcloud services enable --project="${PROJECT_ID}" \
       "apigee.googleapis.com" \
       "apigeeconnect.googleapis.com" \
@@ -145,27 +149,32 @@ function installDeleteProject() {
       "pubsub.googleapis.com" \
       "sourcerepo.googleapis.com" \
       "logging.googleapis.com"
-  fi
+  #fi
 
-  cd "$WORK_DIR"/terraform-modules/project-install
+  #cd "$WORK_DIR"/terraform-modules/project-install
 
-  last_project_id=$(cat install-state.txt)
+  #last_project_id=$(cat install-state.txt)
   #if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
-  if [ "$last_project_id" != "$PROJECT_ID" ]; then
-    echo "Clearing up the terraform state"
-    rm -Rf .terraform*
-    rm -f terraform.tfstate
-  fi
+  #if [ "$last_project_id" != "$PROJECT_ID" ]; then
+  #  echo "Clearing up the terraform state"
+  #  rm -Rf .terraform*
+  #  rm -f terraform.tfstate
+  #fi
   
-  echo "$PROJECT_ID" > install-state.txt
+  #echo "$PROJECT_ID" > install-state.txt
 
-  terraform init
-  terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
-  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
-  -var "project_create=$DO_PROJECT_CREATE" -var "region=$REGION" -var project_parent="$ORG_ID"
-  terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
-  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
-  -var "project_create=$DO_PROJECT_CREATE" -var "region=$REGION" -var project_parent="$ORG_ID"
+  #terraform init
+
+  #echo terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
+  #-var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  #-var "project_create=$DO_PROJECT_CREATE" -var "region=$REGION" -var project_parent="$ORG_ID"
+
+  #terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
+  #-var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  #-var "project_create=$DO_PROJECT_CREATE" -var "region=$REGION" -var project_parent="$ORG_ID"
+  #terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
+  #-var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  #-var "project_create=$DO_PROJECT_CREATE" -var "region=$REGION" -var project_parent="$ORG_ID"
 }
 
 function validateAXRegion() {
@@ -530,9 +539,14 @@ arg_required() {
 ################################################################################
 parse_args() {
     export SHOULD_SKIP_INSTALL_CLUSTER="0"
+    export SHOULD_SKIP_INSTALL_TOOLS="0"
     export CLUSTER_ACTION="0"
     while [[ $# != 0 ]]; do
         case "${1}" in
+        --install-tools)
+            export SHOULD_INSTALL_TOOLS="1"
+            shift 1
+            ;;
         --project-create)
             export SHOULD_CREATE_PROJECT="1"
             shift 1
@@ -547,6 +561,10 @@ parse_args() {
             ;;
         --skip-create-cluster)
             export SHOULD_SKIP_INSTALL_CLUSTER="1"
+            shift 1
+            ;;
+        --prep-install-dirs)
+            export SHOULD_PREP_HYBRID_INSTALL_DIRS="1"
             shift 1
             ;;
         --install-cert-manager)
@@ -565,6 +583,8 @@ parse_args() {
             shift 1
             ;;
         --setup-all)
+            export SHOULD_CREATE_PROJECT="1"
+            export SHOULD_CREATE_APIGEE_ORG="1"
             export SHOULD_INSTALL_CLUSTER="1"
             export SHOULD_PREP_HYBRID_INSTALL_DIRS="1"
             export SHOULD_INSTALL_CERT_MNGR="1"
@@ -595,14 +615,16 @@ parse_args() {
        export SHOULD_CREATE_APIGEE_ORG="1";
     fi
 
-    if [[ "${SHOULD_CREATE_PROJECT}"    != "1" && 
-          "${SHOULD_CREATE_APIGEE_ORG}" != "1" &&
-          "${SHOULD_INSTALL_CLUSTER}"   != "1" &&
-          "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
-          "${SHOULD_INSTALL_HYBRID}"    != "1" &&
-          "${SHOULD_INSTALL_INGRESS}"   != "1" &&
-          "${SHOULD_DELETE_CLUSTER}"    != "1" &&
-          "${SHOULD_DELETE_PROJECT}"    != "1" ]]; then
+    if [[ "${SHOULD_CREATE_PROJECT}"            != "1" && 
+          "${SHOULD_CREATE_APIGEE_ORG}"         != "1" &&
+          "${SHOULD_INSTALL_TOOLS}"             != "1" &&
+          "${SHOULD_INSTALL_CLUSTER}"           != "1" &&
+          "${SHOULD_PREP_HYBRID_INSTALL_DIRS}"  != "1" &&
+          "${SHOULD_INSTALL_CERT_MNGR}"         != "1" &&
+          "${SHOULD_INSTALL_HYBRID}"            != "1" &&
+          "${SHOULD_INSTALL_INGRESS}"           != "1" &&
+          "${SHOULD_DELETE_CLUSTER}"            != "1" &&
+          "${SHOULD_DELETE_PROJECT}"            != "1" ]]; then
         usage
         exit
     fi

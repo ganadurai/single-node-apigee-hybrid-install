@@ -67,7 +67,7 @@ function logIntoCluster() {
 function hybridPostInstallIngressGatewaySetup() {
   
   export SERVICE_NAME=$ENV_NAME-ingrs-svc
-  export ENV_GROUP_INGRESS=$ENV_GROUP-ingrs
+  export ENV_GROUP_INGRESS=$INGRESS_NAME
   
   envsubst < "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.tmpl" > \
     "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml"

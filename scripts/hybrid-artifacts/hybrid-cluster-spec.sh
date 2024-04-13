@@ -34,7 +34,7 @@ virtualhosts:
 - name: $ENV_GROUP
   selector:
     app: apigee-ingressgateway
-    ingress_name: $ENV_GROUP-ingrs
+    ingress_name: $ENV_GROUP-i
   sslCertPath: $HYBRID_FILES/certs/keystore_$ENV_GROUP.pem
   sslKeyPath: $HYBRID_FILES/certs/keystore_$ENV_GROUP.key
 
