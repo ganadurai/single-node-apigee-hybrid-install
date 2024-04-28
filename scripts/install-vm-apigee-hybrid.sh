@@ -31,7 +31,7 @@ function installTools() {
     brew install wget
     brew install ca-certificates
     brew install gnupg2
-    # brew install software-properties-common
+    brew install software-properties-common
 
     curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 }

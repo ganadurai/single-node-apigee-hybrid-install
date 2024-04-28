@@ -60,43 +60,6 @@ function logIntoCluster() {
   fi
 }
 
-function prepInstallDirs() {
-
-    if [ ! -d "$APIGEE_HYBRID_BASE" ]; then
-        mkdir $APIGEE_HYBRID_BASE
-    fi
-
-    if [ ! -d "$APIGEE_HELM_CHARTS_HOME_ORIG" ]; then
-        mkdir $APIGEE_HELM_CHARTS_HOME_ORIG
-        cd $APIGEE_HELM_CHARTS_HOME_ORIG 
-        export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
-        export CHART_VERSION=1.11.1
-        helm pull $CHART_REPO/apigee-operator --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-datastore --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-env --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-ingress-manager --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-org --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-redis --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-telemetry --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-virtualhost --version $CHART_VERSION --untar
-    fi
-
-    if [ ! -d "$APIGEE_HELM_CHARTS_HOME" ]; then
-        mkdir $APIGEE_HELM_CHARTS_HOME
-        cd $APIGEE_HELM_CHARTS_HOME
-        export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
-        export CHART_VERSION=1.11.1
-        helm pull $CHART_REPO/apigee-operator --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-datastore --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-env --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-ingress-manager --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-org --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-redis --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-telemetry --version $CHART_VERSION --untar
-        helm pull $CHART_REPO/apigee-virtualhost --version $CHART_VERSION --untar
-    fi
-}
-
 function hybridPostInstallIngressGatewaySetup() {
   
   export SERVICE_NAME=$ENV_NAME-ingrs-svc
