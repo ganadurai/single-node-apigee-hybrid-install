@@ -18,6 +18,23 @@ set -e
 
 # shellcheck source=/dev/null
 source ./install-functions.sh
+source ./helm/install-hybrid-helm-functions.sh
+
+source ./helm/set-overrides.sh
+source ./helm/install-crds-cert-mgr.sh
+source ./helm/set-chart-values.sh
+source ./helm/execute-charts.sh
+
+function installTools() {  
+    brew install yq
+    brew install jq
+    brew install wget
+    brew install ca-certificates
+    brew install gnupg2
+    # brew install software-properties-common
+
+    curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+}
 
 function installK3DCluster() {
 
@@ -31,8 +48,28 @@ function installK3DCluster() {
   fi
 }
 
-function deleteK3DCluster() {
-  k3d cluster delete hybrid-cluster;
+function installCluster() {
+    k3d cluster create -p "443:443" -p "30080:30080" $CLUSTER_NAME --registry-create docker-registry
+    K3D_NODE=$(kubectl get nodes -o json | jq '.items[0].metadata.name' | cut -d '"' -f 2)
+    kubectl label nodes $K3D_NODE cloud.google.com/gke-nodepool=apigee-runtime
+
+    kubectl create namespace apigee
+}
+
+function deleteCluster() {
+    k3d cluster delete $CLUSTER_NAME;
+}
+
+function logIntoCluster() {
+  docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
+  jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
+  if [[ -z $docker_registry_port_mapping ]]; then
+    echo "Error in starting the K3D cluster on the instance";
+    exit 1;
+  else
+    echo "K3D cluster running, logging in..."
+    KUBECONFIG=$(k3d kubeconfig write hybrid-cluster); export KUBECONFIG
+  fi
 }
 
 function logIntoK3DCluster() {
@@ -108,32 +145,49 @@ function hybridPostInstallEnvoyIngressValidation() {
 
 parse_args "${@}"
 
-gcloud config set project "$PROJECT_ID"
-gcloud auth login "$ORG_ADMIN"
-TOKEN=$(gcloud auth print-access-token); export TOKEN; echo "$TOKEN"
-
-echo "Step- Validatevars";
+banner_info "Step- Validatevars";
 validateVars
+
+if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
+  banner_info "Step- Install Project"
+  DO_PROJECT_CREATE='false'; #Just enable the org policies
+  installDeleteProject "apply";
+fi
+
+if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
+    banner_info "Step- Install Apigee Org"
+    installApigeeOrg;
+
+    gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+      --member user:${USER_ID} \
+      --role roles/apigee.admin
+fi
 
 echo "Step- Validate Docker Install"
 validateDockerInstall
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
-  echo "Step- Start K3D cluster";
-  installK3DCluster;
+  banner_info "Step- Install Cluster"
+  installCluster;
 fi
 
-echo "Step- Log into cluster";
-logIntoK3DCluster
+if [[ $CLUSTER_ACTION == "1" ]]; then
+  banner_info "Step- Log into cluster";
+  logIntoCluster;
+fi
+
+if [[ $SHOULD_PREP_HYBRID_INSTALL_DIRS == "1" ]]; then
+  banner_info "Step- Prepare directories";
+  prepInstallDirs;
+fi
 
 if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
-  echo "Step- cert manager Install";
-  certManagerInstall;
+  banner_info "Skipped- (this is handled as part of helm installs)";
 fi
 
 if [[ $SHOULD_INSTALL_HYBRID == "1" ]]; then
-  echo "Step- Hybrid Install";
-  hybridRuntimeInstall;
+  banner_info "Step- Hybrid Install";
+  hybridInstallViaHelmCharts; 
 fi
 
 if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
@@ -149,8 +203,19 @@ if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
   hybridPostInstallEnvoyIngressValidation;
 fi
 
+if [[ $SHOULD_DELETE_PROJECT == "1" ]]; then
+  banner_info "Step- Delete Project"
+  installDeleteProject "destroy";
+  echo "Successfully deleted project, exiting"
+  #https://console.cloud.google.com/networking/firewalls/list?project=$PROJECT_ID
+  exit 0;
+fi
+
 if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
-  deleteK3DCluster;
+  banner_info "Step- Delete Cluster"
+  deleteCluster;
+  echo "Successfully deleted cluster, exiting"
+  exit 0;
 fi
 
 banner_info "COMPLETE"

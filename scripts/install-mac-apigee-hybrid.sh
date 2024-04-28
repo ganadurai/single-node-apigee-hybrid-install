@@ -208,28 +208,9 @@ if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
     banner_info "Step- Install Apigee Org"
     installApigeeOrg;
 
-    # validate the executioner has the  roles/apigee.admin
-    # gcloud projects get-iam-policy ${PROJECT_ID}  \
-    #    --flatten="bindings[].members" \
-    #    --format='table(bindings.role)' \
-    #    --filter="bindings.members:${USER_ID}" | grep apigee.admin
-
     gcloud projects add-iam-policy-binding ${PROJECT_ID} \
       --member user:${USER_ID} \
       --role roles/apigee.admin
-
-    # API to enable the required permission for Synchronizer
-    #curl -s -X GET -H "Authorization: Bearer $TOKEN" \
-    #    -H "Content-Type:application/json" \
-    #    "https://apigee.googleapis.com/v1/organizations/${ORG_NAME}:getSyncAuthorization" \
-    #    grep serviceAccount:apigee-non-prod@${PROJECT_ID}.iam.gserviceaccount.com
-    
-    #echo "Required permission for Synchronizer, so adding"
-    #curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
-    #    -H "Content-Type:application/json" \
-    #    "https://apigee.googleapis.com/v1/organizations/${ORG_NAME}:setSyncAuthorization" \
-    #    -d '{"identities":["'"serviceAccount:apigee-non-prod@${PROJECT_ID}.iam.gserviceaccount.com"'"]}'
-           
 fi
 
 if [[ $SHOULD_INSTALL_TOOLS == "1" ]] && [[ $SHOULD_SKIP_INSTALL_TOOLS == "0" ]]; then
@@ -259,7 +240,6 @@ fi
 
 if [[ $SHOULD_INSTALL_HYBRID == "1" ]]; then
   banner_info "Step- Hybrid Install";
-  # install-hybrid-helm-functions.sh
   hybridInstallViaHelmCharts; 
 fi
 
