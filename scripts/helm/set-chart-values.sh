@@ -28,6 +28,8 @@ function fixHelmValues() {
     cd $APIGEE_HELM_CHARTS_HOME
 
     # apigee-datastore/values.yaml
+
+    export CASS_DISK_SIZE="2Gi"     # 10Gi
     export CASS_CPU_REQ="250m"      # 500m
     export CASS_MEM_REQ="512Mi"     # 1Gi
 
