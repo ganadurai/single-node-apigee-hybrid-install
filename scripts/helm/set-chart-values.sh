@@ -77,7 +77,7 @@ function fixHelmValues() {
 
     export KRPX1_CPU_REQ="5m"       # 5m
     export KRPX1_MEM_REQ="32Mi"     # 64Mi
-    export KRPX1_CPU_LIM="25m"      # 500m      # 100m
+    export KRPX1_CPU_LIM="50m"      # 500m      # 100m
     export KRPX1_MEM_LIM="64Mi"     # 128Mi
 
     # apigee-operator/values.yaml
