@@ -30,7 +30,7 @@ function fixHelmValues() {
     # apigee-datastore/values.yaml
 
     export CASS_DISK_SIZE="2Gi"     # 10Gi
-    export CASS_CPU_REQ="125m"      # 500m      # 250m
+    export CASS_CPU_REQ="100m"      # 500m      # 250m
     export CASS_MEM_REQ="256Mi"     # 1Gi       # 512Mi
 
     # apigee-env/values.yaml
@@ -70,14 +70,14 @@ function fixHelmValues() {
     export ISTD_CPU_LIM="100m"      # 1000m
     export ISTD_MEM_LIM="128Mi"     # 1024Mi
 
-    export AO1_CPU_REQ="100m"       # 200m      # 200m
+    export AO1_CPU_REQ="50m"        # 200m      # 200m
     export AO1_MEM_REQ="64Mi"       # 512Mi     # 128Mi
-    export AO1_CPU_LIM="200m"       # 1000m     # 400m
+    export AO1_CPU_LIM="100m"       # 1000m     # 400m
     export AO1_MEM_LIM="128Mi"      # 1024Mi    # 256Mi
 
     export KRPX1_CPU_REQ="5m"       # 5m
     export KRPX1_MEM_REQ="32Mi"     # 64Mi
-    export KRPX1_CPU_LIM="100m"     # 500m
+    export KRPX1_CPU_LIM="25m"      # 500m      # 100m
     export KRPX1_MEM_LIM="64Mi"     # 128Mi
 
     # apigee-operator/values.yaml
@@ -137,19 +137,19 @@ function fixHelmValues() {
     export ENVY_CPU_REQ="100m"      # 500m
 
     # apigee-telemetry/values.yaml
-    export LOGR_CPU_REQ="50m"       # 100m
+    export LOGR_CPU_REQ="25m"       # 100m      # 50m
     export LOGR_MEM_REQ="100Mi"     # 250Mi
-    export LOGR_CPU_LIM="100m"      # 200m
+    export LOGR_CPU_LIM="50m"       # 200m      # 100m
     export LOGR_MEM_LIM="200Mi"     # 500Mi
 
-    export MTRC_CPU_REQ="100m"      # 128m
+    export MTRC_CPU_REQ="50m"       # 128m      # 100m
     export MTRC_MEM_REQ="64Mi"      # 512Mi
-    export MTRC_CPU_LIM="150m"      # 500m
+    export MTRC_CPU_LIM="75m"       # 500m      # 150m
     export MTRC_MEM_LIM="128Mi"     # 1Gi
 
-    export SDRV_CPU_REQ="100m"      # 128m
+    export SDRV_CPU_REQ="50m"       # 128m      # 100m
     export SDRV_MEM_REQ="64Mi"      # 512Mi
-    export SDRV_CPU_LIM="150m"      # 500m
+    export SDRV_CPU_LIM="75m"       # 500m      # 150m
     export SDRV_MEM_LIM="128Mi"     # 1Gi
 
     # apigee-datastore/values.yaml
