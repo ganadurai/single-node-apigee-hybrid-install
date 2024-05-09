@@ -65,14 +65,14 @@ function fixHelmValues() {
     export FLND_MEM_LIM="64Mi"      # 500Mi
 
     # apigee-ingress-manager/values.yaml
-    export ISTD_CPU_REQ="25m"       # 200m      # 50m
+    export ISTD_CPU_REQ="50m"       # 200m      # 50m
     export ISTD_MEM_REQ="64Mi"      # 512Mi
-    export ISTD_CPU_LIM="50m"       # 1000m     # 100m
+    export ISTD_CPU_LIM="75m"       # 1000m     # 100m
     export ISTD_MEM_LIM="128Mi"     # 1024Mi
 
-    export AO1_CPU_REQ="25m"        # 200m      # 200m
+    export AO1_CPU_REQ="50m"        # 200m      # 200m
     export AO1_MEM_REQ="64Mi"       # 512Mi     # 128Mi
-    export AO1_CPU_LIM="50m"        # 1000m     # 400m
+    export AO1_CPU_LIM="75m"        # 1000m     # 400m
     export AO1_MEM_LIM="128Mi"      # 1024Mi    # 256Mi
 
     export KRPX1_CPU_REQ="5m"       # 5m
