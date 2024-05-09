@@ -44,19 +44,19 @@ function fixHelmValues() {
     export SYNC_RYDNS_TOU="5"       # 1
     export SYNC_RYDNS_INI="89"      # 0
 
-    export RUNT_CPU_REQ="150m"      # 500m
-    export RUNT_MEM_REQ="256Mi"     # 512Mi
-    export RUNT_CPU_LIM="200m"      # 4000m
-    export RUNT_MEM_LIM="512Mi"     # 6Gi
+    export RUNT_CPU_REQ="50m"       # 500m      # 150m
+    export RUNT_MEM_REQ="64Mi"      # 512Mi     # 256Mi     
+    export RUNT_CPU_LIM="100m"      # 4000m     # 200m
+    export RUNT_MEM_LIM="128Mi"     # 6Gi       # 512Mi
 
     export RUNT_LIVNS_TOU="5"       # 5
     export RUNT_LIVNS_INI="89"      # 15
     export RUNT_RYDNS_TOU="5"       # 1
     export RUNT_RYDNS_INI="89"      # 15
 
-    export UDCA_CPU_REQ="50m"       # 250m
+    export UDCA_CPU_REQ="25m"       # 250m      # 50m
     export UDCA_MEM_REQ="64Mi"      # 256Mi
-    export UDCA_CPU_LIM="100m"      # 1000m
+    export UDCA_CPU_LIM="50m"       # 1000m     # 100m
     export UDCA_MEM_LIM="128Mi"     # 2Gi
 
     export FLND_CPU_REQ="25m"       # 500m
