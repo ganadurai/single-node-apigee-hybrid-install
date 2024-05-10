@@ -70,9 +70,9 @@ function fixHelmValues() {
     export ISTD_CPU_LIM="100m"      # 1000m     # 100m
     export ISTD_MEM_LIM="128Mi"     # 1024Mi
 
-    export AO1_CPU_REQ="50m"        # 200m      # 200m
+    export AO1_CPU_REQ="100m"       # 200m      # 200m
     export AO1_MEM_REQ="64Mi"       # 512Mi     # 128Mi
-    export AO1_CPU_LIM="100m"       # 1000m     # 400m
+    export AO1_CPU_LIM="200m"       # 1000m     # 400m
     export AO1_MEM_LIM="128Mi"      # 1024Mi    # 256Mi
 
     export KRPX1_CPU_REQ="5m"       # 5m
@@ -102,9 +102,9 @@ function fixHelmValues() {
     export INGS_CPU_LIM="50m"       # 2000m     # 100m
     export INGS_MEM_LIM="128Mi"     # 1Gi
     
-    export MART_CPU_REQ="50m"       # 500m      # 200m
+    export MART_CPU_REQ="100m"      # 500m      # 200m
     export MART_MEM_REQ="128Mi"     # 512Mi     # 256Mi
-    export MART_CPU_LIM="100m"      # 2000m     # 300m
+    export MART_CPU_LIM="200m"      # 2000m     # 300m
     export MART_MEM_LIM="256Mi"     # 5Gi       # 512Mi
 
     export MART_LIVNS_TOU="3"       # 1
