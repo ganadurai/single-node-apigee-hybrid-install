@@ -34,20 +34,20 @@ function fixHelmValues() {
     export CASS_MEM_REQ="256Mi"     # 1Gi       # 512Mi
 
     # apigee-env/values.yaml
-    export SYNC_CPU_REQ="25m"       # 100m      # 100m
-    export SYNC_MEM_REQ="128Mi"     # 512Mi     # 256Mi
-    export SYNC_CPU_LIM="50m"       # 2000m     # 200m
-    export SYNC_MEM_LIM="256Mi"     # 5Gi       # 512Mi
+    export SYNC_CPU_REQ="100m"      # 100m      # 100m
+    export SYNC_MEM_REQ="256Mi"     # 512Mi     # 256Mi
+    export SYNC_CPU_LIM="200m"      # 2000m     # 200m
+    export SYNC_MEM_LIM="512Mi"     # 5Gi       # 512Mi
 
     export SYNC_LIVNS_TOU="5"       # 1
     export SYNC_LIVNS_INI="89"      # 15
     export SYNC_RYDNS_TOU="5"       # 1
     export SYNC_RYDNS_INI="89"      # 0
 
-    export RUNT_CPU_REQ="50m"       # 500m      # 150m
-    export RUNT_MEM_REQ="64Mi"      # 512Mi     # 256Mi     
-    export RUNT_CPU_LIM="100m"      # 4000m     # 200m
-    export RUNT_MEM_LIM="128Mi"     # 6Gi       # 512Mi
+    export RUNT_CPU_REQ="150m"      # 500m      # 150m
+    export RUNT_MEM_REQ="256Mi"     # 512Mi     # 256Mi     
+    export RUNT_CPU_LIM="200m"      # 4000m     # 200m
+    export RUNT_MEM_LIM="512Mi"     # 6Gi       # 512Mi
 
     export RUNT_LIVNS_TOU="5"       # 5
     export RUNT_LIVNS_INI="89"      # 15
@@ -102,10 +102,10 @@ function fixHelmValues() {
     export INGS_CPU_LIM="50m"       # 2000m     # 100m
     export INGS_MEM_LIM="128Mi"     # 1Gi
     
-    export MART_CPU_REQ="100m"      # 500m      # 200m
-    export MART_MEM_REQ="128Mi"     # 512Mi     # 256Mi
+    export MART_CPU_REQ="200m"      # 500m      # 200m
+    export MART_MEM_REQ="256Mi"     # 512Mi     # 256Mi
     export MART_CPU_LIM="300m"      # 2000m     # 300m
-    export MART_MEM_LIM="256Mi"     # 5Gi       # 512Mi
+    export MART_MEM_LIM="512Mi"     # 5Gi       # 512Mi
 
     export MART_LIVNS_TOU="3"       # 1
     export MART_LIVNS_INI="89"      # 30
