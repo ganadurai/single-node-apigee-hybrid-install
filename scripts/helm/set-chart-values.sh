@@ -104,7 +104,7 @@ function fixHelmValues() {
     
     export MART_CPU_REQ="100m"      # 500m      # 200m
     export MART_MEM_REQ="128Mi"     # 512Mi     # 256Mi
-    export MART_CPU_LIM="200m"      # 2000m     # 300m
+    export MART_CPU_LIM="300m"      # 2000m     # 300m
     export MART_MEM_LIM="256Mi"     # 5Gi       # 512Mi
 
     export MART_LIVNS_TOU="3"       # 1
