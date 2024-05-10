@@ -34,20 +34,22 @@ function fixHelmValues() {
     export CASS_MEM_REQ="256Mi"     # 1Gi       # 512Mi
 
     # apigee-env/values.yaml
-    export SYNC_CPU_REQ="100m"      # 100m      # 100m
-    export SYNC_MEM_REQ="256Mi"     # 512Mi     # 256Mi
-    export SYNC_CPU_LIM="200m"      # 2000m     # 200m
-    export SYNC_MEM_LIM="512Mi"     # 5Gi       # 512Mi
+    #Can't go below further
+    export SYNC_CPU_REQ="100m"      # 100m
+    export SYNC_MEM_REQ="256Mi"     # 512Mi
+    export SYNC_CPU_LIM="200m"      # 2000m
+    export SYNC_MEM_LIM="512Mi"     # 5Gi
 
     export SYNC_LIVNS_TOU="5"       # 1
     export SYNC_LIVNS_INI="89"      # 15
     export SYNC_RYDNS_TOU="5"       # 1
     export SYNC_RYDNS_INI="89"      # 0
 
-    export RUNT_CPU_REQ="150m"      # 500m      # 150m
-    export RUNT_MEM_REQ="256Mi"     # 512Mi     # 256Mi     
-    export RUNT_CPU_LIM="200m"      # 4000m     # 200m
-    export RUNT_MEM_LIM="512Mi"     # 6Gi       # 512Mi
+    #Can't go below further
+    export RUNT_CPU_REQ="150m"      # 500m
+    export RUNT_MEM_REQ="256Mi"     # 512Mi    
+    export RUNT_CPU_LIM="200m"      # 4000m
+    export RUNT_MEM_LIM="512Mi"     # 6Gi
 
     export RUNT_LIVNS_TOU="5"       # 5
     export RUNT_LIVNS_INI="89"      # 15
@@ -65,9 +67,10 @@ function fixHelmValues() {
     export FLND_MEM_LIM="64Mi"      # 500Mi
 
     # apigee-ingress-manager/values.yaml
-    export ISTD_CPU_REQ="50m"       # 200m      # 50m
+    #Can't go below further
+    export ISTD_CPU_REQ="50m"       # 200m
     export ISTD_MEM_REQ="64Mi"      # 512Mi
-    export ISTD_CPU_LIM="100m"      # 1000m     # 100m
+    export ISTD_CPU_LIM="100m"      # 1000m
     export ISTD_MEM_LIM="128Mi"     # 1024Mi
 
     export AO1_CPU_REQ="100m"       # 200m      # 200m
@@ -75,9 +78,10 @@ function fixHelmValues() {
     export AO1_CPU_LIM="200m"       # 1000m     # 400m
     export AO1_MEM_LIM="128Mi"      # 1024Mi    # 256Mi
 
+    #Can't go below further
     export KRPX1_CPU_REQ="5m"       # 5m
     export KRPX1_MEM_REQ="32Mi"     # 64Mi
-    export KRPX1_CPU_LIM="100m"     # 500m      # 100m
+    export KRPX1_CPU_LIM="100m"     # 500m
     export KRPX1_MEM_LIM="64Mi"     # 128Mi
 
     # apigee-operator/values.yaml
@@ -102,10 +106,11 @@ function fixHelmValues() {
     export INGS_CPU_LIM="50m"       # 2000m     # 100m
     export INGS_MEM_LIM="128Mi"     # 1Gi
     
-    export MART_CPU_REQ="200m"      # 500m      # 200m
-    export MART_MEM_REQ="256Mi"     # 512Mi     # 256Mi
-    export MART_CPU_LIM="300m"      # 2000m     # 300m
-    export MART_MEM_LIM="512Mi"     # 5Gi       # 512Mi
+    #Can't go below further
+    export MART_CPU_REQ="200m"      # 500m
+    export MART_MEM_REQ="256Mi"     # 512Mi
+    export MART_CPU_LIM="300m"      # 2000m
+    export MART_MEM_LIM="512Mi"     # 5Gi
 
     export MART_LIVNS_TOU="3"       # 1
     export MART_LIVNS_INI="89"      # 30
