@@ -46,7 +46,7 @@ module "gke-nodepool-default" {
   name               = "apigee-default-nodepool"
   node_machine_type  = var.node_machine_type
   node_preemptible   = var.node_preemptible_runtime
-  initial_node_count = 1
+  initial_node_count = 2
   node_tags          = ["apigee-hybrid"]
   node_locations     = var.node_locations_data
   autoscaling_config = var.nodepool_autoscaling_config

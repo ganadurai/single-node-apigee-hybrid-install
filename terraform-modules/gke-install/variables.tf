@@ -64,8 +64,8 @@ variable "nodepool_autoscaling_config" {
     max_node_count = number
   })
   default = {
-    min_node_count = 1
-    max_node_count = 1
+    min_node_count = 2
+    max_node_count = 2
   }
 }
 

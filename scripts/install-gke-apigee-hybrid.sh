@@ -28,12 +28,13 @@ function installTools() {
 function installDeleteCluster() {
   cd "$WORK_DIR"/terraform-modules/gke-install
 
-  last_project_id=$(cat install-state.txt)
-  #if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
-  if [ "$last_project_id" != "$PROJECT_ID" ]; then
-    echo "Clearing up the terraform state"
-    rm -Rf .terraform*
-    rm -f terraform.tfstate
+  if [ -f "install-state.txt" ]; then
+      last_project_id=$(cat install-state.txt)
+      if [ "$last_project_id" != "$PROJECT_ID" ]; then
+          echo "Clearing up the terraform state"
+          rm -Rf .terraform*
+          rm -f terraform.tfstate
+      fi
   fi
 
   CLUSTER_NODE_ZONE=$(gcloud compute zones list --filter="region:$REGION" --limit=1 --format=json | \
@@ -67,7 +68,7 @@ function logIntoCluster() {
 function hybridPostInstallIngressGatewaySetup() {
   
   export SERVICE_NAME=$ENV_NAME-ingrs-svc
-  export ENV_GROUP_INGRESS=$ENV_GROUP-ingrs
+  export ENV_GROUP_INGRESS=$INGRESS_NAME
   
   envsubst < "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.tmpl" > \
     "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml"
@@ -146,11 +147,10 @@ if [[ $CLUSTER_ACTION == "1" ]]; then
   logIntoCluster;
 fi
 
-if [[ $SHOULD_PREP_OVERLAYS == "1" ]]; then
-  banner_info "Step- Overlays prep for Install";
-  hybridPreInstallOverlaysPrep;
+if [[ $SHOULD_PREP_HYBRID_INSTALL_DIRS == "1" ]]; then
+  banner_info "Step- Prepare directories";
+  prepHybridInstallDirs;
 fi
-
 
 if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
   banner_info "Step- cert manager Install";

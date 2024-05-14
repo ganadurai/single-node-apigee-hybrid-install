@@ -26,54 +26,14 @@ source ./helm/set-chart-values.sh
 source ./helm/execute-charts.sh
 
 function installTools() {  
-    sudo apt update
-    sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
-    sudo apt-get install git -y
-    sudo apt-get install jq -y
-    sudo apt-get install google-cloud-sdk-kpt -y
-    sudo apt-get install kubectl -y
-    sudo apt-get install wget -y
+    brew install yq
+    brew install jq
+    brew install wget
+    brew install ca-certificates
+    brew install gnupg2
+    # brew install software-properties-common
 
-    sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
-    tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
-
-    #Install K3d
     curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-
-    #Install Terraform --Ubuntu(GCP VM E2 Micro)
-    sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-    wget -O- https://apt.releases.hashicorp.com/gpg | \
-      gpg --dearmor | \
-      sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-      https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-      sudo tee /etc/apt/sources.list.d/hashicorp.list
-    sudo apt update
-    sudo apt-get install terraform
-
-    #Install docker
-    sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-    echo "Waiting for 10s..."
-    sleep 10
-    sudo apt-get update
-    sudo apt install --yes docker-ce
-    sudo usermod -aG docker $USER
-
-    printf "\n\n\nPlease close your shell session and reopen for the installs to be configured correctly !!\n\n"
-}
-
-function installK3DCluster() {
-
-  # Check if the docker-registry exists, if so the K3D cluster is already running
-  docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
-    jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
-  if [[ -z "$docker_registry_port_mapping" ]]; then
-    echo "Installing K3D"
-    curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-    k3d cluster create -p "443:443" -p "10256:10256" -p "30080:30080" hybrid-cluster --registry-create docker-registry 
-  fi
 }
 
 function installCluster() {
@@ -100,16 +60,41 @@ function logIntoCluster() {
   fi
 }
 
-function logIntoK3DCluster() {
+function hybridPostInstallIngressGatewaySetup() {
   
-  docker_registry_port_mapping=$(docker ps -f name=docker-registry --format "{{ json . }}" | \
-  jq 'select( .Status | contains("Up")) | .Ports '); export docker_registry_port_mapping
-  if [[ -z $docker_registry_port_mapping ]]; then
-    echo "Error in starting the K3D cluster on the instance";
-    exit 1;
+  export SERVICE_NAME=$ENV_NAME-ingrs-svc
+  export ENV_GROUP_INGRESS=$INGRESS_NAME
+  
+  envsubst < "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.tmpl" > \
+    "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml"
+
+  kubectl apply -f "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml"
+
+  echo "Waiting 60s for the Load balancer deployment for the ingress ..."
+  sleep 60
+
+  kubectl get svc -n apigee -l app=apigee-ingressgateway
+  
+  export INGRESS_IP_ADDRESS=$(kubectl -n apigee get svc -l app=apigee-ingressgateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')
+  
+  curl -H 'User-Agent: GoogleHC/' "https://$DOMAIN/healthz/ingress" -k \
+    --resolve "$DOMAIN:443:$INGRESS_IP_ADDRESS"
+
+}
+
+function hybridPostInstallIngressGatewayValidation() {
+
+  OUTPUT=$(curl -s "https://$DOMAIN/apigee-hybrid-helloworld" \
+                --resolve "$DOMAIN:443:$INGRESS_IP_ADDRESS" -k -i | grep HTTP); export OUTPUT
+  echo "$OUTPUT"
+  if [[ "$OUTPUT" == *"200"* ]]; then
+    printf "\n\nSUCCESS: Hybrid is successfully installed\n\n"
+    echo ""
+    echo "Test the deployed sample proxy:"
+    echo curl -s \"https://$DOMAIN/apigee-hybrid-helloworld\" --resolve \"$DOMAIN:443:$INGRESS_IP_ADDRESS\" -k -i
+    echo "";echo "";
   else
-    echo "K3D cluster running, logging in..."
-    KUBECONFIG=$(k3d kubeconfig write hybrid-cluster); export KUBECONFIG
+    printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
   fi
 }
 
@@ -191,11 +176,14 @@ if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
       --role roles/apigee.admin
 fi
 
-echo "Step- Validate Docker Install"
-validateDockerInstall
+if [[ $SHOULD_INSTALL_TOOLS == "1" ]] && [[ $SHOULD_SKIP_INSTALL_TOOLS == "0" ]]; then
+  banner_info "Step - Install Tools"
+  installTools
+fi
 
 if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
   banner_info "Step- Install Cluster"
+  #checkAndApplyOrgconstranints;
   installCluster;
 fi
 
@@ -247,5 +235,3 @@ if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
 fi
 
 banner_info "COMPLETE"
-
-

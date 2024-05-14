@@ -20,6 +20,8 @@ set -e
 source ./hybrid-artifacts/fill-resource-values.sh
 # shellcheck source=/dev/null
 source ./hybrid-artifacts/add-resources-components.sh
+# shellcheck source=/dev/null
+source ./hybrid-artifacts/hybrid-cluster-spec.sh
 
 SCRIPT_NAME="${0##*/}"
 
@@ -32,17 +34,48 @@ function validateDockerInstall() {
   fi
 }
 
+function prepInstallDirs() {
+
+    if [ ! -d "$APIGEE_HYBRID_BASE" ]; then
+        mkdir $APIGEE_HYBRID_BASE
+    fi
+
+    if [ ! -d "$APIGEE_HELM_CHARTS_HOME_ORIG" ]; then
+        mkdir $APIGEE_HELM_CHARTS_HOME_ORIG
+        cd $APIGEE_HELM_CHARTS_HOME_ORIG 
+        export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
+        export CHART_VERSION=1.11.1
+        helm pull $CHART_REPO/apigee-operator --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-datastore --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-env --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-ingress-manager --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-org --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-redis --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-telemetry --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-virtualhost --version $CHART_VERSION --untar
+    fi
+
+    if [ ! -d "$APIGEE_HELM_CHARTS_HOME" ]; then
+        mkdir $APIGEE_HELM_CHARTS_HOME
+        cd $APIGEE_HELM_CHARTS_HOME
+        export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
+        export CHART_VERSION=1.11.1
+        helm pull $CHART_REPO/apigee-operator --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-datastore --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-env --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-ingress-manager --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-org --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-redis --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-telemetry --version $CHART_VERSION --untar
+        helm pull $CHART_REPO/apigee-virtualhost --version $CHART_VERSION --untar
+    fi
+}
+
 function validateVars() {
   if [[ -z $WORK_DIR ]]; then
       #echo "Environment variable WORK_DIR setting now..."
       WORK_DIR="$(pwd)/.."; export WORK_DIR;
       #echo "WORK_DIR=$WORK_DIR"
-  fi
-
-  if [[ -z $HYBRID_INSTALL_DIR ]]; then
-      #echo "Environment variable HYBRID_INSTALL_DIR setting now..."
-      HYBRID_INSTALL_DIR="$(pwd)/../../apigee-hybrid-install"; export HYBRID_INSTALL_DIR;
-      #echo "HYBRID_INSTALL_DIR=$HYBRID_INSTALL_DIR"
   fi
 
   if [[ -z $PROJECT_CREATE ]]; then
@@ -137,25 +170,48 @@ function installTools() {
 }
 
 function installDeleteProject() {
-  cd "$WORK_DIR"/terraform-modules/project-install
 
-  last_project_id=$(cat install-state.txt)
+  gcloud projects create $PROJECT_ID
+  gcloud alpha billing projects link $PROJECT_ID --billing-account=$BILLING_ACCOUNT_ID
+
+  #if [[ $1 == 'apply' ]] && [[ $DO_PROJECT_CREATE == 'false' ]]; then
+  #  echo "Enabling org policies.."
+    gcloud services enable --project="${PROJECT_ID}" \
+      "apigee.googleapis.com" \
+      "apigeeconnect.googleapis.com" \
+      "cloudresourcemanager.googleapis.com" \
+      "cloudbilling.googleapis.com" \
+      "compute.googleapis.com" \
+      "container.googleapis.com" \
+      "pubsub.googleapis.com" \
+      "sourcerepo.googleapis.com" \
+      "logging.googleapis.com"
+  #fi
+
+  #cd "$WORK_DIR"/terraform-modules/project-install
+
+  #last_project_id=$(cat install-state.txt)
   #if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
-  if [ "$last_project_id" != "$PROJECT_ID" ]; then
-    echo "Clearing up the terraform state"
-    rm -Rf .terraform*
-    rm -f terraform.tfstate
-  fi
+  #if [ "$last_project_id" != "$PROJECT_ID" ]; then
+  #  echo "Clearing up the terraform state"
+  #  rm -Rf .terraform*
+  #  rm -f terraform.tfstate
+  #fi
   
-  echo "$PROJECT_ID" > install-state.txt
+  #echo "$PROJECT_ID" > install-state.txt
 
-  terraform init
-  terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
-  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
-  -var "project_create=true" -var "region=$REGION"
-  terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
-  -var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
-  -var "project_create=true" -var "region=$REGION"
+  #terraform init
+
+  #echo terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
+  #-var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  #-var "project_create=$DO_PROJECT_CREATE" -var "region=$REGION" -var project_parent="$ORG_ID"
+
+  #terraform plan -var "billing_account=$BILLING_ACCOUNT_ID" \
+  #-var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  #-var "project_create=$DO_PROJECT_CREATE" -var "region=$REGION" -var project_parent="$ORG_ID"
+  #terraform "$1" -auto-approve -var "billing_account=$BILLING_ACCOUNT_ID" \
+  #-var "project_id=$PROJECT_ID" -var "org_admin=$ORG_ADMIN" \
+  #-var "project_create=$DO_PROJECT_CREATE" -var "region=$REGION" -var project_parent="$ORG_ID"
 }
 
 function validateAXRegion() {
@@ -241,12 +297,13 @@ function installApigeeOrg() {
 
   cd "$WORK_DIR"/terraform-modules/apigee-install
 
-  last_project_id=$(cat install-state.txt)
-  #if [ "$last_project_id" != "" ] && [ "$last_project_id" != "$PROJECT_ID" ]; then
-  if [ "$last_project_id" != "$PROJECT_ID" ]; then
-    echo "Clearing up the terraform state"
-    rm -Rf .terraform*
-    rm -f terraform.tfstate
+  if [ -f "install-state.txt" ]; then
+      last_project_id=$(cat install-state.txt)
+      if [ "$last_project_id" != "$PROJECT_ID" ]; then
+          echo "Clearing up the terraform state"
+          rm -Rf .terraform*
+          rm -f terraform.tfstate
+      fi
   fi
 
   envsubst < "$WORK_DIR/terraform-modules/apigee-install/apigee.tfvars.tmpl" > \
@@ -276,60 +333,88 @@ function fetchHybridInstall() {
   HYBRID_INSTALL_DIR="$WORK_DIR/../apigee-hybrid-install"; export HYBRID_INSTALL_DIR
 }
 
-function hybridPreInstallOverlaysPrep() {
+function prepHybridInstallDirs() {
 
-  fetchHybridInstall;
+  #fetchHybridInstall;  
 
-  echo "Filling in resource values"
-  fillResourceValues;
-  echo "Moving resource overlays into Hybrid install source"
-  moveResourcesSpecsToHybridInstall;
+  export APIGEECTL_BASE=$WORK_DIR/../apigeectl-$PROJECT_ID
+  export APIGEECTL_HOME=$APIGEECTL_BASE/apigeectl
+  export HYBRID_FILES=$APIGEECTL_BASE/hybrid-files
 
-  echo "Updating datastore kustomization"
-  datastoreKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/datastore/kustomization.yaml";
-  datastoreComponentEntries=("./components/cassandra-resources")
-  addComponents "$datastoreKustomizationFile" "${datastoreComponentEntries[@]}"
+  if [ ! -d "$APIGEECTL_BASE" ]; then
+    mkdir "$APIGEECTL_BASE"
+    cd "$APIGEECTL_BASE"
+    VERSION=$(curl -s \
+      https://storage.googleapis.com/apigee-release/hybrid/apigee-hybrid-setup/current-version.txt?ignoreCache=1)
+    echo "APIGEE HYBRID Version = $VERSION"
 
-  echo "Updating organization kustomization"
-  organizationKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/organization/kustomization.yaml";
-  componentEntries=("./components/connect-resources" "./components/ingressgateway-resources" "./components/mart-resources" "./components/watcher-resources")
-  addComponents "$organizationKustomizationFile" "${componentEntries[@]}"
+    curl -LO  https://storage.googleapis.com/apigee-release/hybrid/apigee-hybrid-setup/$VERSION/apigeectl_linux_64.tar.gz
 
-  echo "Updating environment kustomization"
-  environmentKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/environments/test/kustomization.yaml";
-  componentEntries=("./components/runtime-resources" "./components/synchronizer-resources" "./components/udca-resources")
-  addComponents "$environmentKustomizationFile" "${componentEntries[@]}"
+    tar xvzf apigeectl_linux_64.tar.gz -C "$APIGEECTL_BASE"
+    mv *_linux_64 apigeectl
+    rm apigeectl_linux_64.tar.gz
 
-  echo "Updating redis kustomization"
-  redisKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/redis/kustomization.yaml";
-  componentEntries=("./components/redis-resources" "./components/redisenvoy-resources")
-  addComponents "$redisKustomizationFile" "${componentEntries[@]}"
+    mkdir "$HYBRID_FILES"
+    cd "$HYBRID_FILES"
 
-  echo "Updating telemetry kustomization"
-  telemetryKustomizationFile="$HYBRID_INSTALL_DIR/overlays/instances/instance1/telemetry/kustomization.yaml";
-  componentEntries=("./components/telemetry-resources")
-  addComponents "$telemetryKustomizationFile" "${componentEntries[@]}"
+    mkdir overrides
+    mkdir certs
+
+    ln -s "$APIGEECTL_HOME"/tools tools
+    ln -s "$APIGEECTL_HOME"/config config
+    ln -s "$APIGEECTL_HOME"/templates templates
+    ln -s "$APIGEECTL_HOME"/plugins plugins
+    ls -l | grep ^l
+  fi
 }
 
 function hybridInstall() {
   
-  printf "\nInstalling and Setting up Hybrid containers\n"
-  RESULT=0
-  OUTPUT=$("$HYBRID_INSTALL_DIR"/tools/apigee-hybrid-setup.sh \
-            --org "$ORG_NAME" --env "$ENV_NAME" --envgroup "$ENV_GROUP" \
-            --ingress-domain "$DOMAIN" --cluster-name "$CLUSTER_NAME" \
-            --cluster-region "$REGION" --gcp-project-id "$PROJECT_ID" \
-            --setup-all --verbose > /tmp/hybrid-install-output.txt)
-  printf "\nHybrid Install Result : %s\n" "$OUTPUT"
-  if [[ "$OUTPUT" -eq 1 ]]; then
-    if grep -q 'failed to call webhook: Post "https://cert-manager-webhook.cert-manager.svc:443/validate?timeout=10s"' /tmp/hybrid-install-output.txt  
-    then
-      RESULT=1
-    else
-      RESULT=-1
-    fi
-  fi
-  return $RESULT
+  banner_info "Step- Setting up Service accounts";
+  export SA_NAME=apigee-non-prod
+  export SA_EMAIL=apigee-non-prod@$PROJECT_ID.iam.gserviceaccount.com
+
+  "$HYBRID_FILES"/tools/create-service-account --env non-prod --dir "$HYBRID_FILES"/service-accounts
+  ls "$HYBRID_FILES"/service-accounts
+
+  banner_info "Step- Setting up Certs";
+  openssl req  -nodes -new -x509 -keyout "$HYBRID_FILES/certs/keystore_$ENV_GROUP.key" -out "$HYBRID_FILES/certs/keystore_$ENV_GROUP.pem" -subj '/CN='$DOMAIN'' -days 3650
+  ls "$HYBRID_FILES"/certs/
+
+  UNIQUE_INSTANCE_IDENTIFIER=$(cat /proc/sys/kernel/random/uuid);echo $UNIQUE_INSTANCE_IDENTIFIER
+  echo "$UNIQUE_INSTANCE_IDENTIFIER" > "$HYBRID_FILES"/UNIQUE_INSTANCE_IDENTIFIER.txt
+  
+  #defined in ./hybrid-artifacts/hybrid-cluster-spec.sh
+  createOverrides4Hybrid;
+
+  TOKEN=$(gcloud config config-helper --force-auth-refresh --format json | jq -r '.credential.access_token'); echo "$TOKEN"
+  export TOKEN
+
+  curl -X POST -H "Authorization: Bearer ${TOKEN}" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/${ORG_NAME}:setSyncAuthorization" -d '{"identities":["'"serviceAccount:apigee-non-prod@${ORG_NAME}.iam.gserviceaccount.com"'"]}'
+
+  curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/${ORG_NAME}:getSyncAuthorization" -d ''
+
+  cd "$HYBRID_FILES"
+
+  "${APIGEECTL_HOME}"/apigeectl init -f overrides/overrides.yaml --dry-run=client
+  "${APIGEECTL_HOME}"/apigeectl init -f overrides/overrides.yaml	
+  echo "Waiting 3m for the apigee-system.."
+  sleep 180s
+  "${APIGEECTL_HOME}"/apigeectl check-ready -f overrides/overrides.yaml
+
+  echo "Pods in apigee-system :"
+  kubectl get pods -n apigee-system 
+  echo ""
+  echo "Pods in apigee :"
+  kubectl get pods -n apigee
+
+  "${APIGEECTL_HOME}"/apigeectl apply -f overrides/overrides.yaml --dry-run=client
+  "${APIGEECTL_HOME}"/apigeectl apply -f overrides/overrides.yaml
+  echo "Waiting 10m for the apigee namespace.."
+  sleep 600s
+  "${APIGEECTL_HOME}"/apigeectl check-ready -f overrides/overrides.yaml
+
+  kubectl get pods -n apigee
 }
 
 function certManagerInstall() {
@@ -447,7 +532,6 @@ usage() {
                                  container infrastructure.
     --skip-create-cluster        Skips creating the GKE cluster or the VM instance 
                                  (if done already)that hosts container infrastructure.
-    --prep-overlay-files         Creates the overlay files for the spec requests for the pods
     --install-cert-manager       Installs the cert manager in the cluster
     --install-hybrid             Deploys the apigee hybrid runtime place
     --install-ingress            Creates the ingress service to serve as the gatway to 
@@ -493,9 +577,14 @@ arg_required() {
 ################################################################################
 parse_args() {
     export SHOULD_SKIP_INSTALL_CLUSTER="0"
+    export SHOULD_SKIP_INSTALL_TOOLS="0"
     export CLUSTER_ACTION="0"
     while [[ $# != 0 ]]; do
         case "${1}" in
+        --install-tools)
+            export SHOULD_INSTALL_TOOLS="1"
+            shift 1
+            ;;
         --project-create)
             export SHOULD_CREATE_PROJECT="1"
             shift 1
@@ -512,8 +601,8 @@ parse_args() {
             export SHOULD_SKIP_INSTALL_CLUSTER="1"
             shift 1
             ;;
-        --prep-overlay-files)
-            export SHOULD_PREP_OVERLAYS="1"
+        --prep-install-dirs)
+            export SHOULD_PREP_HYBRID_INSTALL_DIRS="1"
             shift 1
             ;;
         --install-cert-manager)
@@ -532,8 +621,10 @@ parse_args() {
             shift 1
             ;;
         --setup-all)
+            export SHOULD_CREATE_PROJECT="1"
+            export SHOULD_CREATE_APIGEE_ORG="1"
             export SHOULD_INSTALL_CLUSTER="1"
-            export SHOULD_PREP_OVERLAYS="1"
+            export SHOULD_PREP_HYBRID_INSTALL_DIRS="1"
             export SHOULD_INSTALL_CERT_MNGR="1"
             export SHOULD_INSTALL_HYBRID="1"
             export SHOULD_INSTALL_INGRESS="1"
@@ -562,15 +653,16 @@ parse_args() {
        export SHOULD_CREATE_APIGEE_ORG="1";
     fi
 
-    if [[ "${SHOULD_CREATE_PROJECT}"    != "1" && 
-          "${SHOULD_CREATE_APIGEE_ORG}" != "1" &&
-          "${SHOULD_INSTALL_CLUSTER}"   != "1" &&
-          "${SHOULD_PREP_OVERLAYS}"     != "1" &&
-          "${SHOULD_INSTALL_CERT_MNGR}" != "1" &&
-          "${SHOULD_INSTALL_HYBRID}"    != "1" &&
-          "${SHOULD_INSTALL_INGRESS}"   != "1" &&
-          "${SHOULD_DELETE_CLUSTER}"    != "1" &&
-          "${SHOULD_DELETE_PROJECT}"    != "1" ]]; then
+    if [[ "${SHOULD_CREATE_PROJECT}"            != "1" && 
+          "${SHOULD_CREATE_APIGEE_ORG}"         != "1" &&
+          "${SHOULD_INSTALL_TOOLS}"             != "1" &&
+          "${SHOULD_INSTALL_CLUSTER}"           != "1" &&
+          "${SHOULD_PREP_HYBRID_INSTALL_DIRS}"  != "1" &&
+          "${SHOULD_INSTALL_CERT_MNGR}"         != "1" &&
+          "${SHOULD_INSTALL_HYBRID}"            != "1" &&
+          "${SHOULD_INSTALL_INGRESS}"           != "1" &&
+          "${SHOULD_DELETE_CLUSTER}"            != "1" &&
+          "${SHOULD_DELETE_PROJECT}"            != "1" ]]; then
         usage
         exit
     fi

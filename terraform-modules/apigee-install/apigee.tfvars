@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-apigee_environments = ["eval"]
+apigee_environments = ["test-env"]
 
 apigee_envgroups = {
-  eval-group = {
-    environments = ["eval"]
-    hostnames    = ["eval.hapigee.google.com"]
+  test-env-group = {
+    environments = ["test-env"]
+    hostnames    = ["test.apigeehybrid.com"]
   }
 }
