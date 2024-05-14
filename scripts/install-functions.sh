@@ -43,8 +43,8 @@ function prepInstallDirs() {
     if [ ! -d "$APIGEE_HELM_CHARTS_HOME_ORIG" ]; then
         mkdir $APIGEE_HELM_CHARTS_HOME_ORIG
         cd $APIGEE_HELM_CHARTS_HOME_ORIG 
-        export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
-        export CHART_VERSION=1.11.1
+        #export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
+        #export CHART_VERSION=1.11.1
         helm pull $CHART_REPO/apigee-operator --version $CHART_VERSION --untar
         helm pull $CHART_REPO/apigee-datastore --version $CHART_VERSION --untar
         helm pull $CHART_REPO/apigee-env --version $CHART_VERSION --untar
@@ -104,6 +104,16 @@ function validateVars() {
 
   if [[ -z $ENV_GROUP ]]; then
     echo "Environment variable ENV_GROUP is not set, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $CHART_REPO ]]; then
+    echo "Environment variable CHART_REPO is not set, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $CHART_VERSION ]]; then
+    echo "Environment variable CHART_VERSION is not set, please checkout README.md"
     exit 1
   fi
 

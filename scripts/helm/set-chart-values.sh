@@ -105,6 +105,9 @@ function fixHelmValues() {
     export INGS_MEM_REQ="64Mi"      # 128Mi
     export INGS_CPU_LIM="50m"       # 2000m     # 100m
     export INGS_MEM_LIM="128Mi"     # 1Gi
+
+    export INGS_REPLICA_MIN="1"     # 2
+    export INGS_REPLICA_MAX="2"     # 4
     
     #Can't go below further
     export MART_CPU_REQ="200m"      # 500m
@@ -241,6 +244,9 @@ function fixHelmValues() {
     yq e -i '.apigeeIngressGateway.resources.requests.memory = env(INGS_MEM_REQ) | .apigeeIngressGateway.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
     yq e -i '.apigeeIngressGateway.resources.limits.cpu = env(INGS_CPU_LIM) | .apigeeIngressGateway.resources.limits.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
     yq e -i '.apigeeIngressGateway.resources.limits.memory = env(INGS_MEM_LIM) | .apigeeIngressGateway.resources.limits.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
+
+    yq e -i '.apigeeIngressGateway.replicaCountMin = env(INGS_REPLICA_MIN) | .apigeeIngressGateway.replicaCountMin style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
+    yq e -i '.apigeeIngressGateway.replicaCountMax = env(INGS_REPLICA_MAX) | .apigeeIngressGateway.replicaCountMax style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
 
     yq e -i '.mart.resources.requests.cpu = env(MART_CPU_REQ) | .mart.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
     yq e -i '.mart.resources.requests.memory = env(MART_MEM_REQ) | .mart.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
