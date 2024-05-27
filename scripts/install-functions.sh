@@ -17,11 +17,11 @@
 set -e
 
 # shellcheck source=/dev/null
-source ./hybrid-artifacts/fill-resource-values.sh
+# source ./hybrid-artifacts/fill-resource-values.sh
 # shellcheck source=/dev/null
-source ./hybrid-artifacts/add-resources-components.sh
+# source ./hybrid-artifacts/add-resources-components.sh
 # shellcheck source=/dev/null
-source ./hybrid-artifacts/hybrid-cluster-spec.sh
+# source ./hybrid-artifacts/hybrid-cluster-spec.sh
 
 SCRIPT_NAME="${0##*/}"
 

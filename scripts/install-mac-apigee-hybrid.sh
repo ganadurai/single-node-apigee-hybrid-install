@@ -60,44 +60,6 @@ function logIntoCluster() {
   fi
 }
 
-function hybridPostInstallIngressGatewaySetup() {
-  
-  export SERVICE_NAME=$ENV_NAME-ingrs-svc
-  export ENV_GROUP_INGRESS=$INGRESS_NAME
-  
-  envsubst < "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.tmpl" > \
-    "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml"
-
-  kubectl apply -f "$WORK_DIR/scripts/gke-artifacts/apigee-ingress-svc.yaml"
-
-  echo "Waiting 60s for the Load balancer deployment for the ingress ..."
-  sleep 60
-
-  kubectl get svc -n apigee -l app=apigee-ingressgateway
-  
-  export INGRESS_IP_ADDRESS=$(kubectl -n apigee get svc -l app=apigee-ingressgateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')
-  
-  curl -H 'User-Agent: GoogleHC/' "https://$DOMAIN/healthz/ingress" -k \
-    --resolve "$DOMAIN:443:$INGRESS_IP_ADDRESS"
-
-}
-
-function hybridPostInstallIngressGatewayValidation() {
-
-  OUTPUT=$(curl -s "https://$DOMAIN/apigee-hybrid-helloworld" \
-                --resolve "$DOMAIN:443:$INGRESS_IP_ADDRESS" -k -i | grep HTTP); export OUTPUT
-  echo "$OUTPUT"
-  if [[ "$OUTPUT" == *"200"* ]]; then
-    printf "\n\nSUCCESS: Hybrid is successfully installed\n\n"
-    echo ""
-    echo "Test the deployed sample proxy:"
-    echo curl -s \"https://$DOMAIN/apigee-hybrid-helloworld\" --resolve \"$DOMAIN:443:$INGRESS_IP_ADDRESS\" -k -i
-    echo "";echo "";
-  else
-    printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
-  fi
-}
-
 function hybridPostInstallEnvoyIngressSetup() {
   cd "$WORK_DIR"/envoy
 
