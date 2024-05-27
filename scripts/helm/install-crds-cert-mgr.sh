@@ -24,7 +24,8 @@ function installCertMgr() {
         echo "cert-manager already deployed"
     else
         # Install cert manager
-        kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.1/cert-manager.yaml
+        kubectl apply -f $CERT_MGR_DWNLD_YAML
+        #kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.1/cert-manager.yaml
 
         echo "Waiting 60s for cert-manager install to take into effect! "
         sleep 60

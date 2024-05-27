@@ -58,8 +58,8 @@ function prepInstallDirs() {
     if [ ! -d "$APIGEE_HELM_CHARTS_HOME" ]; then
         mkdir $APIGEE_HELM_CHARTS_HOME
         cd $APIGEE_HELM_CHARTS_HOME
-        export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
-        export CHART_VERSION=1.11.1
+        #export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
+        #export CHART_VERSION=1.11.1
         helm pull $CHART_REPO/apigee-operator --version $CHART_VERSION --untar
         helm pull $CHART_REPO/apigee-datastore --version $CHART_VERSION --untar
         helm pull $CHART_REPO/apigee-env --version $CHART_VERSION --untar
@@ -114,6 +114,11 @@ function validateVars() {
 
   if [[ -z $CHART_VERSION ]]; then
     echo "Environment variable CHART_VERSION is not set, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $CERT_MGR_DWNLD_YAML ]]; then
+    echo "Environment variable CERT_MGR_DWNLD_YAML is not set, please checkout README.md"
     exit 1
   fi
 

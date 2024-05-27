@@ -37,8 +37,8 @@ function fixHelmValues() {
     #Can't go below further
     export SYNC_CPU_REQ="100m"      # 100m
     export SYNC_MEM_REQ="256Mi"     # 512Mi
-    export SYNC_CPU_LIM="200m"      # 2000m
-    export SYNC_MEM_LIM="512Mi"     # 5Gi
+    export SYNC_CPU_LIM="250m"      # 2000m
+    export SYNC_MEM_LIM="1Gi"     # 5Gi
 
     export SYNC_LIVNS_TOU="5"       # 1
     export SYNC_LIVNS_INI="89"      # 15
@@ -48,8 +48,8 @@ function fixHelmValues() {
     #Can't go below further
     export RUNT_CPU_REQ="150m"      # 500m
     export RUNT_MEM_REQ="256Mi"     # 512Mi    
-    export RUNT_CPU_LIM="200m"      # 4000m
-    export RUNT_MEM_LIM="512Mi"     # 6Gi
+    export RUNT_CPU_LIM="500m"      # 4000m
+    export RUNT_MEM_LIM="1Gi"     # 6Gi
 
     export RUNT_LIVNS_TOU="5"       # 5
     export RUNT_LIVNS_INI="89"      # 15
@@ -58,7 +58,7 @@ function fixHelmValues() {
 
     export UDCA_CPU_REQ="25m"       # 250m      # 50m
     export UDCA_MEM_REQ="64Mi"      # 256Mi
-    export UDCA_CPU_LIM="50m"       # 1000m     # 100m
+    export UDCA_CPU_LIM="250m"      # 1000m    # 100m
     export UDCA_MEM_LIM="128Mi"     # 2Gi
 
     export FLND_CPU_REQ="25m"       # 500m
@@ -70,13 +70,13 @@ function fixHelmValues() {
     #Can't go below further
     export ISTD_CPU_REQ="50m"       # 200m
     export ISTD_MEM_REQ="64Mi"      # 512Mi
-    export ISTD_CPU_LIM="100m"      # 1000m
-    export ISTD_MEM_LIM="128Mi"     # 1024Mi
+    export ISTD_CPU_LIM="1000m"     # 1000m
+    export ISTD_MEM_LIM="512Mi"     # 1024Mi
 
     export AO1_CPU_REQ="100m"       # 200m      # 200m
     export AO1_MEM_REQ="64Mi"       # 512Mi     # 128Mi
-    export AO1_CPU_LIM="200m"       # 1000m     # 400m
-    export AO1_MEM_LIM="128Mi"      # 1024Mi    # 256Mi
+    export AO1_CPU_LIM="1000m"      # 1000m     # 400m
+    export AO1_MEM_LIM="512Mi"      # 1024Mi    # 256Mi
 
     #Can't go below further
     export KRPX1_CPU_REQ="5m"       # 5m
@@ -85,9 +85,9 @@ function fixHelmValues() {
     export KRPX1_MEM_LIM="64Mi"     # 128Mi
 
     # apigee-operator/values.yaml
-    export AO2_CPU_REQ="25m"        # 200m      # 100m
+    export AO2_CPU_REQ="200m"        # 200m      # 100m
     export AO2_MEM_REQ="128Mi"      # 512Mi     # 256Mi
-    export AO2_CPU_LIM="50m"        # 1000m     # 200m
+    export AO2_CPU_LIM="500m"        # 1000m     # 200m
     export AO2_MEM_LIM="256Mi"      # 1024Mi    # 512Mi
 
     export KRPX2_CPU_REQ="5m"       # 5m
@@ -98,22 +98,22 @@ function fixHelmValues() {
     # apigee-org/values.yaml
     export TSKS_CPU_REQ="25m"       # 500m      # 50m
     export TSKS_MEM_REQ="64Mi"      # 512Mi
-    export TSKS_CPU_LIM="50m"       # 2000m     # 100m
+    export TSKS_CPU_LIM="500m"      # 2000m     # 100m
     export TSKS_MEM_LIM="128Mi"     # 4Gi
 
     export INGS_CPU_REQ="25m"       # 300m      # 50m
     export INGS_MEM_REQ="64Mi"      # 128Mi
-    export INGS_CPU_LIM="50m"       # 2000m     # 100m
+    export INGS_CPU_LIM="500m"      # 2000m     # 100m
     export INGS_MEM_LIM="128Mi"     # 1Gi
 
     export INGS_REPLICA_MIN="1"     # 2
-    export INGS_REPLICA_MAX="2"     # 4
+    export INGS_REPLICA_MAX="1"     # 4
     
     #Can't go below further
     export MART_CPU_REQ="200m"      # 500m
     export MART_MEM_REQ="256Mi"     # 512Mi
-    export MART_CPU_LIM="300m"      # 2000m
-    export MART_MEM_LIM="512Mi"     # 5Gi
+    export MART_CPU_LIM="500m"      # 2000m
+    export MART_MEM_LIM="1Gi"       # 5Gi
 
     export MART_LIVNS_TOU="3"       # 1
     export MART_LIVNS_INI="89"      # 30
@@ -122,17 +122,17 @@ function fixHelmValues() {
     
     export CONA_CPU_REQ="25m"       # 200m      # 50m
     export CONA_MEM_REQ="32Mi"      # 128Mi
-    export CONA_CPU_LIM="50m"       # 500m      # 100m
+    export CONA_CPU_LIM="100m"       # 500m      # 100m
     export CONA_MEM_LIM="64Mi"      # 512Mi
     
     export WATC_CPU_REQ="25m"       # 200m      # 50m
     export WATC_MEM_REQ="64Mi"      # 128Mi
-    export WATC_CPU_LIM="50m"       # 1000m     # 100m
+    export WATC_CPU_LIM="250m"      # 1000m     # 100m
     export WATC_MEM_LIM="128Mi"     # 2Gi
 
     export UDCA1_CPU_REQ="25m"      # 250m      # 50m
     export UDCA1_MEM_REQ="64Mi"     # 256Mi
-    export UDCA1_CPU_LIM="50m"      # 1000m     # 100m
+    export UDCA1_CPU_LIM="250m"     # 1000m     # 100m
     export UDCA1_MEM_LIM="128Mi"    # 2Gi
 
     export FLND1_CPU_REQ="50m"      # 500m

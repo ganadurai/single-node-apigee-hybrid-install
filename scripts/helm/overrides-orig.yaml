@@ -60,7 +60,7 @@ connectAgent:
     # For example: "$PROJECT_ID-apigee-non-prod.json"
 
 logger:
-  enabled: true
+  enabled: false
         # enabled by default
         # See apigee-logger in Service accounts and roles used by hybrid components.
   serviceAccountPath: $NON_PROD_SERVICE_ACCOUNT_FILEPATH
@@ -68,6 +68,7 @@ logger:
   # For example: "$PROJECT_ID-apigee-non-prod.json"
 
 metrics:
+  enabled: false
   serviceAccountPath: $NON_PROD_SERVICE_ACCOUNT_FILEPATH
   # Provide the path relative to the chart directory.
   # For example: "$PROJECT_ID-apigee-non-prod.json"
