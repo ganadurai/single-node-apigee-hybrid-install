@@ -261,19 +261,19 @@ function checkAndApplyOrgconstranints() {
     echo "checking and applying constraints.."
 
     gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/disableServiceAccountKeyCreation.yaml"
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/gke-artifacts/org-policies/disableServiceAccountKeyCreation.yaml"
 
     gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/requireOsLogin.yaml"
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/gke-artifacts/org-policies/requireOsLogin.yaml"
 
     gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/requireShieldedVm.yaml"
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/gke-artifacts/org-policies/requireShieldedVm.yaml"
 
     RESULT=$(gcloud alpha resource-manager org-policies describe \
         constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l);
     if [[ $RESULT -eq 0 ]]; then
         gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/gke-artifacts/org-policies/vmExternalIpAccess.yaml"
         echo "Waiting 60s for org-policy take into effect! "
         sleep 60
     fi
