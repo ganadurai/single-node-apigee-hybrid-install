@@ -1,27 +1,13 @@
 #!/bin/bash
 
-# Copyright 2022 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 set -e
 
 # shellcheck source=/dev/null
-source ./hybrid-artifacts/fill-resource-values.sh
+# source ./hybrid-artifacts/fill-resource-values.sh
 # shellcheck source=/dev/null
-source ./hybrid-artifacts/add-resources-components.sh
+# source ./hybrid-artifacts/add-resources-components.sh
 # shellcheck source=/dev/null
-source ./hybrid-artifacts/hybrid-cluster-spec.sh
+# source ./hybrid-artifacts/hybrid-cluster-spec.sh
 
 SCRIPT_NAME="${0##*/}"
 
@@ -43,8 +29,8 @@ function prepInstallDirs() {
     if [ ! -d "$APIGEE_HELM_CHARTS_HOME_ORIG" ]; then
         mkdir $APIGEE_HELM_CHARTS_HOME_ORIG
         cd $APIGEE_HELM_CHARTS_HOME_ORIG 
-        export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
-        export CHART_VERSION=1.11.1
+        #export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
+        #export CHART_VERSION=1.11.1
         helm pull $CHART_REPO/apigee-operator --version $CHART_VERSION --untar
         helm pull $CHART_REPO/apigee-datastore --version $CHART_VERSION --untar
         helm pull $CHART_REPO/apigee-env --version $CHART_VERSION --untar
@@ -58,8 +44,8 @@ function prepInstallDirs() {
     if [ ! -d "$APIGEE_HELM_CHARTS_HOME" ]; then
         mkdir $APIGEE_HELM_CHARTS_HOME
         cd $APIGEE_HELM_CHARTS_HOME
-        export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
-        export CHART_VERSION=1.11.1
+        #export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
+        #export CHART_VERSION=1.11.1
         helm pull $CHART_REPO/apigee-operator --version $CHART_VERSION --untar
         helm pull $CHART_REPO/apigee-datastore --version $CHART_VERSION --untar
         helm pull $CHART_REPO/apigee-env --version $CHART_VERSION --untar
@@ -104,6 +90,21 @@ function validateVars() {
 
   if [[ -z $ENV_GROUP ]]; then
     echo "Environment variable ENV_GROUP is not set, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $CHART_REPO ]]; then
+    echo "Environment variable CHART_REPO is not set, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $CHART_VERSION ]]; then
+    echo "Environment variable CHART_VERSION is not set, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $CERT_MGR_DWNLD_YAML ]]; then
+    echo "Environment variable CERT_MGR_DWNLD_YAML is not set, please checkout README.md"
     exit 1
   fi
 
@@ -246,19 +247,19 @@ function checkAndApplyOrgconstranints() {
     echo "checking and applying constraints.."
 
     gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/disableServiceAccountKeyCreation.yaml"
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/gke-artifacts/org-policies/disableServiceAccountKeyCreation.yaml"
 
     gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/requireOsLogin.yaml"
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/gke-artifacts/org-policies/requireOsLogin.yaml"
 
     gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/requireShieldedVm.yaml"
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/gke-artifacts/org-policies/requireShieldedVm.yaml"
 
     RESULT=$(gcloud alpha resource-manager org-policies describe \
         constraints/compute.vmExternalIpAccess --project "$PROJECT_ID" | { grep ALLOW || true; } | wc -l);
     if [[ $RESULT -eq 0 ]]; then
         gcloud alpha resource-manager org-policies set-policy \
-            --project="$PROJECT_ID" "$WORK_DIR/scripts/org-policies/vmExternalIpAccess.yaml"
+            --project="$PROJECT_ID" "$WORK_DIR/scripts/gke-artifacts/org-policies/vmExternalIpAccess.yaml"
         echo "Waiting 60s for org-policy take into effect! "
         sleep 60
     fi

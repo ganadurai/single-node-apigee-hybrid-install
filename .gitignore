@@ -7,3 +7,4 @@ terraform-modules/apigee-install/install-state.txt
 terraform-modules/project-install/install-state.txt
 scripts/hybrid-artifacts/test-*.yaml
 envoy/envoy-deployment.yaml
+*personal.md

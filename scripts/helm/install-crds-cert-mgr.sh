@@ -1,19 +1,5 @@
 #!/bin/bash
 
-# Copyright 2022 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 set -e
 
 function installCertMgr() {
@@ -24,7 +10,8 @@ function installCertMgr() {
         echo "cert-manager already deployed"
     else
         # Install cert manager
-        kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.1/cert-manager.yaml
+        kubectl apply -f $CERT_MGR_DWNLD_YAML
+        #kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.1/cert-manager.yaml
 
         echo "Waiting 60s for cert-manager install to take into effect! "
         sleep 60
