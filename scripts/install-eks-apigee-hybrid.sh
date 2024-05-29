@@ -4,51 +4,15 @@ set -e
 
 # shellcheck source=/dev/null
 source ./install-functions.sh
+source ./helm/install-hybrid-helm-functions.sh
 
-function installTools() {  
-  wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | \
-  tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
-
-}
-
-function installDeleteCluster() {
-  cd "$WORK_DIR"/terraform-modules/gke-install
-
-  if [ -f "install-state.txt" ]; then
-      last_project_id=$(cat install-state.txt)
-      if [ "$last_project_id" != "$PROJECT_ID" ]; then
-          echo "Clearing up the terraform state"
-          rm -Rf .terraform*
-          rm -f terraform.tfstate
-      fi
-  fi
-
-  CLUSTER_NODE_ZONE=$(gcloud compute zones list --filter="region:$REGION" --limit=1 --format=json | \
-    jq '.[0].name' | cut -d '"' -f 2); export CLUSTER_NODE_ZONE;
-
-  #NETWORKS=$(gcloud compute networks list --format=json \
-  #  --filter="name:hybrid-runtime-cluster-vpc" | jq length)
-  #if [[ NETWORKS -eq 0 ]]; then
-  #  IS_CREATE_VPC="true"; export IS_CREATE_VPC
-  #else
-  #  IS_CREATE_VPC="false"; export IS_CREATE_VPC
-  #fi
-
-  envsubst < "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars.tmpl" > \
-    "$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
-
-  echo "$PROJECT_ID" > install-state.txt
-
-  terraform init
-  terraform plan \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
-  terraform "$1" -auto-approve \
-    --var-file="$WORK_DIR/terraform-modules/gke-install/hybrid.tfvars"
-}
+source ./helm/set-overrides.sh
+source ./helm/install-crds-cert-mgr.sh
+source ./helm/set-chart-values.sh
+source ./helm/execute-charts.sh
 
 function logIntoCluster() {
-  gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
-  TOKEN=$(gcloud auth print-access-token); export TOKEN;
+    aws eks update-kubeconfig --region "$REGION" --name "$CLUSTER_NAME"
 }
 
 # Potential for common method for cloud installs (eks and gke)
@@ -107,15 +71,13 @@ fi
 
 if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
   banner_info "Step- Delete Cluster"
-  installDeleteCluster "destroy";
-  echo "Successfully deleted cluster, exiting"
+  echo "Delete EKS cluster manually from the AWS console, automation via this script not supported"
   exit 0;
 fi
 
 # Potential for common method for cloud installs (eks and gke)
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   banner_info "Step- Install Project"
-  DO_PROJECT_CREATE='false'; #TODO: This stmt van be deleted
   installDeleteProject "apply";
 fi
 
@@ -129,34 +91,27 @@ if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
       --role roles/apigee.admin
 fi
 
-banner_info "Step - Install Tools"
-installTools
-
-if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
-  banner_info "Step- Install Cluster"
-  checkAndApplyOrgconstranints;
-  installDeleteCluster "apply";
-fi
-
 # Potential for common method for cloud installs (eks and gke)
 if [[ $CLUSTER_ACTION == "1" ]]; then
   banner_info "Step- Log into cluster";
   logIntoCluster;
 fi
 
+# Potential for common method for cloud installs (eks and gke)
 if [[ $SHOULD_PREP_HYBRID_INSTALL_DIRS == "1" ]]; then
   banner_info "Step- Prepare directories";
-  prepHybridInstallDirs;
+  prepInstallDirs;
 fi
 
+# Potential for common method for cloud installs (eks and gke)
 if [[ $SHOULD_INSTALL_CERT_MNGR == "1" ]]; then
-  banner_info "Step- cert manager Install";
-  certManagerInstall;
+  banner_info "Skipped- (this is handled as part of helm installs)";
 fi
 
+# Potential for common method for cloud installs (eks and gke)
 if [[ $SHOULD_INSTALL_HYBRID == "1" ]]; then
   banner_info "Step- Hybrid Install";
-  hybridRuntimeInstall;
+  hybridInstallViaHelmCharts; 
 fi
 
 if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then

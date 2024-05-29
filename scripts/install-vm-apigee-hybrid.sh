@@ -164,7 +164,7 @@ validateVars
 
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   banner_info "Step- Install Project"
-  DO_PROJECT_CREATE='false'; #Just enable the org policies
+  DO_PROJECT_CREATE='false'; #TODO: This stmt van be deleted
   installDeleteProject "apply";
 fi
 
