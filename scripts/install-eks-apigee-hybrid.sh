@@ -12,7 +12,7 @@ source ./helm/set-chart-values.sh
 source ./helm/execute-charts.sh
 
 function logIntoCluster() {
-    aws eks update-kubeconfig --region "$REGION" --name "$CLUSTER_NAME"
+    aws eks update-kubeconfig --region "$AWS_EKS_REGION" --name "$CLUSTER_NAME"
 }
 
 # Potential for common method for cloud installs (eks and gke)
@@ -101,6 +101,8 @@ fi
 if [[ $SHOULD_PREP_HYBRID_INSTALL_DIRS == "1" ]]; then
   banner_info "Step- Prepare directories";
   prepInstallDirs;
+  logIntoCluster;
+  kubectl create namespace apigee
 fi
 
 # Potential for common method for cloud installs (eks and gke)
