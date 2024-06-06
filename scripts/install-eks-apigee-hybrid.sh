@@ -177,14 +177,14 @@ fi
 if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
   banner_info "Step- Post Install";
   #hybridPostInstallIngressGatewaySetup;
-  hybridPostInstallEnvoyIngressSetup;
+  #hybridPostInstallEnvoyIngressSetup;
 
   banner_info "Step- Deploy Sample Proxy For Validation"
   deploySampleProxyForValidation;
 
   banner_info "Step- Validation of proxy execution";
   #hybridPostInstallIngressGatewayValidation;
-  hybridPostInstallEnvoyIngressValidation;
+  #hybridPostInstallEnvoyIngressValidation;
 fi
 
 banner_info "COMPLETE"
