@@ -55,6 +55,64 @@ function hybridPostInstallIngressGatewayValidation() {
   fi
 }
 
+function hybridPostInstallEnvoyIngressSetup() {
+  cd "$WORK_DIR"/envoy
+
+  #Extract the instance port for the docker-regitry
+  docker_registry_forwarded_port=$(docker port docker-registry 5000)
+  IFS=':' read -r -a array <<< "$docker_registry_forwarded_port"
+  DOCKER_REGISTRY_PORT=${array[1]}; export DOCKER_REGISTRY_PORT
+  echo "$DOCKER_REGISTRY_PORT"
+
+  
+  RESULT=$(kubectl get namespace | { grep envoy-ns || true; } | wc -l);
+  if [[ $RESULT -eq 0 ]]; then
+    kubectl create namespace envoy-ns
+  fi
+
+  #Build and Push the images
+  docker build -t \
+  localhost:"$DOCKER_REGISTRY_PORT"/apigee-hybrid/single-node/envoy-proxy:v1 .
+
+  docker push \
+  localhost:"$DOCKER_REGISTRY_PORT"/apigee-hybrid/single-node/envoy-proxy:v1
+
+  SERVICE_NAME=$(kubectl get svc -n "${APIGEE_NAMESPACE}" -l env="$ENV_NAME",app=apigee-runtime --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+  export SERVICE_NAME;
+
+  #Validate the substitutin variables
+  if [[ -z $DOCKER_REGISTRY_PORT ]]; then
+    echo "Instance port for the docker-regitry is not derived successfully, exiting.."
+    exit 1
+  fi
+  if [[ -z $SERVICE_NAME ]]; then
+    echo "Hybrid runtime pod's name is not derived successfully, exiting"
+    exit 1
+  fi
+  
+  envsubst < envoy-deployment.tmpl > envoy-deployment.yaml
+
+  kubectl apply -f envoy-deployment.yaml
+
+  echo "Waiting for envoy services to be ready...10s"
+  kubectl -n envoy-ns wait --for=jsonpath='{.status.phase}'=Running pod -l app=envoy-proxy --timeout=10s
+
+}
+
+function hybridPostInstallEnvoyIngressValidation() {
+  OUTPUT=$(curl -i localhost:30080/apigee-hybrid-helloworld -H "Host: $DOMAIN" | grep HTTP)
+  printf "\n%s" "$OUTPUT"
+  if [[ "$OUTPUT" == *"200"* ]]; then
+    printf "\n\nSUCCESS: Hybrid is successfully installed\n\n"
+    echo ""
+    echo "Test the deployed sample proxy:"
+    echo curl localhost:30080/apigee-hybrid-helloworld -H \"Host: $DOMAIN\" -i
+    echo "";echo "";
+  else
+    printf "\n\nPlease check the logs and troubleshoot, proxy execution failed"
+  fi
+}
+
 parse_args "${@}"
 
 banner_info "Step- Validatevars";
@@ -118,13 +176,15 @@ fi
 
 if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
   banner_info "Step- Post Install";
-  hybridPostInstallIngressGatewaySetup;
+  #hybridPostInstallIngressGatewaySetup;
+  hybridPostInstallEnvoyIngressSetup;
 
   banner_info "Step- Deploy Sample Proxy For Validation"
   deploySampleProxyForValidation;
 
   banner_info "Step- Validation of proxy execution";
-  hybridPostInstallIngressGatewayValidation;
+  #hybridPostInstallIngressGatewayValidation;
+  hybridPostInstallEnvoyIngressValidation;
 fi
 
 banner_info "COMPLETE"
