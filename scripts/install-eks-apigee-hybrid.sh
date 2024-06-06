@@ -182,7 +182,10 @@ if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
   banner_info "Step- Deploy Sample Proxy For Validation"
   deploySampleProxyForValidation;
 
-  banner_info "Step- Validation of proxy execution";
+  banner_info "Step- Validation of proxy execution (Manual: execute below)";
+  echo "export INGRESS_IP_ADDRESS=$(kubectl -n apigee get svc -l app=apigee-ingressgateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')"
+  echo "nslookup $INGRESS_IP_ADDRESS"
+  echo "curl \"https://$DOMAIN/apigee-hybrid-helloworld\" -k --resolve \"$DOMAIN:443:IPADDRESS_FROM_ABOVE\" -i"
   #hybridPostInstallIngressGatewayValidation;
   #hybridPostInstallEnvoyIngressValidation;
 fi
