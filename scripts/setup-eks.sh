@@ -51,7 +51,7 @@ function checkRoleExists() {
 
 function prepEksClusterRole() {
     echo "start1"
-    OUTPUT=$(checkRoleExists)
+    checkRoleExists;
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
