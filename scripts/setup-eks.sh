@@ -34,30 +34,11 @@ function installEksctl() {
     eksctl version
 }
 
-function checkRoleExists() {
-    aws iam list-roles --query "Roles[*].RoleName" | grep $1 > /dev/null
-    return $?;
-}
-
 function prepEksClusterRole() {
-    checkRoleExists "myAmazonEKSClusterRole";
-    RESULT=$?
-
+    aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole" > /dev/null
+    
     #Delete role and detach role policy, if it already exists 
-    if [ $RESULT -eq 0 ]; then
-        echo "good"
-    else
-        echo "bad"
-    fi
-}
-
-function prepEksClusterRole2() {
-    echo "start1"
-    OUTPUT=$(checkRoleExists)
-    RESULT=$?
-
-    #Delete role and detach role policy, if it already exists 
-    if [ $RESULT -eq 0 ]; then
+    if [ $? -eq 0 ]; then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
         --role-name myAmazonEKSClusterRole
@@ -124,11 +105,11 @@ function validateClusterSetup() {
 }
 
 function prepNodegroupRole() {
-    OUTPUT=$(aws iam get-role --role-name myAmazonEKSNodeRole 2> /dev/null)
-    RESULT=$?
-
+    
+    aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSNodeRole" > /dev/null
+    
     #Delete role and detach role policy, if it already exists 
-    if (( $RESULT -eq 0 )); then
+    if (( $? -eq 0 )); then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
         --role-name myAmazonEKSNodeRole
@@ -210,11 +191,10 @@ function enableCSIDriverForCluster() {
 
     eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 
-    OUTPUT=$(aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole 2> /dev/null)
-    RESULT=$?
+    aws iam list-roles --query "Roles[*].RoleName" | grep "AmazonEKS_EBS_CSI_DriverRole" > /dev/null
 
     #Delete role and detach role policy, if it already exists 
-    if (( $RESULT -eq 0 )); then
+    if (( $? -eq 0 )); then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
         --role-name AmazonEKS_EBS_CSI_DriverRole
@@ -262,11 +242,10 @@ EOF
     KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
     echo $KEY_ARN
 
-    OUTPUT=$(aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy 2> /dev/null)
-    RESULT=$?
+    aws iam list-policies --query "Policies[*].PolicyName" | grep "KMS_Key_For_Encryption_On_EBS_Policy" > /dev/null
 
     #Delete role and detach role policy, if it already exists 
-    if (( $RESULT -eq 0 )); then
+    if (( $? -eq 0 )); then
         aws iam delete-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
     fi
 
@@ -338,17 +317,17 @@ installEksctl;
 banner_info "Step- Prep Cluster Role";
 prepEksClusterRole
 
-#banner_info "Step- Cluster Setup";
-#setupCluster
+banner_info "Step- Cluster Setup";
+setupCluster
 
-#banner_info "Step- Cluster Setup Validation";
-#validateClusterSetup
+banner_info "Step- Cluster Setup Validation";
+validateClusterSetup
 
-#banner_info "Step- Prep Nodegroup Role";
-#prepNodegroupRole
+banner_info "Step- Prep Nodegroup Role";
+prepNodegroupRole
 
-#banner_info "Step- Cluster Nodegroup Setup";
-#setupClusterNodegroup
+banner_info "Step- Cluster Nodegroup Setup";
+setupClusterNodegroup
 
-#banner_info "Step- Enable CSI Driver Addon for Cluster";
-#enableCSIDriverForCluster;
+banner_info "Step- Enable CSI Driver Addon for Cluster";
+enableCSIDriverForCluster;
