@@ -36,7 +36,7 @@ function installEksctl() {
 
 function prepEksClusterRole() {
   
-    aws iam get-role --role-name myAmazonEKSClusterRole
+    OUTPUT=$(aws iam get-role --role-name myAmazonEKSClusterRole)
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
@@ -107,7 +107,7 @@ function validateClusterSetup() {
 }
 
 function prepNodegroupRole() {
-    aws iam get-role --role-name myAmazonEKSNodeRole
+    OUTPUT=$(aws iam get-role --role-name myAmazonEKSNodeRole)
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
@@ -193,7 +193,7 @@ function enableCSIDriverForCluster() {
 
     eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 
-    aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole
+    OUTPUT=$(aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole)
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
@@ -245,7 +245,7 @@ EOF
     KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
     echo $KEY_ARN
 
-    aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
+    OUTPUT=$(aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy)
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
