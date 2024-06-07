@@ -35,23 +35,19 @@ function installEksctl() {
 }
 
 function prepEksClusterRole() {
-    #Delete eks role and policy, if it already exists 
-    aws iam detach-role-policy \
-    --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
-    --role-name myAmazonEKSClusterRole
+  
+    aws iam get-role --role-name myAmazonEKSClusterRole
+    RESULT=$?
 
-    aws iam delete-role \
-    --role-name myAmazonEKSClusterRole
+    #Delete role and detach role policy, if it already exists 
+    if (( $RESULT == 0 )); then
+        aws iam detach-role-policy \
+        --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
+        --role-name myAmazonEKSClusterRole
 
-    FLAGS_2="$(
-        cat <<EOF
-    --project-create             Creates GCP project and enables the needed apis for setting up apigee
-    --apigee-org-create          Creates Apigee org within the assigned project.
-    --create-vm                  Creates the the VM instance that hosts container infrastructure.
-    --delete-vm                  Deletes the the VM instance
-    --help                       Display usage information.
-EOF
-    )"
+        aws iam delete-role \
+        --role-name myAmazonEKSClusterRole
+    fi
 
     #Delete json file if it already exists
     if [ -f "~/eks-cluster-role-trust-policy.json" ]; then
@@ -111,17 +107,23 @@ function validateClusterSetup() {
 }
 
 function prepNodegroupRole() {
-    aws iam detach-role-policy \
-    --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
-    --role-name myAmazonEKSNodeRole
-    aws iam detach-role-policy \
-    --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
-    --role-name myAmazonEKSNodeRole
-    aws iam detach-role-policy \
-    --policy-arn arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy \
-    --role-name myAmazonEKSNodeRole
+    aws iam get-role --role-name myAmazonEKSNodeRole
+    RESULT=$?
 
-    aws iam delete-role --role-name myAmazonEKSNodeRole
+    #Delete role and detach role policy, if it already exists 
+    if (( $RESULT == 0 )); then
+        aws iam detach-role-policy \
+        --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
+        --role-name myAmazonEKSNodeRole
+        aws iam detach-role-policy \
+        --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
+        --role-name myAmazonEKSNodeRole
+        aws iam detach-role-policy \
+        --policy-arn arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy \
+        --role-name myAmazonEKSNodeRole
+
+        aws iam delete-role --role-name myAmazonEKSNodeRole
+    fi
 
     if [ -f "~/node-role-trust-policy.json" ]; then
         rm ~/node-role-trust-policy.json
@@ -191,13 +193,19 @@ function enableCSIDriverForCluster() {
 
     eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 
-    aws iam detach-role-policy \
-    --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-    --role-name AmazonEKS_EBS_CSI_DriverRole
-    aws iam detach-role-policy \
-    --policy-arn arn:aws:iam::061512430429:policy/KMS_Key_For_Encryption_On_EBS_Policy \
-    --role-name AmazonEKS_EBS_CSI_DriverRole
-    aws iam delete-role --role-name AmazonEKS_EBS_CSI_DriverRole
+    aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole
+    RESULT=$?
+
+    #Delete role and detach role policy, if it already exists 
+    if (( $RESULT == 0 )); then
+        aws iam detach-role-policy \
+        --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+        --role-name AmazonEKS_EBS_CSI_DriverRole
+        aws iam detach-role-policy \
+        --policy-arn arn:aws:iam::061512430429:policy/KMS_Key_For_Encryption_On_EBS_Policy \
+        --role-name AmazonEKS_EBS_CSI_DriverRole
+        aws iam delete-role --role-name AmazonEKS_EBS_CSI_DriverRole
+    fi
 
     if [ -f "~/aws-ebs-csi-driver-trust-policy.json" ]; then
         rm ~/aws-ebs-csi-driver-trust-policy.json
