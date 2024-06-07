@@ -290,8 +290,6 @@ EOF
     done
 }
 
-parse_args "${@}"
-
 banner_info "Step- Validatevars";
 validateVars
 
