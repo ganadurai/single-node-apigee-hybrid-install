@@ -36,7 +36,7 @@ function installEksctl() {
 
 function prepEksClusterRole() {
     echo "role exists"
-    aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole" > /dev/null
+    aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole"
     echo $?
     if [ $? -eq 0 ]; then
         aws iam detach-role-policy \
