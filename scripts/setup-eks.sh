@@ -36,11 +36,8 @@ function installEksctl() {
 
 function checkRoleExists() {
     printf "start"
-    aws iam get-role --role-name myAmazonEKSClusterRole 2>/dev/null
-    RESULT=$?
-    echo "done"
-    #Delete role and detach role policy, if it already exists 
-    if [ $RESULT -eq 0 ]; then
+    ROLE_NAMES=$(aws iam list-roles --query "Roles[*].RoleName")
+    if [[ ${ROLE_NAMES[*]} == "$1" ]]; then
         echo "success"
         return 0;
     else
@@ -51,7 +48,7 @@ function checkRoleExists() {
 
 function prepEksClusterRole() {
     echo "start1"
-    checkRoleExists;
+    checkRoleExists "myAmazonEKSClusterRole";
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
