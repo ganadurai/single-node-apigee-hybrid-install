@@ -35,14 +35,8 @@ function installEksctl() {
 }
 
 function checkRoleExists() {
-    ROLE_NAMES=$(aws iam list-roles --query "Roles[*].RoleName")
-    if [[ ${ROLE_NAMES[*]} == "$1" ]]; then
-        echo "success"
-        return 0;
-    else
-        echo "failure"
-        return $RESULT
-    fi
+    aws iam list-roles --query "Roles[*].RoleName" | grep $1 > /dev/null
+    return $?;
 }
 
 function prepEksClusterRole() {
