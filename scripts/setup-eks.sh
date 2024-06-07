@@ -35,7 +35,7 @@ function installEksctl() {
 }
 
 function checkRoleExists() {
-    echo "start"
+    printf "start"
     #OUTPUT=$(aws iam get-role --role-name myAmazonEKSClusterRole 2>/dev/null)
     RESULT=$?
     echo "done"
