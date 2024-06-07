@@ -34,21 +34,6 @@ function installEksctl() {
     eksctl version
 }
 
-function existsInArray() {
-    echo "role exist check"
-    match=1
-    echo $1
-    for entry in $1; do
-        echo $entry
-        if [[ $entry = "$2" ]]; then
-            match=0
-            break
-        fi
-    done
-    echo "match=$match"
-    return $match
-}
-
 function prepEksClusterRole() {
     #aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole"
     ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
@@ -68,30 +53,28 @@ function prepEksClusterRole() {
         aws iam delete-role \
         --role-name myAmazonEKSClusterRole
     fi
-    echo "preparing role file"
 
     #Delete json file if it already exists
     if [ -f "~/eks-cluster-role-trust-policy.json" ]; then
         rm ~/eks-cluster-role-trust-policy.json
     fi
-    echo "creating role file"
+
     FLAGS_2="$(
         cat <<EOF >>~/eks-cluster-role-trust-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
         {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "eks.amazonaws.com"
-            },
-            "Action": "sts:AssumeRole"
-            }
-        ]
+        "Effect": "Allow",
+        "Principal": {
+            "Service": "eks.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
         }
+    ]
+}
 EOF
     )"
-    echo "creating role"
 
     aws iam create-role \
     --role-name myAmazonEKSClusterRole \
@@ -131,10 +114,18 @@ function validateClusterSetup() {
 
 function prepNodegroupRole() {
     
-    aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSNodeRole" > /dev/null
-    
+    ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
+    match=1
+    for entry in $ROLES; do
+        echo $entry
+        if [[ $entry = "myAmazonEKSNodeRole" ]]; then
+            match=0
+            break
+        fi
+    done
+
     #Delete role and detach role policy, if it already exists 
-    if (( $? -eq 0 )); then
+    if (( $match -eq 0 )); then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
         --role-name myAmazonEKSNodeRole
@@ -153,18 +144,18 @@ function prepNodegroupRole() {
     fi
     FLAGS_2="$(
         cat <<EOF >>~/node-role-trust-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
         {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "ec2.amazonaws.com"
-            },
-            "Action": "sts:AssumeRole"
-            }
-        ]
+        "Effect": "Allow",
+        "Principal": {
+            "Service": "ec2.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
         }
+    ]
+}
 EOF
     )"
 
@@ -216,10 +207,18 @@ function enableCSIDriverForCluster() {
 
     eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 
-    aws iam list-roles --query "Roles[*].RoleName" | grep "AmazonEKS_EBS_CSI_DriverRole" > /dev/null
+    ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
+    match=1
+    for entry in $ROLES; do
+        echo $entry
+        if [[ $entry = "AmazonEKS_EBS_CSI_DriverRole" ]]; then
+            match=0
+            break
+        fi
+    done
 
     #Delete role and detach role policy, if it already exists 
-    if (( $? -eq 0 )); then
+    if (( $match -eq 0 )); then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
         --role-name AmazonEKS_EBS_CSI_DriverRole
@@ -234,7 +233,7 @@ function enableCSIDriverForCluster() {
     fi
     FLAGS_2="$(
         cat <<EOF >>~/aws-ebs-csi-driver-trust-policy.json
-    {
+{
     "Version": "2012-10-17",
     "Statement": [
         {
@@ -251,7 +250,7 @@ function enableCSIDriverForCluster() {
         }
         }
     ]
-    }
+}
 EOF
     )"
 
@@ -267,10 +266,18 @@ EOF
     KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
     echo $KEY_ARN
 
-    aws iam list-policies --query "Policies[*].PolicyName" | grep "KMS_Key_For_Encryption_On_EBS_Policy" > /dev/null
+    POLICIES=$(aws iam list-policies --query "Policies[*].PolicyName")
+    match=1
+    for entry in $POLICIES; do
+        echo $entry
+        if [[ $entry = "KMS_Key_For_Encryption_On_EBS_Policy" ]]; then
+            match=0
+            break
+        fi
+    done
 
     #Delete role and detach role policy, if it already exists 
-    if (( $? -eq 0 )); then
+    if (( $match -eq 0 )); then
         aws iam delete-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
     fi
 
@@ -279,7 +286,7 @@ EOF
     fi
     FLAGS_2="$(
         cat <<EOF >>~/kms-key-for-encryption-on-ebs.json
-    {
+{
     "Version": "2012-10-17",
     "Statement": [
         {
@@ -308,7 +315,7 @@ EOF
         "Resource": [$KEY_ARN]
         }
     ]
-    }
+}
 EOF
     )"
 
