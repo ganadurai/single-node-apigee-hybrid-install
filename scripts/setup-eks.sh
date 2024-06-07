@@ -40,8 +40,7 @@ function checkRoleExists() {
 }
 
 function prepEksClusterRole() {
-    #checkRoleExists "myAmazonEKSClusterRole";
-    checkRoleExists "myAmazonEKSNodeRole";
+    checkRoleExists "myAmazonEKSClusterRole";
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
