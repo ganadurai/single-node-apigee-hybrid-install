@@ -38,6 +38,7 @@ function existsInArray() {
     echo "role exist check"
     match=1
     for entry in "$1"; do
+        echo $entry
         if [[ $entry = "$2" ]]; then
             match=0
             break
