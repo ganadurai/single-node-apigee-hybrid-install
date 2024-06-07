@@ -36,11 +36,11 @@ function installEksctl() {
 
 function prepEksClusterRole() {
   
-    OUTPUT=$(aws iam get-role --role-name myAmazonEKSClusterRole)
-    RESULT=$?;echo "RES=$RESULT"
+    OUTPUT=$(aws iam get-role --role-name myAmazonEKSClusterRole 2> /dev/null)
+    RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
-    if (( $RESULT == 0 )); then
+    if (( $RESULT -eq 0 )); then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
         --role-name myAmazonEKSClusterRole
@@ -107,11 +107,11 @@ function validateClusterSetup() {
 }
 
 function prepNodegroupRole() {
-    OUTPUT=$(aws iam get-role --role-name myAmazonEKSNodeRole)
+    OUTPUT=$(aws iam get-role --role-name myAmazonEKSNodeRole 2> /dev/null)
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
-    if (( $RESULT == 0 )); then
+    if (( $RESULT -eq 0 )); then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
         --role-name myAmazonEKSNodeRole
@@ -193,11 +193,11 @@ function enableCSIDriverForCluster() {
 
     eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 
-    OUTPUT=$(aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole)
+    OUTPUT=$(aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole 2> /dev/null)
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
-    if (( $RESULT == 0 )); then
+    if (( $RESULT -eq 0 )); then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
         --role-name AmazonEKS_EBS_CSI_DriverRole
@@ -245,11 +245,11 @@ EOF
     KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
     echo $KEY_ARN
 
-    OUTPUT=$(aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy)
+    OUTPUT=$(aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy 2> /dev/null)
     RESULT=$?
 
     #Delete role and detach role policy, if it already exists 
-    if (( $RESULT == 0 )); then
+    if (( $RESULT -eq 0 )); then
         aws iam delete-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
     fi
 
