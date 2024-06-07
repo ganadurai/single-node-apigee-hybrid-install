@@ -37,7 +37,6 @@ function installEksctl() {
 function prepEksClusterRole() {
     aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole" > /dev/null
     
-    #Delete role and detach role policy, if it already exists 
     if [ $? -eq 0 ]; then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
@@ -46,11 +45,13 @@ function prepEksClusterRole() {
         aws iam delete-role \
         --role-name myAmazonEKSClusterRole
     fi
+    echo "preparing role file"
 
     #Delete json file if it already exists
     if [ -f "~/eks-cluster-role-trust-policy.json" ]; then
         rm ~/eks-cluster-role-trust-policy.json
     fi
+    echo "creating role file"
     FLAGS_2="$(
         cat <<EOF >>~/eks-cluster-role-trust-policy.json
         {
@@ -67,6 +68,7 @@ function prepEksClusterRole() {
         }
 EOF
     )"
+    echo "creating role"
 
     aws iam create-role \
     --role-name myAmazonEKSClusterRole \
