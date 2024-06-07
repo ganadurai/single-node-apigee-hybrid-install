@@ -35,6 +35,7 @@ function installEksctl() {
 }
 
 function existsInArray() {
+    echo "role exist check"
     match=1
     for entry in "$1"; do
         if [[ $entry = "$2" ]]; then
@@ -46,7 +47,6 @@ function existsInArray() {
 }
 
 function prepEksClusterRole() {
-    echo "role exists"
     #aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole"
     existsInArray $(aws iam list-roles --query "Roles[*].RoleName") "myAmazonEKSClusterRole"
     echo $?
