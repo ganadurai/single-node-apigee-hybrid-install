@@ -51,7 +51,8 @@ function existsInArray() {
 
 function prepEksClusterRole() {
     #aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole"
-    existsInArray $(aws iam list-roles --query "Roles[*].RoleName") "myAmazonEKSClusterRole"
+    ROLES=$(aws iam list-roles --query "Roles[*].RoleName"); echo $ROLES
+    existsInArray $ROLES "myAmazonEKSClusterRole"
     echo $?
     if [ $? -eq 0 ]; then
         aws iam detach-role-policy \
