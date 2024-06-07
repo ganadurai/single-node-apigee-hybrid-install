@@ -121,7 +121,7 @@ function setupCluster() {
     aws eks describe-cluster --name $CLUSTER_NAME|jq .cluster.status
 
     CLUSTER_STATUS=""
-    while [ $CLUSTER_STATUS -ne "ACTIVE" ] :
+    while [ $CLUSTER_STATUS -ne "ACTIVE" ];
     do
         CLUSTER_STATUS=aws eks describe-cluster --name $CLUSTER_NAME|jq .cluster.status
         echo "CLUSTER STATUS:$CLUSTER_STATUS"
@@ -202,7 +202,7 @@ function setupClusterNodegroup() {
     --labels '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'  > /dev/null
 
     NODEGROUP_STATUS=""
-    while [ $NODEGROUP_STATUS -ne "ACTIVE" ] :
+    while [ $NODEGROUP_STATUS -ne "ACTIVE" ];
     do
         NODEGROUP_STATUS=$(aws eks describe-nodegroup --nodegroup-name $CLUSTER_NAME-nodegroup \
         --cluster-name $CLUSTER_NAME|jq .nodegroup.status)
@@ -332,7 +332,7 @@ EOF
     --service-account-role-arn arn:aws:iam::$ACCOUNT_ID:role/AmazonEKS_EBS_CSI_DriverRole
 
     CSI_DRIVER_ADDON_STATUS=""
-    while [ $CSI_DRIVER_ADDON_STATUS -ne "ACTIVE" ] :
+    while [ $CSI_DRIVER_ADDON_STATUS -ne "ACTIVE" ];
     do
         echo "CLUSTER ADDON:$CSI_DRIVER_ADDON_STATUS"
         CSI_DRIVER_ADDON_STATUS=$(aws eks describe-addon --cluster-name $CLUSTER_NAME --addon-name aws-ebs-csi-driver | jq .addon.status)
@@ -349,17 +349,17 @@ installEksctl;
 banner_info "Step- Prep Cluster Role";
 prepEksClusterRole
 
-banner_info "Step- Cluster Setup";
-setupCluster
+#banner_info "Step- Cluster Setup";
+#setupCluster
 
-banner_info "Step- Cluster Setup Validation";
-validateClusterSetup
+#banner_info "Step- Cluster Setup Validation";
+#validateClusterSetup
 
-banner_info "Step- Prep Nodegroup Role";
-prepNodegroupRole
+#banner_info "Step- Prep Nodegroup Role";
+#prepNodegroupRole
 
-banner_info "Step- Cluster Nodegroup Setup";
-setupClusterNodegroup
+#banner_info "Step- Cluster Nodegroup Setup";
+#setupClusterNodegroup
 
-banner_info "Step- Enable CSI Driver Addon for Cluster";
-enableCSIDriverForCluster;
+#banner_info "Step- Enable CSI Driver Addon for Cluster";
+#enableCSIDriverForCluster;
