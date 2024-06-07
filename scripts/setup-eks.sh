@@ -40,8 +40,10 @@ function checkRoleExists() {
 
     #Delete role and detach role policy, if it already exists 
     if [ $RESULT -eq 0 ]; then
+        echo "success"
         return 0;
     else
+        echo "failure"
         return $RESULT
     fi
 }
