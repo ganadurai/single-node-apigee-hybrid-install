@@ -245,7 +245,13 @@ EOF
     KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
     echo $KEY_ARN
 
-    aws iam delete-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
+    aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
+    RESULT=$?
+
+    #Delete role and detach role policy, if it already exists 
+    if (( $RESULT == 0 )); then
+        aws iam delete-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
+    fi
 
     if [ -f "~/kms-key-for-encryption-on-ebs.json" ]; then
         rm ~/kms-key-for-encryption-on-ebs.json
