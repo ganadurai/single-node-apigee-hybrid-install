@@ -50,7 +50,7 @@ function checkRoleExists() {
 }
 
 function prepEksClusterRole() {
-  
+    echo "start1"
     OUTPUT=$(checkRoleExists)
     RESULT=$?
 
