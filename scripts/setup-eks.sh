@@ -37,6 +37,7 @@ function installEksctl() {
 function existsInArray() {
     echo "role exist check"
     match=1
+    echo $1
     for entry in $1; do
         echo $entry
         if [[ $entry = "$2" ]]; then
