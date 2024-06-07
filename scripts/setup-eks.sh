@@ -35,6 +35,7 @@ function installEksctl() {
 }
 
 function prepEksClusterRole() {
+    echo "role exists"
     aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole" > /dev/null
     echo $?
     if [ $? -eq 0 ]; then
