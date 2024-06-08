@@ -190,6 +190,17 @@ EOF
     --role-name myAmazonEKSNodeRole
 }
 
+function checkClusterNodegroupExists() {
+    match=1
+    entry=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
+    --query "nodegroups[0]" | cut -d '"' -f 2)
+    if [[ $entry == "$CLUSTER_NAME-nodegroup" ]]; then
+        match=0
+        break
+    fi
+    ret $match
+}
+
 function setupClusterNodegroup() {
     SINGLE_SUBNET=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID | jq .Subnets[0].SubnetId | cut -d '"' -f 2)
     echo $SINGLE_SUBNET
@@ -206,7 +217,7 @@ function setupClusterNodegroup() {
     NODEGROUP_STATUS=""
     while [[ $NODEGROUP_STATUS != "ACTIVE" ]]; do
         NODEGROUP_STATUS=$(aws eks describe-nodegroup --nodegroup-name $CLUSTER_NAME-nodegroup \
-        --cluster-name $CLUSTER_NAME|jq .nodegroup.status)
+        --cluster-name $CLUSTER_NAME|jq .nodegroup.status | cut -d '"' -f 2)
         echo "NODEGROUP STATUS:$NODEGROUP_STATUS"
         sleep 5;
     done
@@ -348,7 +359,8 @@ EOF
 
     CSI_DRIVER_ADDON_STATUS=""
     while [[ $CSI_DRIVER_ADDON_STATUS != "ACTIVE" ]]; do
-        CSI_DRIVER_ADDON_STATUS=$(aws eks describe-addon --cluster-name $CLUSTER_NAME --addon-name aws-ebs-csi-driver | jq .addon.status)
+        CSI_DRIVER_ADDON_STATUS=$(aws eks describe-addon --cluster-name $CLUSTER_NAME \
+        --addon-name aws-ebs-csi-driver | jq .addon.status | cut -d '"' -f 2)
         echo "CLUSTER ADDON:$CSI_DRIVER_ADDON_STATUS"
         sleep 5;
     done
@@ -376,11 +388,18 @@ fi
 banner_info "Step- Cluster Setup Validation";
 validateClusterSetup
 
-banner_info "Step- Prep Nodegroup Role";
-prepNodegroupRole
+banner_info "Steps- Check Cluster NodeGroup exists";
+clusterNodegroupExists=checkClusterNodegroupExists;
 
-banner_info "Step- Cluster Nodegroup Setup";
-setupClusterNodegroup
+if [[ $clusterNodegroupExists -eq 0 ]]; then
+    echo "Cluster Nodegroup eixts, so stikking cluster nodegroup setup"
+else
+    banner_info "Step- Prep Nodegroup Role";
+    prepNodegroupRole
+
+    banner_info "Step- Cluster Nodegroup Setup";
+    setupClusterNodegroup
+fi
 
 banner_info "Step- Enable CSI Driver Addon for Cluster";
 enableCSIDriverForCluster;
