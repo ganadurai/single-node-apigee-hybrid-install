@@ -141,7 +141,7 @@ function prepNodegroupRole() {
     done
 
     #Delete role and detach role policy, if it already exists 
-    if (( $match -eq 0 )); then
+    if [ $match -eq 0 ]; then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
         --role-name myAmazonEKSNodeRole
@@ -233,7 +233,7 @@ function enableCSIDriverForCluster() {
     done
 
     #Delete role and detach role policy, if it already exists 
-    if (( $match -eq 0 )); then
+    if [ $match -eq 0 ]; then
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
         --role-name AmazonEKS_EBS_CSI_DriverRole
@@ -292,7 +292,7 @@ EOF
     done
 
     #Delete role and detach role policy, if it already exists 
-    if (( $match -eq 0 )); then
+    if [ $match -eq 0 ]; then
         aws iam delete-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
     fi
 
