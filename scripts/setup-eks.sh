@@ -39,7 +39,6 @@ function prepEksClusterRole() {
     ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
     match=1
     for entry in $ROLES; do
-        echo $entry
         if [[ $entry = "myAmazonEKSClusterRole" ]]; then
             match=0
             break
@@ -56,6 +55,7 @@ function prepEksClusterRole() {
 
     #Delete json file if it already exists
     if [ -f "~/eks-cluster-role-trust-policy.json" ]; then
+        echo "removing file already exists"
         rm ~/eks-cluster-role-trust-policy.json
     fi
 
