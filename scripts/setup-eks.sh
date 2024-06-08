@@ -101,7 +101,7 @@ function setupCluster() {
 
     CLUSTER_STATUS=""
     while [[ $CLUSTER_STATUS != "ACTIVE" ]]; do
-        CLUSTER_STATUS=aws eks describe-cluster --name $CLUSTER_NAME | jq .cluster.status | cut -d '"' -f 2
+        CLUSTER_STATUS=$(aws eks describe-cluster --name $CLUSTER_NAME | jq .cluster.status | cut -d '"' -f 2)
         echo "CLUSTER STATUS:$CLUSTER_STATUS"
         sleep 5;
     done
@@ -332,8 +332,8 @@ EOF
 
     CSI_DRIVER_ADDON_STATUS=""
     while [[ $CSI_DRIVER_ADDON_STATUS != "ACTIVE" ]]; do
-        echo "CLUSTER ADDON:$CSI_DRIVER_ADDON_STATUS"
         CSI_DRIVER_ADDON_STATUS=$(aws eks describe-addon --cluster-name $CLUSTER_NAME --addon-name aws-ebs-csi-driver | jq .addon.status)
+        echo "CLUSTER ADDON:$CSI_DRIVER_ADDON_STATUS"
         sleep 5;
     done
 }
