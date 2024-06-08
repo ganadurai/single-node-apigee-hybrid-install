@@ -45,6 +45,8 @@ function prepEksClusterRole() {
         fi
     done
     if [ $match -eq 0 ]; then
+        echo "Role exists deleting"
+        
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
         --role-name myAmazonEKSClusterRole
