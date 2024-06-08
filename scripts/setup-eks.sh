@@ -95,12 +95,9 @@ function setupCluster() {
     --role-arn arn:aws:iam::$ACCOUNT_ID:role/myAmazonEKSClusterRole \
     --resources-vpc-config subnetIds=$SUBNETS  > /dev/null
 
-    aws eks describe-cluster --name $CLUSTER_NAME|jq .cluster.status
-
     CLUSTER_STATUS=""
-    while [ $CLUSTER_STATUS -ne "ACTIVE" ];
-    do
-        CLUSTER_STATUS=aws eks describe-cluster --name $CLUSTER_NAME|jq .cluster.status
+    while [[ $CLUSTER_STATUS != "ACTIVE" ]]; do
+        CLUSTER_STATUS=aws eks describe-cluster --name $CLUSTER_NAME | jq .cluster.status | cut -d '"' -f 2
         echo "CLUSTER STATUS:$CLUSTER_STATUS"
         sleep 5;
     done
@@ -187,8 +184,7 @@ function setupClusterNodegroup() {
     --labels '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'  > /dev/null
 
     NODEGROUP_STATUS=""
-    while [ $NODEGROUP_STATUS -ne "ACTIVE" ];
-    do
+    while [[ $NODEGROUP_STATUS != "ACTIVE" ]]; do
         NODEGROUP_STATUS=$(aws eks describe-nodegroup --nodegroup-name $CLUSTER_NAME-nodegroup \
         --cluster-name $CLUSTER_NAME|jq .nodegroup.status)
         echo "NODEGROUP STATUS:$NODEGROUP_STATUS"
@@ -331,8 +327,7 @@ EOF
     --service-account-role-arn arn:aws:iam::$ACCOUNT_ID:role/AmazonEKS_EBS_CSI_DriverRole
 
     CSI_DRIVER_ADDON_STATUS=""
-    while [ $CSI_DRIVER_ADDON_STATUS -ne "ACTIVE" ];
-    do
+    while [[ $CSI_DRIVER_ADDON_STATUS != "ACTIVE" ]]; do
         echo "CLUSTER ADDON:$CSI_DRIVER_ADDON_STATUS"
         CSI_DRIVER_ADDON_STATUS=$(aws eks describe-addon --cluster-name $CLUSTER_NAME --addon-name aws-ebs-csi-driver | jq .addon.status)
         sleep 5;
