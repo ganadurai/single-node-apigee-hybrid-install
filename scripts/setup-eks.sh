@@ -365,7 +365,7 @@ clusterExists=checkClusterExists;
 
 if [[ $clusterExists -eq 0 ]]; then
     echo "Cluster esixts, so stikking role and cluster setup"
-then
+else
     banner_info "Step- Prep Cluster Role";
     prepEksClusterRole
 
