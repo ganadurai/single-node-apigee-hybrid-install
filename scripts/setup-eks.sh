@@ -28,10 +28,14 @@ function validateVars() {
 
 }
 
-function installEksctl() {
+function installTools() {
     curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
     sudo mv /tmp/eksctl /usr/local/bin
     eksctl version
+
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    kubectl version --client
 }
 
 function prepEksClusterRole() {
@@ -45,7 +49,6 @@ function prepEksClusterRole() {
             break
         fi
     done
-    echo $match
     if [ $match -eq 0 ]; then
         echo "Role exists deleting"
 
@@ -86,6 +89,19 @@ EOF
     aws iam attach-role-policy \
     --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
     --role-name myAmazonEKSClusterRole
+}
+
+function checkClusterExists() {
+    CLUSTERS=$(aws eks list-clusters --query "Clusters[*].ClusterName")
+    match=1
+    for entry in $CLUSTERS; do
+        entry=$(echo $entry | cut -d '"' -f 2)
+        if [[ $entry == "$CLUSTER_NAME" ]]; then
+            match=0
+            break
+        fi
+    done
+    ret $match
 }
 
 function setupCluster() {
@@ -341,14 +357,18 @@ EOF
 banner_info "Step- Validatevars";
 validateVars
 
-banner_info "Step- Install eksctl";
-installEksctl;
+banner_info "Step- Install eksctl, kubectl";
+installTools;
 
-banner_info "Step- Prep Cluster Role";
-prepEksClusterRole
+clusterExists=checkClusterExists;
 
-banner_info "Step- Cluster Setup";
-setupCluster
+if [[ $clusterExists -eq 0 ]]; then
+    banner_info "Step- Prep Cluster Role";
+    prepEksClusterRole
+
+    banner_info "Step- Cluster Setup";
+    setupCluster
+fi
 
 banner_info "Step- Cluster Setup Validation";
 validateClusterSetup
