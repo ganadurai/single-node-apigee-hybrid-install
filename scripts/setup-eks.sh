@@ -54,8 +54,7 @@ function prepEksClusterRole() {
     fi
 
     #Delete json file if it already exists
-    if [ -f "~/eks-cluster-role-trust-policy.json" ]; then
-        echo "removing file already exists"
+    if [ -f ~/eks-cluster-role-trust-policy.json ]; then
         rm ~/eks-cluster-role-trust-policy.json
     fi
 
@@ -139,7 +138,7 @@ function prepNodegroupRole() {
         aws iam delete-role --role-name myAmazonEKSNodeRole
     fi
 
-    if [ -f "~/node-role-trust-policy.json" ]; then
+    if [ -f ~/node-role-trust-policy.json ]; then
         rm ~/node-role-trust-policy.json
     fi
     FLAGS_2="$(
@@ -228,7 +227,7 @@ function enableCSIDriverForCluster() {
         aws iam delete-role --role-name AmazonEKS_EBS_CSI_DriverRole
     fi
 
-    if [ -f "~/aws-ebs-csi-driver-trust-policy.json" ]; then
+    if [ -f ~/aws-ebs-csi-driver-trust-policy.json ]; then
         rm ~/aws-ebs-csi-driver-trust-policy.json
     fi
     FLAGS_2="$(
@@ -281,7 +280,7 @@ EOF
         aws iam delete-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy
     fi
 
-    if [ -f "~/kms-key-for-encryption-on-ebs.json" ]; then
+    if [ -f ~/kms-key-for-encryption-on-ebs.json ]; then
         rm ~/kms-key-for-encryption-on-ebs.json
     fi
     FLAGS_2="$(
