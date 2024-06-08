@@ -39,7 +39,7 @@ function prepEksClusterRole() {
     ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
     match=1
     for entry in $ROLES; do
-        if [[ $entry = "myAmazonEKSClusterRole" ]]; then
+        if [[ $entry == "myAmazonEKSClusterRole" ]]; then
             match=0
             break
         fi
@@ -117,7 +117,7 @@ function prepNodegroupRole() {
     match=1
     for entry in $ROLES; do
         echo $entry
-        if [[ $entry = "myAmazonEKSNodeRole" ]]; then
+        if [[ $entry == "myAmazonEKSNodeRole" ]]; then
             match=0
             break
         fi
@@ -209,7 +209,7 @@ function enableCSIDriverForCluster() {
     match=1
     for entry in $ROLES; do
         echo $entry
-        if [[ $entry = "AmazonEKS_EBS_CSI_DriverRole" ]]; then
+        if [[ $entry == "AmazonEKS_EBS_CSI_DriverRole" ]]; then
             match=0
             break
         fi
@@ -268,7 +268,7 @@ EOF
     match=1
     for entry in $POLICIES; do
         echo $entry
-        if [[ $entry = "KMS_Key_For_Encryption_On_EBS_Policy" ]]; then
+        if [[ $entry == "KMS_Key_For_Encryption_On_EBS_Policy" ]]; then
             match=0
             break
         fi
