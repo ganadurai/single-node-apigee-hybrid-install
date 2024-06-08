@@ -360,9 +360,12 @@ validateVars
 banner_info "Step- Install eksctl, kubectl";
 installTools;
 
+banner_info "Step- Check Cluster exists";
 clusterExists=checkClusterExists;
 
 if [[ $clusterExists -eq 0 ]]; then
+    echo "Cluster esixts, so stikking role and cluster setup"
+then
     banner_info "Step- Prep Cluster Role";
     prepEksClusterRole
 
