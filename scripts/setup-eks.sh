@@ -35,10 +35,11 @@ function installEksctl() {
 }
 
 function prepEksClusterRole() {
-    #aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole"
+    aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole"
     ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
     match=1
     for entry in $ROLES; do
+        entry=$(echo $entry | cut -d '"' -f 2)
         if [[ $entry == "myAmazonEKSClusterRole" ]]; then
             match=0
             break
@@ -116,7 +117,7 @@ function prepNodegroupRole() {
     ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
     match=1
     for entry in $ROLES; do
-        echo $entry
+        entry=$(echo $entry | cut -d '"' -f 2)
         if [[ $entry == "myAmazonEKSNodeRole" ]]; then
             match=0
             break
@@ -208,7 +209,7 @@ function enableCSIDriverForCluster() {
     ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
     match=1
     for entry in $ROLES; do
-        echo $entry
+        entry=$(echo $entry | cut -d '"' -f 2)
         if [[ $entry == "AmazonEKS_EBS_CSI_DriverRole" ]]; then
             match=0
             break
@@ -267,7 +268,7 @@ EOF
     POLICIES=$(aws iam list-policies --query "Policies[*].PolicyName")
     match=1
     for entry in $POLICIES; do
-        echo $entry
+        entry=$(echo $entry | cut -d '"' -f 2)
         if [[ $entry == "KMS_Key_For_Encryption_On_EBS_Policy" ]]; then
             match=0
             break
