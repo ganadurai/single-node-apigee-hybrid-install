@@ -101,7 +101,7 @@ function checkClusterExists() {
             break
         fi
     done
-    ret $match
+    return $match
 }
 
 function setupCluster() {
@@ -198,7 +198,7 @@ function checkClusterNodegroupExists() {
         match=0
         break
     fi
-    ret $match
+    return $match
 }
 
 function setupClusterNodegroup() {
@@ -228,13 +228,12 @@ function policyExists() {
     match=1
     for entry in $POLICIES; do
         entry=$(echo $entry | cut -d '"' -f 2)
-        if [[ $entry == "AmazonEBSCSIDriverPolicy" ]]; then
+        if [[ $entry == $1 ]]; then
             match=0
             break
         fi
     done
-    echo $match
-    ret $match
+    return $match
 }
 
 function enableCSIDriverForCluster() {
