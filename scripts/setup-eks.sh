@@ -223,6 +223,20 @@ function setupClusterNodegroup() {
     done
 }
 
+function policyExists() {
+    POLICIES=$(aws iam list-policies --query "Policies[*].PolicyName")
+    match=1
+    for entry in $POLICIES; do
+        entry=$(echo $entry | cut -d '"' -f 2)
+        if [[ $entry == $1 ]]; then
+            match=0
+            break
+        fi
+    done
+
+    ret $match
+}
+
 function enableCSIDriverForCluster() {
     EKS_ID=$(aws eks describe-cluster --name $CLUSTER_NAME \
     --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
@@ -245,12 +259,20 @@ function enableCSIDriverForCluster() {
 
     #Delete role and detach role policy, if it already exists 
     if [ $match -eq 0 ]; then
-        aws iam detach-role-policy \
-        --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-        --role-name AmazonEKS_EBS_CSI_DriverRole
-        aws iam detach-role-policy \
-        --policy-arn arn:aws:iam::061512430429:policy/KMS_Key_For_Encryption_On_EBS_Policy \
-        --role-name AmazonEKS_EBS_CSI_DriverRole
+        policyExists = $(policyExists "AmazonEBSCSIDriverPolicy")
+        if [ policyExists -eq 0 ]; then
+            aws iam detach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+            --role-name AmazonEKS_EBS_CSI_DriverRole
+        fi
+
+        policyExists = $(policyExists "KMS_Key_For_Encryption_On_EBS_Policy")
+        if [ policyExists -eq 0 ]; then
+            aws iam detach-role-policy \
+            --policy-arn arn:aws:iam::061512430429:policy/KMS_Key_For_Encryption_On_EBS_Policy \
+            --role-name AmazonEKS_EBS_CSI_DriverRole
+        fi
+        
         aws iam delete-role --role-name AmazonEKS_EBS_CSI_DriverRole
     fi
 
