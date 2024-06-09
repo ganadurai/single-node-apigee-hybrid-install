@@ -390,6 +390,30 @@ EOF
     done
 }
 
+function deleteCluster() {
+    aws eks delete-cluster --name $CLUSTER_NAME > /dev/null
+
+    CLUSTER_STATUS=""
+    while [[ $CLUSTER_STATUS != "DELETING" ]]; do
+        CLUSTER_STATUS=$(aws eks describe-cluster --name $CLUSTER_NAME | jq .cluster.status | cut -d '"' -f 2)
+        echo "CLUSTER STATUS:$CLUSTER_STATUS"
+        sleep 5;
+    done
+}
+
+function deleteNodegroup() {
+    aws eks delete-nodegroup --cluster-name $CLUSTER_NAME \
+    --nodegroup-name $CLUSTER_NAME-nodegroup > /dev/null
+
+    NODEGROUP_STATUS=""
+    while [[ $NODEGROUP_STATUS != "DELETING" ]]; do
+        NODEGROUP_STATUS=$(aws eks describe-nodegroup --nodegroup-name $CLUSTER_NAME-nodegroup \
+        --cluster-name $CLUSTER_NAME|jq .nodegroup.status | cut -d '"' -f 2)
+        echo "NODEGROUP STATUS:$NODEGROUP_STATUS"
+        sleep 5;
+    done
+}
+
 banner_info "Step- Validatevars";
 validateVars
 
