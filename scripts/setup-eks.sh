@@ -285,7 +285,7 @@ function enableCSIDriverForCluster() {
         policy_found=1
         policyExists "AmazonEBSCSIDriverPolicy"
         if [ $policy_found -eq 0 ]; then
-            aws iam delete-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+            #aws iam delete-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
         fi
 
         role_policy_found=1
