@@ -26,6 +26,17 @@ function validateVars() {
     exit 1
   fi
 
+  if [[ -z $AWS_ACCESS_KEY_ID ]]; then
+    echo "Environment variable AWS_ACCESS_KEY_ID is not set, please checkout README.md"
+    #https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon
+    exit 1
+  fi
+
+  if [[ -z $AWS_SECRET_ACCESS_KEY ]]; then
+    echo "Environment variable AWS_SECRET_ACCESS_KEY is not set, please checkout README.md"
+    #https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon
+    exit 1
+  fi
 }
 
 function installTools() {
