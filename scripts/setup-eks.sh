@@ -282,11 +282,11 @@ function enableCSIDriverForCluster() {
             --role-name AmazonEKS_EBS_CSI_DriverRole
         fi
 
-        policy_found=1
-        policyExists "AmazonEBSCSIDriverPolicy"
-        if [ $policy_found -eq 0 ]; then
+        #policy_found=1
+        #policyExists "AmazonEBSCSIDriverPolicy"
+        #if [ $policy_found -eq 0 ]; then
             #aws iam delete-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-        fi
+        #fi
 
         role_policy_found=1
         rolePolicyExists "AmazonEKS_EBS_CSI_DriverRole" "KMS_Key_For_Encryption_On_EBS_Policy";
