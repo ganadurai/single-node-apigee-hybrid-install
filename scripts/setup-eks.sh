@@ -233,7 +233,7 @@ function policyExists() {
             break
         fi
     done
-
+    echo $match
     ret $match
 }
 
@@ -272,7 +272,7 @@ function enableCSIDriverForCluster() {
             --policy-arn arn:aws:iam::061512430429:policy/KMS_Key_For_Encryption_On_EBS_Policy \
             --role-name AmazonEKS_EBS_CSI_DriverRole
         fi
-        
+
         aws iam delete-role --role-name AmazonEKS_EBS_CSI_DriverRole
     fi
 
