@@ -29,17 +29,43 @@ function validateVars() {
 }
 
 function installTools() {
+    #eksctl install
     curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
     sudo mv /tmp/eksctl /usr/local/bin
     eksctl version
 
+    #kubectl install
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     kubectl version --client
+
+    #git install
+    sudo yum install git
+
+    #yq install
+    sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
+
+    #google cloud cli install
+    curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-478.0.0-linux-x86_64.tar.gz
+    tar -xf google-cloud-cli-478.0.0-linux-x86_64.tar.gz
+    ./google-cloud-sdk/install.sh
+    source ~/.bashrc
+
+    #helm install
+    curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+    chmod 700 get_helm.sh
+    ./get_helm.sh
+
+    #terraform install
+    git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+    mkdir ~/bin
+    ln -s ~/.tfenv/bin/* ~/bin/
+    tfenv install 1.8.4
+    tfenv use 1.8.4
+    terraform --version
 }
 
 function prepEksClusterRole() {
-    aws iam list-roles --query "Roles[*].RoleName" | grep "myAmazonEKSClusterRole"
     ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
     match=1
     for entry in $ROLES; do
@@ -50,7 +76,6 @@ function prepEksClusterRole() {
         fi
     done
     if [ $match -eq 0 ]; then
-        echo "Role exists deleting"
 
         aws iam detach-role-policy \
         --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
@@ -109,8 +134,7 @@ function checkClusterExists() {
 function setupCluster() {
     SUBNETS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID | \
                 jq -r '[.Subnets[].SubnetId] | join(",")')
-    echo $SUBNETS
-
+    
     #SUBNETS_SAMPLE=subnet-0dd6ea47695b61a34,subnet-06364102b8f13d1ce,subnet-0de2e60e36a911cde,subnet-0cb19133eb9aec1fb
 
     aws eks create-cluster --name $CLUSTER_NAME \
