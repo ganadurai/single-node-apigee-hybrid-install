@@ -259,14 +259,15 @@ function enableCSIDriverForCluster() {
     #Delete role and detach role policy, if it already exists 
     if [ $match -eq 0 ]; then
         policyExists = $(policyExists "AmazonEBSCSIDriverPolicy")
-        if [ policyExists -eq 0 ]; then
+        echo "policyExists: $policyExists"
+        if [ $policyExists -eq 0 ]; then
             aws iam detach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
             --role-name AmazonEKS_EBS_CSI_DriverRole
         fi
 
         policyExists = $(policyExists "KMS_Key_For_Encryption_On_EBS_Policy")
-        if [ policyExists -eq 0 ]; then
+        if [ $policyExists -eq 0 ]; then
             aws iam detach-role-policy \
             --policy-arn arn:aws:iam::061512430429:policy/KMS_Key_For_Encryption_On_EBS_Policy \
             --role-name AmazonEKS_EBS_CSI_DriverRole
