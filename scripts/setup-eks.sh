@@ -268,6 +268,7 @@ function enableCSIDriverForCluster() {
 
         policyExists "KMS_Key_For_Encryption_On_EBS_Policy";
         policy_found=1
+        echo "policy_found: $policy_found"
         if [ $policy_found -eq 0 ]; then
             aws iam detach-role-policy \
             --policy-arn arn:aws:iam::061512430429:policy/KMS_Key_For_Encryption_On_EBS_Policy \
