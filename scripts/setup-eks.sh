@@ -347,7 +347,7 @@ EOF
 
     KMS_KEY_ARN=$(aws iam create-policy \
     --policy-name KMS_Key_For_Encryption_On_EBS_Policy \
-    --policy-document file://kms-key-for-encryption-on-ebs.json | jq .Policy.Arn | cut -d '"' -f 2)
+    --policy-document file://~/kms-key-for-encryption-on-ebs.json | jq .Policy.Arn | cut -d '"' -f 2)
     echo $KMS_KEY_ARN
 
     aws iam attach-role-policy \
