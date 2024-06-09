@@ -228,7 +228,6 @@ function policyExists() {
     match=1
     for entry in $POLICIES; do
         entry=$(echo $entry | cut -d '"' -f 2)
-        echo $entry
         if [[ $entry == "AmazonEBSCSIDriverPolicy" ]]; then
             match=0
             break
