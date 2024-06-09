@@ -225,10 +225,10 @@ function setupClusterNodegroup() {
 
 policy_found=1
 function policyExists() {
-    POLICIES=$(aws iam list-policies --query "Policies[*].PolicyName")
+    POLICIES=$(aws iam list-role-policies --role-name $1)
     for entry in $POLICIES; do
         entry=$(echo $entry | cut -d '"' -f 2)
-        if [[ $entry == $1 ]]; then
+        if [[ $entry == $2 ]]; then
             policy_found=0
             break
         fi
@@ -258,7 +258,7 @@ function enableCSIDriverForCluster() {
     #Delete role and detach role policy, if it already exists 
     if [ $match -eq 0 ]; then
         policy_found=1
-        policyExists "AmazonEBSCSIDriverPolicy";
+        policyExists "AmazonEKS_EBS_CSI_DriverRole" "AmazonEBSCSIDriverPolicy";
         echo "policy_found: $policy_found"
         if [ $policy_found -eq 0 ]; then
             aws iam detach-role-policy \
@@ -266,7 +266,7 @@ function enableCSIDriverForCluster() {
             --role-name AmazonEKS_EBS_CSI_DriverRole
         fi
 
-        policyExists "KMS_Key_For_Encryption_On_EBS_Policy";
+        policyExists "AmazonEKS_EBS_CSI_DriverRole" "KMS_Key_For_Encryption_On_EBS_Policy";
         policy_found=1
         echo "policy_found: $policy_found"
         if [ $policy_found -eq 0 ]; then
