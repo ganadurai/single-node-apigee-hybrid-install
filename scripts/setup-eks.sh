@@ -233,7 +233,7 @@ function policyExists() {
             break
         fi
     done
-    return $match
+    ret $match
 }
 
 function enableCSIDriverForCluster() {
