@@ -91,17 +91,19 @@ EOF
     --role-name myAmazonEKSClusterRole
 }
 
+cluster_exists=1
 function checkClusterExists() {
     CLUSTERS=$(aws eks list-clusters --query "Clusters[*].ClusterName")
-    match=1
-    for entry in $CLUSTERS; do
-        entry=$(echo $entry | cut -d '"' -f 2)
-        if [[ $entry == "$CLUSTER_NAME" ]]; then
-            match=0
-            break
-        fi
-    done
-    return $match
+
+    if [ ${#CLUSTERS[@]} -gt 0 ]; then
+        for entry in $CLUSTERS; do
+            entry=$(echo $entry | cut -d '"' -f 2)
+            if [[ $entry == "$CLUSTER_NAME" ]]; then
+                cluster_exists=0
+                break
+            fi
+        done
+    fi
 }
 
 function setupCluster() {
@@ -190,15 +192,18 @@ EOF
     --role-name myAmazonEKSNodeRole
 }
 
+nodegroup_exists=1
 function checkClusterNodegroupExists() {
-    match=1
-    entry=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
-    --query "nodegroups[0]" | cut -d '"' -f 2)
-    if [[ $entry == "$CLUSTER_NAME-nodegroup" ]]; then
-        match=0
-        break
+    NODEGROUPS=aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
+        --query "nodegroups[0]" 
+    if [ ${#NODEGROUPS[@]} -gt 0 ]; then
+        entry=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
+        --query "nodegroups[0]" | cut -d '"' -f 2)
+        if [[ $entry == "$CLUSTER_NAME-nodegroup" ]]; then
+            nodegroup_exists=0
+            break
+        fi
     fi
-    return $match
 }
 
 function setupClusterNodegroup() {
@@ -421,9 +426,9 @@ banner_info "Step- Install eksctl, kubectl";
 installTools;
 
 banner_info "Step- Check Cluster exists";
-clusterExists=checkClusterExists;
+checkClusterExists;
 
-if [[ $clusterExists -eq 0 ]]; then
+if [[ $cluster_exists -eq 0 ]]; then
     echo "Cluster esixts, so stikking role and cluster setup"
 else
     banner_info "Step- Prep Cluster Role";
@@ -437,9 +442,9 @@ banner_info "Step- Cluster Setup Validation";
 validateClusterSetup
 
 banner_info "Steps- Check Cluster NodeGroup exists";
-clusterNodegroupExists=checkClusterNodegroupExists;
+checkClusterNodegroupExists;
 
-if [[ $clusterNodegroupExists -eq 0 ]]; then
+if [[ $nodegroup_exists -eq 0 ]]; then
     echo "Cluster Nodegroup eixts, so stikking cluster nodegroup setup"
 else
     banner_info "Step- Prep Nodegroup Role";
