@@ -230,8 +230,9 @@ function setupClusterNodegroup() {
 
 role_policy_found=1
 function rolePolicyExists() {
-    POLICIES=$(aws iam list-role-policies --role-name $1)
-    for entry in $POLICIES; do
+    #POLICIES=$(aws iam list-role-policies --role-name $1)
+    ROLES=$(aws iam list-entities-for-policy --policy-arn $1 --query "PolicyRoles[*].RoleName")
+    for entry in $ROLES; do
         entry=$(echo $entry | cut -d '"' -f 2)
         if [[ $entry == $2 ]]; then
             role_policy_found=0
@@ -275,24 +276,18 @@ function enableCSIDriverForCluster() {
     #Delete role and detach role policy, if it already exists 
     if [ $match -eq 0 ]; then
         role_policy_found=1
-        rolePolicyExists "AmazonEKS_EBS_CSI_DriverRole" "AmazonEBSCSIDriverPolicy";
+        rolePolicyExists "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy" "AmazonEKS_EBS_CSI_DriverRole";
         if [ $role_policy_found -eq 0 ]; then
             aws iam detach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
             --role-name AmazonEKS_EBS_CSI_DriverRole
         fi
 
-        #policy_found=1
-        #policyExists "AmazonEBSCSIDriverPolicy"
-        #if [ $policy_found -eq 0 ]; then
-            #aws iam delete-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-        #fi
-
         role_policy_found=1
-        rolePolicyExists "AmazonEKS_EBS_CSI_DriverRole" "KMS_Key_For_Encryption_On_EBS_Policy";
+        rolePolicyExists "arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy" "AmazonEKS_EBS_CSI_DriverRole";
         if [ $role_policy_found -eq 0 ]; then
             aws iam detach-role-policy \
-            --policy-arn arn:aws:iam::061512430429:policy/KMS_Key_For_Encryption_On_EBS_Policy \
+            --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/KMS_Key_For_Encryption_On_EBS_Policy \
             --role-name AmazonEKS_EBS_CSI_DriverRole
         fi
 
@@ -405,8 +400,8 @@ EOF
 function deleteCluster() {
     aws eks delete-cluster --name $CLUSTER_NAME > /dev/null
 
-    CLUSTER_STATUS=""
-    while [[ $CLUSTER_STATUS != "DELETING" ]]; do
+    CLUSTER_STATUS="DELETING"
+    while [[ $CLUSTER_STATUS == "DELETING" ]]; do
         CLUSTER_STATUS=$(aws eks describe-cluster --name $CLUSTER_NAME | jq .cluster.status | cut -d '"' -f 2)
         echo "CLUSTER STATUS:$CLUSTER_STATUS"
         sleep 5;
@@ -417,8 +412,8 @@ function deleteNodegroup() {
     aws eks delete-nodegroup --cluster-name $CLUSTER_NAME \
     --nodegroup-name $CLUSTER_NAME-nodegroup > /dev/null
 
-    NODEGROUP_STATUS=""
-    while [[ $NODEGROUP_STATUS != "DELETING" ]]; do
+    NODEGROUP_STATUS="DELETING"
+    while [[ $NODEGROUP_STATUS == "DELETING" ]]; do
         NODEGROUP_STATUS=$(aws eks describe-nodegroup --nodegroup-name $CLUSTER_NAME-nodegroup \
         --cluster-name $CLUSTER_NAME|jq .nodegroup.status | cut -d '"' -f 2)
         echo "NODEGROUP STATUS:$NODEGROUP_STATUS"
