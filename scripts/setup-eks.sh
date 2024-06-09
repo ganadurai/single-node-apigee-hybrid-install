@@ -93,7 +93,7 @@ EOF
 
 cluster_exists=1
 function checkClusterExists() {
-    CLUSTERS=$(aws eks list-clusters --query "Clusters[*].ClusterName")
+    CLUSTERS=$(aws eks list-clusters --query "clusters")
 
     if [ ${#CLUSTERS[@]} -gt 0 ]; then
         for entry in $CLUSTERS; do
