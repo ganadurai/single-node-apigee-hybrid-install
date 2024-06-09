@@ -194,8 +194,8 @@ EOF
 
 nodegroup_exists=1
 function checkClusterNodegroupExists() {
-    NODEGROUPS=aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
-        --query "nodegroups[0]" 
+    NODEGROUPS=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
+        --query "nodegroups[0]")
     if [ ${#NODEGROUPS[@]} -gt 0 ]; then
         entry=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
         --query "nodegroups[0]" | cut -d '"' -f 2)
