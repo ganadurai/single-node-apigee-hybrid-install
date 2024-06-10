@@ -5,6 +5,7 @@ set -e
 # shellcheck source=/dev/null
 source ./install-functions.sh
 source ./helm/install-hybrid-helm-functions.sh
+source ./setup-eks.sh
 
 source ./helm/set-overrides.sh
 source ./helm/install-crds-cert-mgr.sh
@@ -15,10 +16,58 @@ function logIntoCluster() {
     aws eks update-kubeconfig --region "$AWS_EKS_REGION" --name "$CLUSTER_NAME"
 }
 
+function installCluster() {
+
+    banner_info "Step- Validatevars";
+    validateVars
+
+    banner_info "Step- Install eksctl, kubectl";
+    installTools;
+
+    banner_info "Step- Check Cluster exists";
+    checkClusterExists;
+
+    if [[ $cluster_exists -eq 0 ]]; then
+        echo "Cluster eixts, so skipping role and cluster setup"
+    else
+        banner_info "Step- Prep Cluster Role";
+        prepEksClusterRole
+
+        banner_info "Step- Cluster Setup";
+        setupCluster
+    fi
+
+    banner_info "Step- Cluster Setup Validation";
+    validateClusterSetup
+
+    banner_info "Steps- Check Cluster NodeGroup exists";
+    checkClusterNodegroupExists;
+
+    if [[ $nodegroup_exists -eq 0 ]]; then
+        echo "Cluster Nodegroup eixts, so stikking cluster nodegroup setup"
+    else
+        banner_info "Step- Prep Nodegroup Role";
+        prepNodegroupRole
+
+        banner_info "Step- Cluster Nodegroup Setup";
+        setupClusterNodegroup
+    fi
+
+    banner_info "Step- Enable CSI Driver Addon for Cluster";
+    enableCSIDriverForCluster;
+
+
+}
+
 parse_args "${@}"
 
 banner_info "Step- Validatevars";
 validateVars
+validateEksSetupVars
+
+if [[ $SHOULD_INSTALL_TOOLS == "1" ]]; then
+    installEksSetupTools;
+fi
 
 # Potential for common method for cloud installs (eks and gke)
 if [[ $SHOULD_DELETE_PROJECT == "1" ]]; then
@@ -49,6 +98,11 @@ if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
     gcloud projects add-iam-policy-binding ${PROJECT_ID} \
       --member user:${USER_ID} \
       --role roles/apigee.admin
+fi
+
+if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0" ]]; then
+  banner_info "Step- Install Cluster"
+  installCluster;
 fi
 
 # Potential for common method for cloud installs (eks and gke)
@@ -83,7 +137,8 @@ if [[ $SHOULD_INSTALL_INGRESS == "1" ]]; then
   deploySampleProxyForValidation;
 
   banner_info "Step- Validation of proxy execution (Manual: execute below)";
-  echo "export INGRESS_IP_ADDRESS=$(kubectl -n apigee get svc -l app=apigee-ingressgateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')"
+  INGRESS_IP_ADDRESS=$(kubectl -n apigee get svc -l app=apigee-ingressgateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].hostname}')
+  echo $INGRESS_IP_ADDRESS
   echo "nslookup $INGRESS_IP_ADDRESS"
   echo "curl \"https://$DOMAIN/apigee-hybrid-helloworld\" -k --resolve \"$DOMAIN:443:IPADDRESS_FROM_ABOVE\" -i"
 fi

@@ -4,7 +4,7 @@ set -e
 
 source ./install-functions.sh
 
-function validateVars() {
+function validateEksSetupVars() {
 
   if [[ -z $CLUSTER_NAME ]]; then
     echo "Environment variable CLUSTER_NAME is not set, please checkout README.md"
@@ -39,7 +39,7 @@ function validateVars() {
   fi
 }
 
-function installTools() {
+function installEksSetupTools() {
     #eksctl install
     curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
     sudo mv /tmp/eksctl /usr/local/bin
@@ -457,10 +457,10 @@ function deleteNodegroup() {
 }
 
 banner_info "Step- Validatevars";
-validateVars
+validateEksSetupVars
 
-banner_info "Step- Install eksctl, kubectl";
-installTools;
+banner_info "Step- Install tools";
+installEksSetupTools;
 
 banner_info "Step- Check Cluster exists";
 checkClusterExists;
