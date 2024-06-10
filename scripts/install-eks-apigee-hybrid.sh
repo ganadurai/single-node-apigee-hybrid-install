@@ -13,7 +13,7 @@ source ./helm/set-chart-values.sh
 source ./helm/execute-charts.sh
 
 function logIntoCluster() {
-    aws eks update-kubeconfig --region "$AWS_EKS_REGION" --name "$CLUSTER_NAME"
+    aws eks update-kubeconfig --region "$EKS_REGION" --name "$CLUSTER_NAME"
 }
 
 function installCluster() {
