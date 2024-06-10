@@ -441,6 +441,8 @@ function deleteCluster() {
         echo "CLUSTER STATUS:$CLUSTER_STATUS"
         sleep 5;
     done
+
+    # Delete hybrid-launcher (t2.micro EC2 Instance), Loadbalanacer, NAT Gateway, Release Elastic IPs
 }
 
 function deleteNodegroup() {
@@ -456,40 +458,45 @@ function deleteNodegroup() {
     done
 }
 
-banner_info "Step- Validatevars";
-validateEksSetupVars
+function eksPrepAndInstall() {
 
-banner_info "Step- Install tools";
-installEksSetupTools;
+    banner_info "Step- Validatevars";
+    validateEksSetupVars
 
-banner_info "Step- Check Cluster exists";
-checkClusterExists;
+    banner_info "Step- Install tools";
+    installEksSetupTools;
 
-if [[ $cluster_exists -eq 0 ]]; then
-    echo "Cluster eixts, so skipping role and cluster setup"
-else
-    banner_info "Step- Prep Cluster Role";
-    prepEksClusterRole
+    banner_info "Step- Check Cluster exists";
+    checkClusterExists;
 
-    banner_info "Step- Cluster Setup";
-    setupCluster
-fi
+    if [[ $cluster_exists -eq 0 ]]; then
+        echo "Cluster eixts, so skipping role and cluster setup"
+    else
+        banner_info "Step- Prep Cluster Role";
+        prepEksClusterRole
 
-banner_info "Step- Cluster Setup Validation";
-validateClusterSetup
+        banner_info "Step- Cluster Setup";
+        setupCluster
+    fi
 
-banner_info "Steps- Check Cluster NodeGroup exists";
-checkClusterNodegroupExists;
+    banner_info "Step- Cluster Setup Validation";
+    validateClusterSetup
 
-if [[ $nodegroup_exists -eq 0 ]]; then
-    echo "Cluster Nodegroup eixts, so stikking cluster nodegroup setup"
-else
-    banner_info "Step- Prep Nodegroup Role";
-    prepNodegroupRole
+    banner_info "Steps- Check Cluster NodeGroup exists";
+    checkClusterNodegroupExists;
 
-    banner_info "Step- Cluster Nodegroup Setup";
-    setupClusterNodegroup
-fi
+    if [[ $nodegroup_exists -eq 0 ]]; then
+        echo "Cluster Nodegroup eixts, so stikking cluster nodegroup setup"
+    else
+        banner_info "Step- Prep Nodegroup Role";
+        prepNodegroupRole
 
-banner_info "Step- Enable CSI Driver Addon for Cluster";
-enableCSIDriverForCluster;
+        banner_info "Step- Cluster Nodegroup Setup";
+        setupClusterNodegroup
+    fi
+
+    banner_info "Step- Enable CSI Driver Addon for Cluster";
+    enableCSIDriverForCluster;
+
+    banner_info "Complete EKS Cluster Setup";
+}

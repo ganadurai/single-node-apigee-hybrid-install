@@ -17,46 +17,7 @@ function logIntoCluster() {
 }
 
 function installCluster() {
-
-    banner_info "Step- Validatevars";
-    validateVars
-
-    banner_info "Step- Install eksctl, kubectl";
-    installTools;
-
-    banner_info "Step- Check Cluster exists";
-    checkClusterExists;
-
-    if [[ $cluster_exists -eq 0 ]]; then
-        echo "Cluster eixts, so skipping role and cluster setup"
-    else
-        banner_info "Step- Prep Cluster Role";
-        prepEksClusterRole
-
-        banner_info "Step- Cluster Setup";
-        setupCluster
-    fi
-
-    banner_info "Step- Cluster Setup Validation";
-    validateClusterSetup
-
-    banner_info "Steps- Check Cluster NodeGroup exists";
-    checkClusterNodegroupExists;
-
-    if [[ $nodegroup_exists -eq 0 ]]; then
-        echo "Cluster Nodegroup eixts, so stikking cluster nodegroup setup"
-    else
-        banner_info "Step- Prep Nodegroup Role";
-        prepNodegroupRole
-
-        banner_info "Step- Cluster Nodegroup Setup";
-        setupClusterNodegroup
-    fi
-
-    banner_info "Step- Enable CSI Driver Addon for Cluster";
-    enableCSIDriverForCluster;
-
-
+    eksPrepAndInstall;
 }
 
 parse_args "${@}"
