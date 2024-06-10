@@ -11,8 +11,13 @@ function validateEksSetupVars() {
     exit 1
   fi
 
-  if [[ -z $REGION ]]; then
-    echo "Environment variable REGION is not set, please checkout README.md"
+  if [[ -z $NODEGROUP_NAME ]]; then
+    echo "Environment variable NODEGROUP_NAME is not set, please checkout README.md"
+    exit 1
+  fi
+
+  if [[ -z $EKS_REGION ]]; then
+    echo "Environment variable EKS_REGION is not set, please checkout README.md"
     exit 1
   fi
 
@@ -155,7 +160,7 @@ function setupCluster() {
 }
 
 function validateClusterSetup() {
-    aws eks update-kubeconfig --region $REGION --name $CLUSTER_NAME
+    aws eks update-kubeconfig --region $EKS_REGION --name $CLUSTER_NAME
     kubectl get svc
 }
 
@@ -340,13 +345,13 @@ function enableCSIDriverForCluster() {
         {
         "Effect": "Allow",
         "Principal": {
-            "Federated": "arn:aws:iam::$ACCOUNT_ID:oidc-provider/oidc.eks.$REGION.amazonaws.com/id/$EKS_ID"
+            "Federated": "arn:aws:iam::$ACCOUNT_ID:oidc-provider/oidc.eks.$EKS_REGION.amazonaws.com/id/$EKS_ID"
         },
         "Action": "sts:AssumeRoleWithWebIdentity",
         "Condition": {
             "StringEquals": {
-            "oidc.eks.$REGION.amazonaws.com/id/$EKS_ID:aud": "sts.amazonaws.com",
-            "oidc.eks.$REGION.amazonaws.com/id/$EKS_ID:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+            "oidc.eks.$EKS_REGION.amazonaws.com/id/$EKS_ID:aud": "sts.amazonaws.com",
+            "oidc.eks.$EKS_REGION.amazonaws.com/id/$EKS_ID:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
             }
         }
         }
