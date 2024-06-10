@@ -56,12 +56,6 @@ function installEksSetupTools() {
     #yq install
     sudo wget https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64.tar.gz -O - | tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
 
-    #google cloud cli install
-    curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-478.0.0-linux-x86_64.tar.gz
-    tar -xf google-cloud-cli-478.0.0-linux-x86_64.tar.gz
-    ./google-cloud-sdk/install.sh
-    source ~/.bashrc
-
     #helm install
     curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
     chmod 700 get_helm.sh
@@ -460,11 +454,8 @@ function deleteNodegroup() {
 
 function eksPrepAndInstall() {
 
-    banner_info "Step- Validatevars";
+    banner_info "Step- EKS Install Validatevars ";
     validateEksSetupVars
-
-    banner_info "Step- Install tools";
-    installEksSetupTools;
 
     banner_info "Step- Check Cluster exists";
     checkClusterExists;
