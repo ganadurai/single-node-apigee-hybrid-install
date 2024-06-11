@@ -473,6 +473,7 @@ function eksPrepAndInstall() {
 
         banner_info "Step- Cluster Setup";
         setupCluster
+        sleep 10;
     fi
 
     banner_info "Step- Cluster Setup Validation";
