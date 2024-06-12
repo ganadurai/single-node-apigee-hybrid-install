@@ -72,6 +72,7 @@ function installEksSetupTools() {
 
 function createVPCForEKSCluster() {
     if [[ -z $VPC_ID ]]; then
+        echo "Deleting cloudformation stack my-eks-vpc-stack"
         aws cloudformation delete-stack --stack-name my-eks-vpc-stack
         sleep 5;
         aws cloudformation create-stack \
