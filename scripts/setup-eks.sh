@@ -26,11 +26,6 @@ function validateEksSetupVars() {
     exit 1
   fi
 
-  if [[ -z $VPC_ID ]]; then
-    echo "Environment variable VPC_ID is not set, please checkout README.md"
-    exit 1
-  fi
-
   if [[ -z $AWS_ACCESS_KEY_ID ]]; then
     echo "Environment variable AWS_ACCESS_KEY_ID is not set, please checkout README.md"
     #https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon
