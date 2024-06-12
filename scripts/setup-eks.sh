@@ -76,17 +76,19 @@ function installEksSetupTools() {
 }
 
 function createVPCForEKSCluster() {
-    aws cloudformation delete-stack --stack-name my-eks-vpc-stack
-    sleep 5;
-    aws cloudformation create-stack \
-        --region $EKS_REGION \
-        --stack-name my-eks-vpc-stack \
-        --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
-    sleep 5;
-    VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=my-eks-vpc-stack-VPC \
-                --query "Vpcs[0].VpcId" | cut -d '"' -f 2)
+    if [[ -z $VPC_ID ]]; then
+        aws cloudformation delete-stack --stack-name my-eks-vpc-stack
+        sleep 5;
+        aws cloudformation create-stack \
+            --region $EKS_REGION \
+            --stack-name my-eks-vpc-stack \
+            --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
+        sleep 5;
+        VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=my-eks-vpc-stack-VPC \
+                    --query "Vpcs[0].VpcId" | cut -d '"' -f 2)
 
-    echo $VPC_ID
+        echo $VPC_ID
+    fi
 }
 
 function prepEksClusterRole() {
@@ -504,7 +506,7 @@ function eksPrepAndInstall() {
     else
         banner_info "Step- Setting VPC for EKS cluster"
         createVPCForEKSCluster
-        
+
         banner_info "Step- Prep Cluster Role";
         prepEksClusterRole
 
