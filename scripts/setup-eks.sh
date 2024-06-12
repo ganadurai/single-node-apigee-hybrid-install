@@ -75,6 +75,20 @@ function installEksSetupTools() {
     terraform --version
 }
 
+function createVPCForEKSCluster() {
+    aws cloudformation delete-stack --stack-name my-eks-vpc-stack
+    sleep 5;
+    aws cloudformation create-stack \
+        --region $EKS_REGION \
+        --stack-name my-eks-vpc-stack \
+        --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
+    sleep 5;
+    VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=my-eks-vpc-stack-VPC \
+                --query "Vpcs[0].VpcId" | cut -d '"' -f 2)
+
+    echo $VPC_ID
+}
+
 function prepEksClusterRole() {
     ROLES=$(aws iam list-roles --query "Roles[*].RoleName")
     match=1
@@ -441,6 +455,26 @@ function deleteCluster() {
         sleep 5;
     done
 
+    #Deletes loadbalancer
+    LB_NAME=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[0].LoadBalancerName" \
+                | cut -d '"' -f 2)
+    aws elb delete-load-balancer --load-balancer-name $LB_NAME
+
+    NAT_GW_IDS=$(aws ec2 describe-nat-gateways --filter Name=vpc-id,Values=$VPC_ID --query "NatGateways[*].NatGatewayId")
+    for entry in $NAT_GW_IDS; do
+        entry=$(echo $entry | cut -d '"' -f 2)
+        if [[ $entry != "[" ]] && [[ $entry != "]" ]]; then
+            aws ec2 delete-nat-gateway --nat-gateway-id $entry
+        fi
+    done
+    sleep 5;
+
+    #Delete VPC from console
+    aws ec2 delete-vpc --vpc-id $VPC_ID
+    
+    #Deletes CF 
+    aws cloudformation delete-stack --stack-name my-eks-vpc-stack
+
     # Delete hybrid-launcher (t2.micro EC2 Instance), Loadbalanacer, NAT Gateway, Release Elastic IPs
 }
 
@@ -468,6 +502,9 @@ function eksPrepAndInstall() {
     if [[ $cluster_exists -eq 0 ]]; then
         echo "Cluster eixts, so skipping role and cluster setup"
     else
+        banner_info "Step- Setting VPC for EKS cluster"
+        createVPCForEKSCluster
+        
         banner_info "Step- Prep Cluster Role";
         prepEksClusterRole
 
