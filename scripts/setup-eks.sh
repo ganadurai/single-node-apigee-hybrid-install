@@ -83,7 +83,7 @@ function createVPCForEKSCluster() {
         VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=my-eks-vpc-stack-VPC \
                     --query "Vpcs[0].VpcId" | cut -d '"' -f 2)
 
-        echo $VPC_ID
+        echo "VPC_ID=$VPC_ID"
     fi
 }
 
