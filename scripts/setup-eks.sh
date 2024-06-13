@@ -154,6 +154,7 @@ function checkClusterExists() {
 }
 
 function setupCluster() {
+    sleep 10;
     SUBNETS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID | \
                 jq -r '[.Subnets[].SubnetId] | join(",")')
     
