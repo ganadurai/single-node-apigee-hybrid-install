@@ -51,6 +51,7 @@ function logIntoCluster() {
   TOKEN=$(gcloud auth print-access-token); export TOKEN;
 }
 
+# Potential for common method for cloud installs (eks and gke)
 function hybridPostInstallIngressGatewaySetup() {
   
   export SERVICE_NAME=$ENV_NAME-ingrs-svc
@@ -73,6 +74,7 @@ function hybridPostInstallIngressGatewaySetup() {
 
 }
 
+# Potential for common method for cloud installs (eks and gke)
 function hybridPostInstallIngressGatewayValidation() {
 
   OUTPUT=$(curl -s "https://$DOMAIN/apigee-hybrid-helloworld" \
@@ -94,6 +96,7 @@ parse_args "${@}"
 banner_info "Step- Validatevars";
 validateVars
 
+# Potential for common method for cloud installs (eks and gke)
 if [[ $SHOULD_DELETE_PROJECT == "1" ]]; then
   banner_info "Step- Delete Project"
   installDeleteProject "destroy";
@@ -109,14 +112,21 @@ if [[ $SHOULD_DELETE_CLUSTER == "1" ]]; then
   exit 0;
 fi
 
+# Potential for common method for cloud installs (eks and gke)
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   banner_info "Step- Install Project"
+  DO_PROJECT_CREATE='false'; #TODO: This stmt van be deleted
   installDeleteProject "apply";
 fi
 
+# Potential for common method for cloud installs (eks and gke)
 if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
-  banner_info "Step- Install Apigee Org"
-  installApigeeOrg;
+    banner_info "Step- Install Apigee Org"
+    installApigeeOrg;
+
+    gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+      --member user:${USER_ID} \
+      --role roles/apigee.admin
 fi
 
 banner_info "Step - Install Tools"
@@ -128,6 +138,7 @@ if [[ $SHOULD_INSTALL_CLUSTER == "1" ]] && [[ $SHOULD_SKIP_INSTALL_CLUSTER == "0
   installDeleteCluster "apply";
 fi
 
+# Potential for common method for cloud installs (eks and gke)
 if [[ $CLUSTER_ACTION == "1" ]]; then
   banner_info "Step- Log into cluster";
   logIntoCluster;

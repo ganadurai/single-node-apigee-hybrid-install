@@ -109,12 +109,14 @@ parse_args "${@}"
 banner_info "Step- Validatevars";
 validateVars
 
+# Potential for common method for cloud installs (local, eks and gke)
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then
   banner_info "Step- Install Project"
-  DO_PROJECT_CREATE='false'; #Just enable the org policies
+  DO_PROJECT_CREATE='false'; #TODO: This stmt van be deleted
   installDeleteProject "apply";
 fi
 
+# Potential for common method for cloud installs (local, eks and gke)
 if [[ $SHOULD_CREATE_APIGEE_ORG == "1" ]]; then
     banner_info "Step- Install Apigee Org"
     installApigeeOrg;
