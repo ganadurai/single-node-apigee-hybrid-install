@@ -86,7 +86,7 @@ function hybridPostInstallEnvoyIngressSetup() {
   kubectl apply -f envoy-deployment.yaml
 
   echo "Waiting for envoy services to be ready...10s"
-  kubectl -n envoy-ns wait --for=jsonpath='{.status.phase}'=Running pod -l app=envoy-proxy --timeout=10s
+  kubectl -n envoy-ns wait --for=jsonpath='{.status.phase}'=Running pod -l app=envoy-proxy --timeout=20s
 
 }
 
@@ -106,8 +106,12 @@ function hybridPostInstallEnvoyIngressValidation() {
 
 parse_args "${@}"
 
+banner_info "Step- Set Environment Variables";
+setEnvironmentVariables
+
 banner_info "Step- Validatevars";
 validateVars
+
 
 # Potential for common method for cloud installs (local, eks and gke)
 if [[ $SHOULD_CREATE_PROJECT == "1" ]]; then

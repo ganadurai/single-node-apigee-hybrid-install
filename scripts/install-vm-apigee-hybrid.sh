@@ -159,6 +159,9 @@ function hybridPostInstallEnvoyIngressValidation() {
 
 parse_args "${@}"
 
+banner_info "Step- Set Environment Variables";
+setEnvironmentVariables
+
 banner_info "Step- Validatevars";
 validateVars
 
