@@ -7,13 +7,18 @@ For simple tests and validation of Apigee Hybrid, are you concerned about the hi
 This tool solves your concerns. 
 
 * Reduces the cost of running Apigee Hybrid to a minimum of $100 per month, compared to the standard Hybrid operating cost of $800 or more
-* Provides end-to-end automation, starting with setup of GCP project, configuring an Apigee org and deploying Hybrid on an instance. (single step install)
+* Provides end-to-end automation, starting with setup of GCP project, configuring an Apigee org and deploying Hybrid cluster
 
-This implementation is built on top of the currently revamped [Hybrid installation](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide) procedures. It follows the recommended [Kustomize tool overrides](https://cloud.google.com/apigee/docs/hybrid/preview/new-install-user-guide#kustomize-and-components) approach to keep the Hybrid container resources to a minimum, so all resources can be stood up on a single VM node (4vCPU, 16GB RAM).
+This implementation is needs a node : 4vCPU, 16GB RAM.
 
 This deployment model is intended ONLY for testing and sandbox purposes, **NOT for production deployments**. This setup is **NOT covered under any form of Google support**.
 
-## Apigee Hybrid on a single node GKE cluster
+## Following deployment options are supported
+
+Mac
+GCP VM
+AWS VM 
+AWS EKS
 
 ### Prerequisites
 
