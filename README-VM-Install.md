@@ -1,4 +1,4 @@
-# Hybrid Installation on AWS VM (Ubunut) or GCP VM 
+# Hybrid Installation on AWS VM (Ubunutu) or GCP VM (e2-standard-4 : 4vCPU, 2core 16GB Memory, 20GB Boot disk)
 
 To enable quick test and validation of Apigee Hybrid on a VM with 16 GB Memory.
 
@@ -46,15 +46,27 @@ To enable quick test and validation of Apigee Hybrid on a VM with 16 GB Memory.
     kubectl version --client
     ```
 
-### Docker Installation
+### Docker Installation for GCP VM
+    ```bash
+    sudo apt install --yes apt-transport-https ca-certificates curl gnupg2 software-properties-common
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+    echo "Waiting for 10s..."
+    sleep 10
+    sudo apt-get update
+    sudo apt install --yes docker-ce
+    sudo usermod -aG docker $USER
+    ```
 
-Follow the instructions here to install Docker on Mac
-https://docs.docker.com/desktop/install/mac-install/
+### Docker Installation for AWS VM
+    ```bash
+    sudo apt-get update
+    sudo apt install -y docker.io
+    sudo service docker start
+    sudo usermod -aG docker $USER 
+    ```
 
-### gcloud cli installation
-
-Follow the instructions here to install gcloud cli on Mac
-https://cloud.google.com/sdk/docs/install-sdk
+### Log off from shell session and re-login into shell session
 
 
 ### Prepare the directories

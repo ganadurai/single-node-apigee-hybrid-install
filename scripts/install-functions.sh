@@ -694,9 +694,9 @@ parse_args() {
         esac
     done
 
-    if [[ "${SHOULD_CREATE_PROJECT}" == "1" ]]; then
-       export SHOULD_CREATE_APIGEE_ORG="1";
-    fi
+    #if [[ "${SHOULD_CREATE_PROJECT}" == "1" ]]; then
+       #export SHOULD_CREATE_APIGEE_ORG="1";
+    #fi
 
     if [[ "${SHOULD_CREATE_PROJECT}"            != "1" && 
           "${SHOULD_CREATE_APIGEE_ORG}"         != "1" &&
