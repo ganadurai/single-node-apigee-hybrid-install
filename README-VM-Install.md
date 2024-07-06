@@ -35,12 +35,6 @@ To enable quick test and validation of Apigee Hybrid on a VM with 16 GB Memory.
     sudo apt update
     sudo apt-get install terraform
 
-    curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-474.0.0-linux-x86_64.tar.gz
-    tar -xf google-cloud-cli-474.0.0-linux-x86_64.tar.gz
-    ./google-cloud-sdk/install.sh
-    ./google-cloud-sdk/bin/gcloud init
-    source ~/.bashrc
-
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     kubectl version --client
@@ -60,6 +54,12 @@ To enable quick test and validation of Apigee Hybrid on a VM with 16 GB Memory.
 
 ### Docker Installation for AWS VM
     ```bash
+    curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-474.0.0-linux-x86_64.tar.gz
+    tar -xf google-cloud-cli-474.0.0-linux-x86_64.tar.gz
+    ./google-cloud-sdk/install.sh
+    ./google-cloud-sdk/bin/gcloud init
+    source ~/.bashrc
+    
     sudo apt-get update
     sudo apt install -y docker.io
     sudo service docker start
