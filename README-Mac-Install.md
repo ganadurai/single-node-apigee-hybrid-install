@@ -72,7 +72,7 @@ https://cloud.google.com/sdk/docs/install-sdk
     ```bash
     cd $WORK_DIR/scripts/
 
-    alias cmdscript="$WORK_DIR/scripts/install-mac-apigee-hybrid.sh "
+    alias cmdscript="$WORK_DIR/scripts/install-node-apigee-hybrid.sh "
     cmdscript --project-create
     cmdscript --apigee-org-create
     cmdscript --create-cluster

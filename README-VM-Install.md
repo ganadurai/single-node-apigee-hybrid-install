@@ -57,7 +57,6 @@ To enable quick test and validation of Apigee Hybrid on a VM with 16 GB Memory.
     curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-474.0.0-linux-x86_64.tar.gz
     tar -xf google-cloud-cli-474.0.0-linux-x86_64.tar.gz
     ./google-cloud-sdk/install.sh
-    ./google-cloud-sdk/bin/gcloud init
     source ~/.bashrc
     
     sudo apt-get update
@@ -108,7 +107,7 @@ To enable quick test and validation of Apigee Hybrid on a VM with 16 GB Memory.
     ```bash
     cd $WORK_DIR/scripts/
 
-    alias cmdscript="$WORK_DIR/scripts/install-mac-apigee-hybrid.sh "
+    alias cmdscript="$WORK_DIR/scripts/install-node-apigee-hybrid.sh "
     cmdscript --project-create
     cmdscript --apigee-org-create
     cmdscript --create-cluster
