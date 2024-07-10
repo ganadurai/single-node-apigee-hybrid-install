@@ -56,8 +56,11 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
     export CLUSTER_NAME=hybrid-cluster
     export NODEGROUP_NAME=hybrid-cluster-nodegroup2
     export EKS_REGION=us-east-2
+    
     export ACCOUNT_ID=$(aws sts get-caller-identity | jq .Account | cut -d '"' -f 2)
-
+    
+    #Set the aws keys, refer https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-envvars.html#envvars-set
+    
     aws configure
     ```
 
@@ -65,7 +68,7 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
     ```bash
     cd $WORK_DIR/scripts/
 
-    alias cmdscript="$WORK_DIR/scripts/install-mac-apigee-hybrid.sh "
+    alias cmdscript="$WORK_DIR/scripts/install-eks-apigee-hybrid.sh "
     cmdscript --install-tools
     cmdscript --create-cluster;date
     cmdscript --project-create

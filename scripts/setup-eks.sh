@@ -74,7 +74,8 @@ function createVPCForEKSCluster() {
     if [[ -z $VPC_ID ]]; then
         echo "Deleting cloudformation stack my-eks-vpc-stack"
         aws cloudformation delete-stack --stack-name my-eks-vpc-stack
-        sleep 5;
+        echo "Sleeping for 15 secs for the vpc to be cleaned"
+        sleep 15;
         aws cloudformation create-stack \
             --region $EKS_REGION \
             --stack-name my-eks-vpc-stack \
