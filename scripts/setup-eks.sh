@@ -243,8 +243,7 @@ EOF
 
 nodegroup_exists=1
 function checkClusterNodegroupExists() {
-    NODEGROUPS=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
-        --query "nodegroups[0]")
+    NODEGROUPS=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME --query "nodegroups")
     if [ ${#NODEGROUPS[@]} -gt 0 ]; then
         entry=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
         --query "nodegroups[0]" | cut -d '"' -f 2)
@@ -257,7 +256,6 @@ function checkClusterNodegroupExists() {
 
 function setupClusterNodegroup() {
     SINGLE_SUBNET=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID | jq .Subnets[0].SubnetId | cut -d '"' -f 2)
-    echo $SINGLE_SUBNET
 
     aws eks create-nodegroup --cluster-name $CLUSTER_NAME \
     --nodegroup-name $CLUSTER_NAME-nodegroup \
