@@ -73,7 +73,6 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
     cmdscript --create-cluster;date
     cmdscript --project-create
     cmdscript --apigee-org-create
-    cmdscript --create-cluster
     cmdscript --prep-install-dirs
     cmdscript --install-hybrid
     cmdscript --install-ingress

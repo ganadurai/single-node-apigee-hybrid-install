@@ -263,8 +263,10 @@ function setupClusterNodegroup() {
     --nodegroup-name $CLUSTER_NAME-nodegroup \
     --subnets $SINGLE_SUBNET \
     --node-role arn:aws:iam::$ACCOUNT_ID:role/myAmazonEKSNodeRole \
-    --disk-size 20 \
-    --instance-types 't3.xlarge' \
+    #--disk-size 20 \
+    #--instance-types 't3.xlarge' \
+    --disk-size 8 \
+    --instance-types 't2.micro' \
     --scaling-config minSize=1,maxSize=1,desiredSize=1 \
     --labels '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'  > /dev/null
 
