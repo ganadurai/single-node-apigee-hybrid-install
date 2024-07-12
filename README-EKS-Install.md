@@ -67,8 +67,8 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
     ```bash
     cmdscript --install-tools
     cmdscript --create-cluster;date
-    kubectl -n apigee patch pvc cassandra-data-apigee-cassandra-default-0 -p '{"spec": {"storageClassName":"gp2"}}'
     aws eks update-kubeconfig --region "$EKS_REGION" --name "$CLUSTER_NAME"
+    kubectl -n apigee patch pvc cassandra-data-apigee-cassandra-default-0 -p '{"spec": {"storageClassName":"gp2"}}'
     ```
 
 ## Log into GCP

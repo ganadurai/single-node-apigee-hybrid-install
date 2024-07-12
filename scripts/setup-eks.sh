@@ -303,10 +303,10 @@ function policyExists() {
 function enableCSIDriverForCluster() {
     EKS_ID=$(aws eks describe-cluster --name $CLUSTER_NAME \
     --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
-    echo $EKS_ID
+    #echo $EKS_ID
 
     list_open_id_connect_providers=$(aws iam list-open-id-connect-providers | grep $EKS_ID | cut -d "/" -f4)
-    echo "list-open-id-connect-providers=$list_open_id_connect_providers"
+    #echo "list-open-id-connect-providers=$list_open_id_connect_providers"
 
     eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 
