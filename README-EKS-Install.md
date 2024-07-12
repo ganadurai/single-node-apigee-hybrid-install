@@ -41,21 +41,13 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
     echo "all properties set..." 
     ```
 
-### Log into GCP
-    ```bash
-    gcloud auth application-default login
-    gcloud auth login $USER_ID	
-    gcloud config set project $PROJECT_ID
-    export TOKEN=$(gcloud auth print-access-token)
-    ```
-
 ### Log into AWS
     ```bash
     #Set the aws keys, refer https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-envvars.html#envvars-set
    
     export CLUSTER_NAME=hybrid-cluster
-    export NODEGROUP_NAME=hybrid-cluster-nodegroup2
     export EKS_REGION=us-east-2
+    export NODEGROUP_NAME=hybrid-cluster-nodegroup2
     
     export ACCOUNT_ID=$(aws sts get-caller-identity | jq .Account | cut -d '"' -f 2)
     
@@ -69,8 +61,26 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
     cd $WORK_DIR/scripts/
 
     alias cmdscript="$WORK_DIR/scripts/install-eks-apigee-hybrid.sh "
+    ```
+
+## Prepare EKS cluster
+    ```bash
     cmdscript --install-tools
     cmdscript --create-cluster;date
+    kubectl -n apigee patch pvc cassandra-data-apigee-cassandra-default-0 -p '{"spec": {"storageClassName":"gp2"}}'
+    aws eks update-kubeconfig --region "$EKS_REGION" --name "$CLUSTER_NAME"
+    ```
+
+## Log into GCP
+    ```bash
+    gcloud auth application-default login
+    gcloud auth login $USER_ID	
+    gcloud config set project $PROJECT_ID
+    export TOKEN=$(gcloud auth print-access-token)
+    ```
+
+## Install Apigee Hybrid on EKS
+    ```bash
     cmdscript --project-create
     cmdscript --apigee-org-create
     cmdscript --prep-install-dirs
@@ -80,8 +90,9 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
 
 ### Validation
     ```bash
-    echo "K3D cluster running, logging in..."
-    KUBECONFIG=$(k3d kubeconfig write hybrid-cluster); export KUBECONFIG
+    echo "EKS cluster running, logging in..."
+    aws eks update-kubeconfig --region "$EKS_REGION" --name "$CLUSTER_NAME"
+    alias k="kubectl "
     alias ka="kubectl -n apigee"
     alias ks="kubectl -n apigee-system"
     alias wa="watch kubectl get pods -n apigee"
