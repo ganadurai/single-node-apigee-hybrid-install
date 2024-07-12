@@ -81,7 +81,7 @@ function createVPCForEKSCluster() {
             --region $EKS_REGION \
             --stack-name my-eks-vpc-stack-$RAND_VAL  \
             --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
-        echo "Sleeping for 15 secs for the vpc to be cleaned"
+        echo "Sleeping for 15 secs for the vpc to be created"
         sleep 15;
         VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=my-eks-vpc-stack-$RAND_VAL-VPC \
                     --query "Vpcs[0].VpcId" | cut -d '"' -f 2)
