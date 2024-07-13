@@ -50,6 +50,7 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
     export NODEGROUP_NAME=hybrid-cluster-nodegroup2
     
     export ACCOUNT_ID=$(aws sts get-caller-identity | jq .Account | cut -d '"' -f 2)
+    export CASS_STORAGE_CLASS="ebs-sc"
     
     #Set the aws keys, refer https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-envvars.html#envvars-set
     
@@ -67,8 +68,9 @@ To run the install in the AWS environment we employ an t2.micro Amazon linux ins
     ```bash
     cmdscript --install-tools
     cmdscript --create-cluster;date
-    aws eks update-kubeconfig --region "$EKS_REGION" --name "$CLUSTER_NAME"
-    kubectl -n apigee patch pvc cassandra-data-apigee-cassandra-default-0 -p '{"spec": {"storageClassName":"gp2"}}'
+    #Not Needed
+    #aws eks update-kubeconfig --region "$EKS_REGION" --name "$CLUSTER_NAME"
+    #kubectl -n apigee patch pvc cassandra-data-apigee-cassandra-default-0 -p '{"spec": {"storageClassName":"gp2"}}'
     ```
 
 ## Log into GCP

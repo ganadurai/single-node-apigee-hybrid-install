@@ -444,6 +444,17 @@ EOF
     done
 }
 
+function createCSIStorageClass() {
+    kubectl apply -f - <<EOF
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+EOF
+}
+
 function deleteCluster() {
     aws eks delete-cluster --name $CLUSTER_NAME > /dev/null
 
@@ -530,6 +541,9 @@ function eksPrepAndInstall() {
 
     banner_info "Step- Enable CSI Driver Addon for Cluster";
     enableCSIDriverForCluster;
+
+    banner_info "Step- Create StorageClass with CSI Driver";
+    createCSIStorageClass
 
     banner_info "Complete EKS Cluster Setup";
 }
