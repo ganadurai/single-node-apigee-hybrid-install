@@ -262,7 +262,7 @@ function setupClusterNodegroup() {
     --subnets $SINGLE_SUBNET \
     --node-role arn:aws:iam::$ACCOUNT_ID:role/myAmazonEKSNodeRole \
     --disk-size 20 \
-    --instance-types 't2.micro' \
+    --instance-types 't3.xlarge' \
     --scaling-config minSize=1,maxSize=1,desiredSize=1 \
     --labels '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'  > /dev/null
 
@@ -306,10 +306,10 @@ function policyExists() {
 function enableCSIDriverForCluster() {
     EKS_ID=$(aws eks describe-cluster --name $CLUSTER_NAME \
     --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
-    #echo $EKS_ID
+    echo $EKS_ID
 
     list_open_id_connect_providers=$(aws iam list-open-id-connect-providers | grep $EKS_ID | cut -d "/" -f4)
-    #echo "list-open-id-connect-providers=$list_open_id_connect_providers"
+    echo "list-open-id-connect-providers=$list_open_id_connect_providers"
 
     eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 
