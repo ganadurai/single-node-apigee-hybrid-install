@@ -386,7 +386,13 @@ EOF
 
 
     KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
-    echo $KEY_ARN
+    if [ -z "$KEY_ARN" ]; then
+        echo "Missing Customer Key in KMS, creating it."
+        aws kms create-key
+        KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
+    else
+        echo $KEY_ARN
+    fi
 
     if [ -f ~/kms-key-for-encryption-on-ebs.json ]; then
         rm ~/kms-key-for-encryption-on-ebs.json
@@ -448,7 +454,7 @@ EOF
 }
 
 function createCSIStorageClass() {
-    
+
     kubectl apply -f - <<EOF
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
