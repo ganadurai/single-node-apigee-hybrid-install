@@ -170,6 +170,41 @@ function installTools() {
   alias ke-ssh='ke exec --stdin --tty'
 }
 
+function setEnvironmentVariables() {
+  export ENV_NAME="test-env"
+  export DOMAIN="test.apigeehybrid.com"
+  export ENV_GROUP="test-env-group"
+
+  export ORG_ADMIN=$USER_ID
+  export ORG_NAME=$PROJECT_ID
+  export REGION=$ANALYTICS_REGION
+  export RUNTIMETYPE=HYBRID
+
+  export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
+  export CHART_VERSION=1.12.0
+  export CERT_MGR_DWNLD_YAML=https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+
+  export APIGEE_HYBRID_BASE=$WORK_DIR/../APIGEE_HYBRID_BASE_$PROJECT_ID
+  export APIGEE_HELM_CHARTS_HOME=$APIGEE_HYBRID_BASE/EDIT_APIGEE_HELM_CHARTS_HOME
+  export APIGEE_HELM_CHARTS_HOME_ORIG=$APIGEE_HYBRID_BASE/ORIG_APIGEE_HELM_CHARTS_HOME
+
+  export SA_FILE_NAME=$PROJECT_ID-apigee-non-prod
+
+  export UNIQUE_INSTANCE_IDENTIFIER=$(echo $(uuidgen)| tr -d '-') 
+
+  export APIGEE_NAMESPACE=apigee
+  export CLUSTER_LOCATION=$ANALYTICS_REGION
+  export CLUSTER_NAME=hybrid-cluster
+  export ENVIRONMENT_GROUP_NAME=$ENV_GROUP
+  export ENVIRONMENT_NAME=$ENV_NAME
+  export INGRESS_NAME=$ENV_GROUP-i
+  export INGRESSGATEWAY_REPLICAS_MAX=3
+  export NON_PROD_SERVICE_ACCOUNT_FILEPATH=$SA_FILE_NAME.json
+
+  export PATH_TO_CERT_FILE=certs/keystore_$ENV_GROUP.pem
+  export PATH_TO_KEY_FILE=certs/keystore_$ENV_GROUP.key
+}
+
 function installDeleteProject() {
 
   gcloud projects create $PROJECT_ID
@@ -178,15 +213,19 @@ function installDeleteProject() {
   #if [[ $1 == 'apply' ]] && [[ $DO_PROJECT_CREATE == 'false' ]]; then
   #  echo "Enabling org policies.."
     gcloud services enable --project="${PROJECT_ID}" \
-      "apigee.googleapis.com" \
-      "apigeeconnect.googleapis.com" \
-      "cloudresourcemanager.googleapis.com" \
-      "cloudbilling.googleapis.com" \
-      "compute.googleapis.com" \
-      "container.googleapis.com" \
-      "pubsub.googleapis.com" \
-      "sourcerepo.googleapis.com" \
-      "logging.googleapis.com"
+      apigee.googleapis.com \
+      apigeeconnect.googleapis.com \
+      cloudapis.googleapis.com \
+      cloudresourcemanager.googleapis.com \
+      compute.googleapis.com \
+      dns.googleapis.com \
+      iam.googleapis.com \
+      iamcredentials.googleapis.com \
+      pubsub.googleapis.com \
+      servicemanagement.googleapis.com \
+      serviceusage.googleapis.com \
+      storage-api.googleapis.com \
+      storage-component.googleapis.com
   #fi
 
   #cd "$WORK_DIR"/terraform-modules/project-install
@@ -270,12 +309,17 @@ function enableAPIsAndOrgAdmin() {
   gcloud services enable \
     apigee.googleapis.com \
     apigeeconnect.googleapis.com \
+    cloudapis.googleapis.com \
     cloudresourcemanager.googleapis.com \
     compute.googleapis.com \
-    container.googleapis.com \
+    dns.googleapis.com \
+    iam.googleapis.com \
+    iamcredentials.googleapis.com \
     pubsub.googleapis.com \
-    sourcerepo.googleapis.com \
-    logging.googleapis.com --project "$PROJECT_ID"
+    servicemanagement.googleapis.com \
+    serviceusage.googleapis.com \
+    storage-api.googleapis.com \
+    storage-component.googleapis.com --project "$PROJECT_ID"
 
   echo "Setting IAM role"
   gcloud projects add-iam-policy-binding "$PROJECT_ID" \
@@ -650,9 +694,9 @@ parse_args() {
         esac
     done
 
-    if [[ "${SHOULD_CREATE_PROJECT}" == "1" ]]; then
-       export SHOULD_CREATE_APIGEE_ORG="1";
-    fi
+    #if [[ "${SHOULD_CREATE_PROJECT}" == "1" ]]; then
+       #export SHOULD_CREATE_APIGEE_ORG="1";
+    #fi
 
     if [[ "${SHOULD_CREATE_PROJECT}"            != "1" && 
           "${SHOULD_CREATE_APIGEE_ORG}"         != "1" &&

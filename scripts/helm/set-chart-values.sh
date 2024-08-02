@@ -15,6 +15,7 @@ function fixHelmValues() {
 
     # apigee-datastore/values.yaml
 
+    export CASS_STORAGE_CLASS="gp2" # set env variable export CLUSTER_TYPE="EKS" to apply
     export CASS_DISK_SIZE="2Gi"     # 10Gi
     export CASS_CPU_REQ="50m"       # 500m      # 250m
     export CASS_MEM_REQ="256Mi"     # 1Gi       # 512Mi
@@ -150,6 +151,12 @@ function fixHelmValues() {
     # apigee-datastore/values.yaml
     yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
 
+    if [[ -z $CASS_STORAGE_CLASS ]]; then
+        echo "CASS_STORAGE_CLASS value is missing, so leaving it blank)"
+    else
+        yq e -i '.cassandra.storage.storageClass = env(CASS_STORAGE_CLASS) | .cassandra.storage.storageClass style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
+    fi
+    
     yq e -i '.cassandra.storage.storageSize = env(CASS_DISK_SIZE) | .cassandra.storage.storageSize style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     yq e -i '.cassandra.resources.requests.cpu = env(CASS_CPU_REQ) | .cassandra.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     yq e -i '.cassandra.resources.requests.memory = env(CASS_MEM_REQ) | .cassandra.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml

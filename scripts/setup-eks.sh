@@ -72,17 +72,19 @@ function installEksSetupTools() {
 
 function createVPCForEKSCluster() {
     if [[ -z $VPC_ID ]]; then
-        echo "Deleting cloudformation stack my-eks-vpc-stack"
-        aws cloudformation delete-stack --stack-name my-eks-vpc-stack
-        sleep 5;
+        #echo "Deleting cloudformation stack my-eks-vpc-stack"
+        #aws cloudformation delete-stack --stack-name my-eks-vpc-stack
+        #echo "Sleeping for 15 secs for the vpc to be cleaned"
+        #sleep 15;
+        RAND_VAL=$RANDOM
         aws cloudformation create-stack \
             --region $EKS_REGION \
-            --stack-name my-eks-vpc-stack \
+            --stack-name my-eks-vpc-stack-$RAND_VAL  \
             --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
-        sleep 5;
-        VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=my-eks-vpc-stack-VPC \
+        echo "Sleeping for 15 secs for the vpc to be created"
+        sleep 15;
+        VPC_ID=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=my-eks-vpc-stack-$RAND_VAL-VPC \
                     --query "Vpcs[0].VpcId" | cut -d '"' -f 2)
-
         echo "VPC_ID=$VPC_ID"
     fi
 }
@@ -241,8 +243,7 @@ EOF
 
 nodegroup_exists=1
 function checkClusterNodegroupExists() {
-    NODEGROUPS=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
-        --query "nodegroups[0]")
+    NODEGROUPS=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME --query "nodegroups")
     if [ ${#NODEGROUPS[@]} -gt 0 ]; then
         entry=$(aws eks list-nodegroups --cluster-name $CLUSTER_NAME \
         --query "nodegroups[0]" | cut -d '"' -f 2)
@@ -255,16 +256,18 @@ function checkClusterNodegroupExists() {
 
 function setupClusterNodegroup() {
     SINGLE_SUBNET=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID | jq .Subnets[0].SubnetId | cut -d '"' -f 2)
-    echo $SINGLE_SUBNET
 
     aws eks create-nodegroup --cluster-name $CLUSTER_NAME \
     --nodegroup-name $CLUSTER_NAME-nodegroup \
     --subnets $SINGLE_SUBNET \
     --node-role arn:aws:iam::$ACCOUNT_ID:role/myAmazonEKSNodeRole \
     --disk-size 20 \
-    --instance-types 't3.xlarge' \
+    --instance-types 't2.medium' \
     --scaling-config minSize=1,maxSize=1,desiredSize=1 \
     --labels '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'  > /dev/null
+
+    #--disk-size 20 \
+    #--instance-types 't3.xlarge' \
 
     NODEGROUP_STATUS=""
     while [[ $NODEGROUP_STATUS != "ACTIVE" ]]; do
@@ -383,7 +386,13 @@ EOF
 
 
     KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
-    echo $KEY_ARN
+    if [ -z "$KEY_ARN" ]; then
+        echo "Missing Customer Key in KMS, creating it."
+        aws kms create-key
+        KEY_ARN=$(aws kms list-keys | jq .Keys[0].KeyArn)
+    else
+        echo $KEY_ARN
+    fi
 
     if [ -f ~/kms-key-for-encryption-on-ebs.json ]; then
         rm ~/kms-key-for-encryption-on-ebs.json
@@ -442,6 +451,21 @@ EOF
         echo "CLUSTER ADDON:$CSI_DRIVER_ADDON_STATUS"
         sleep 5;
     done
+}
+
+function createCSIStorageClass() {
+
+    kubectl apply -f - <<EOF
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+EOF
+
+    kubectl patch storageclass ebs-sc -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
 }
 
 function deleteCluster() {
@@ -530,6 +554,9 @@ function eksPrepAndInstall() {
 
     banner_info "Step- Enable CSI Driver Addon for Cluster";
     enableCSIDriverForCluster;
+
+    banner_info "Step- Create StorageClass with CSI Driver";
+    createCSIStorageClass
 
     banner_info "Complete EKS Cluster Setup";
 }
