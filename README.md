@@ -15,10 +15,10 @@ This deployment model is intended ONLY for testing and sandbox purposes, **NOT f
 
 ## Following deployment options are supported
 
-Mac
-GCP VM
-AWS VM 
-AWS EKS
+- Mac
+- GCP VM
+- AWS VM 
+- AWS EKS
 
 ### Prerequisites
 
