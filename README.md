@@ -15,10 +15,10 @@ This deployment model is intended ONLY for testing and sandbox purposes, **NOT f
 
 ## Following deployment options are supported
 
-- Mac
-- GCP VM
-- AWS VM 
-- AWS EKS
+- [Mac](./README-Mac-Install.md)
+- [GCP VM](./README-VM-Install.md)
+- [AWS VM](./README-VM-Install.md) 
+- [AWS EKS](./README-EKS-Install.md) 
 
 ### Prerequisites
 
