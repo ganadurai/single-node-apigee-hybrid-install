@@ -153,17 +153,28 @@ function fixHelmValues() {
     else
         yq e -i '.cassandra.storage.storageClass = env(CASS_STORAGE_CLASS) | .cassandra.storage.storageClass style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     fi
-    
+
+    if [[ -z $MULTI_NODE_CLUSTER ]]; then
+        echo 'changing the nodeSelector values, configuring the single node with label apigee-runtime to host all pods.'
+        yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
+        yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-env/values.yaml
+        yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-ingress-manager/values.yaml
+        yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-operator/values.yaml
+        yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
+        yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-redis/values.yaml
+        yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-telemetry/values.yaml
+    else
+        echo 'not changing the nodeSelector values, letting it to undisturbed.'
+    fi
+
     # apigee-datastore/values.yaml
-    yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     
     yq e -i '.cassandra.storage.storageSize = env(CASS_DISK_SIZE) | .cassandra.storage.storageSize style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     yq e -i '.cassandra.resources.requests.cpu = env(CASS_CPU_REQ) | .cassandra.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     yq e -i '.cassandra.resources.requests.memory = env(CASS_MEM_REQ) | .cassandra.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     
     # apigee-env/values.yaml
-    yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-env/values.yaml
-
+    
     yq e -i '.synchronizer.resources.requests.cpu = env(SYNC_CPU_REQ) | .synchronizer.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-env/values.yaml
     yq e -i '.synchronizer.resources.requests.memory = env(SYNC_MEM_REQ) | .synchronizer.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-env/values.yaml
     yq e -i '.synchronizer.resources.limits.cpu = env(SYNC_CPU_LIM) | .synchronizer.resources.limits.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-env/values.yaml
@@ -195,8 +206,7 @@ function fixHelmValues() {
     yq e -i '.runtime.readinessProbe.initialDelaySeconds = env(RUNT_RYDNS_INI) | .runtime.readinessProbe.initialDelaySeconds style=""' $APIGEE_HELM_CHARTS_HOME/apigee-env/values.yaml
 
     # apigee-ingress-manager/values.yaml
-    yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-ingress-manager/values.yaml
-
+    
     yq e -i '.istiod.resources.requests.cpu = env(ISTD_CPU_REQ) | .istiod.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-ingress-manager/values.yaml
     yq e -i '.istiod.resources.requests.memory = env(ISTD_MEM_REQ) | .istiod.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-ingress-manager/values.yaml
     yq e -i '.istiod.resources.limits.cpu = env(ISTD_CPU_LIM) | .istiod.resources.limits.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-ingress-manager/values.yaml
@@ -213,8 +223,7 @@ function fixHelmValues() {
     yq e -i '.kubeRBACProxy.resources.limits.memory = env(KRPX1_MEM_LIM) | .kubeRBACProxy.resources.limits.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-ingress-manager/values.yaml
 
     # apigee-operator/values.yaml
-    yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-operator/values.yaml
-
+    
     yq e -i '.ao.resources.requests.cpu = env(AO2_CPU_REQ) | .ao.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-operator/values.yaml
     yq e -i '.ao.resources.requests.memory = env(AO2_MEM_REQ) | .ao.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-operator/values.yaml
     yq e -i '.ao.resources.limits.cpu = env(AO2_CPU_LIM) | .ao.resources.limits.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-operator/values.yaml
@@ -226,8 +235,7 @@ function fixHelmValues() {
     yq e -i '.kubeRBACProxy.resources.limits.memory = env(KRPX2_MEM_LIM) | .kubeRBACProxy.resources.limits.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-operator/values.yaml
 
     # apigee-org/values.yaml
-    yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
-
+    
     yq e -i '.mintTaskScheduler.resources.requests.cpu = env(TSKS_CPU_REQ) | .mintTaskScheduler.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
     yq e -i '.mintTaskScheduler.resources.requests.memory = env(TSKS_MEM_REQ) | .mintTaskScheduler.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
     yq e -i '.mintTaskScheduler.resources.limits.cpu = env(TSKS_CPU_LIM) | .mintTaskScheduler.resources.limits.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
@@ -272,7 +280,6 @@ function fixHelmValues() {
     yq e -i '.udca.fluentd.resources.limits.memory = env(FLND1_MEM_LIM) | .udca.fluentd.resources.limits.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-org/values.yaml
 
     # apigee-redis/values.yaml
-    yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-redis/values.yaml
     
     yq e -i '.redis.resources.requests.cpu = env(REDS_CPU_REQ) | .redis.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-redis/values.yaml
     yq e -i '.redis.envoy.resources.requests.cpu = env(ENVY_CPU_REQ) | .redis.envoy.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-redis/values.yaml
@@ -280,8 +287,7 @@ function fixHelmValues() {
     yq e -i '.redis.replicaCount = env(REDS_REPLICA) | .redis.replicaCount style=""' $APIGEE_HELM_CHARTS_HOME/apigee-redis/values.yaml
 
     # apigee-telemetry/values.yaml
-    yq e -i '.nodeSelector.apigeeData.value = "apigee-runtime"' $APIGEE_HELM_CHARTS_HOME/apigee-telemetry/values.yaml
-
+    
     yq e -i '.logger.resources.requests.cpu = env(LOGR_CPU_REQ) | .logger.resources.requests.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-telemetry/values.yaml
     yq e -i '.logger.resources.requests.memory = env(LOGR_MEM_REQ) | .logger.resources.requests.memory style=""' $APIGEE_HELM_CHARTS_HOME/apigee-telemetry/values.yaml
     yq e -i '.logger.resources.limits.cpu = env(LOGR_CPU_LIM) | .logger.resources.limits.cpu style=""' $APIGEE_HELM_CHARTS_HOME/apigee-telemetry/values.yaml
