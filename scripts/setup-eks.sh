@@ -258,13 +258,13 @@ function setupClusterNodegroup() {
     SINGLE_SUBNET=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID | jq .Subnets[0].SubnetId | cut -d '"' -f 2)
 
     aws eks create-nodegroup --cluster-name $CLUSTER_NAME \
-    --nodegroup-name $CLUSTER_NAME-nodegroup \
+    --nodegroup-name $1 \
     --subnets $SINGLE_SUBNET \
     --node-role arn:aws:iam::$ACCOUNT_ID:role/myAmazonEKSNodeRole \
     --disk-size 20 \
     --instance-types 't2.medium' \
     --scaling-config minSize=1,maxSize=1,desiredSize=1 \
-    --labels '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'  > /dev/null
+    --labels $2  > /dev/null
 
     #--disk-size 20 \
     #--instance-types 't3.xlarge' \
@@ -543,13 +543,14 @@ function eksPrepAndInstall() {
     checkClusterNodegroupExists;
 
     if [[ $nodegroup_exists -eq 0 ]]; then
-        echo "Cluster Nodegroup eixts, so stikking cluster nodegroup setup"
+        echo "Cluster Nodegroup eixts, so skipping cluster nodegroup setup"
     else
         banner_info "Step- Prep Nodegroup Role";
         prepNodegroupRole
 
         banner_info "Step- Cluster Nodegroup Setup";
-        setupClusterNodegroup
+        setupClusterNodegroup $CLUSTER_NAME-nodegroup-runtime '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'
+        setupClusterNodegroup $CLUSTER_NAME-nodegroup-data '{"cloud.google.com/gke-nodepool": "apigee-data"}'
     fi
 
     banner_info "Step- Enable CSI Driver Addon for Cluster";

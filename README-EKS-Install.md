@@ -1,6 +1,7 @@
-# Hybrid Installation on Mac
+# Hybrid Installation on EKS
 
-To enable quick test and validation of Apigee Hybrid on EKS with 16 GB Memory as worker node. 
+To enable quick test and validation of Apigee Hybrid on EKS. 
+
 To run the install in the AWS environment we employ an t2.micro Amazon linux instance as Launch Instance
 
 ## Log into 'Launch Instance and install pre-requisite tools/libraries
