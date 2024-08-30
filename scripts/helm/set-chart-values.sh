@@ -15,7 +15,7 @@ function fixHelmValues() {
 
     # apigee-datastore/values.yaml
 
-    export CASS_STORAGE_CLASS="gp2" # set env variable export CLUSTER_TYPE="EKS" to apply
+    # export CASS_STORAGE_CLASS="gp2" # set env variable export CLUSTER_TYPE="EKS" to apply
     export CASS_DISK_SIZE="2Gi"     # 10Gi
     export CASS_CPU_REQ="50m"       # 500m      # 250m
     export CASS_MEM_REQ="256Mi"     # 1Gi       # 512Mi
@@ -149,7 +149,7 @@ function fixHelmValues() {
     export SDRV_MEM_LIM="128Mi"     # 1Gi
 
     if [[ -z $CASS_STORAGE_CLASS ]]; then
-        echo "CASS_STORAGE_CLASS value is missing, so leaving it blank)"
+        yq e -i '.cassandra.storage.storageClass = "gp2" | .cassandra.storage.storageClass style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     else
         yq e -i '.cassandra.storage.storageClass = env(CASS_STORAGE_CLASS) | .cassandra.storage.storageClass style=""' $APIGEE_HELM_CHARTS_HOME/apigee-datastore/values.yaml
     fi

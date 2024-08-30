@@ -549,8 +549,12 @@ function eksPrepAndInstall() {
         prepNodegroupRole
 
         banner_info "Step- Cluster Nodegroup Setup";
-        setupClusterNodegroup $CLUSTER_NAME-nodegroup-runtime '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'
-        setupClusterNodegroup $CLUSTER_NAME-nodegroup-data '{"cloud.google.com/gke-nodepool": "apigee-data"}'
+        if [[ -z $MULTI_NODE_CLUSTER ]]; then
+            setupClusterNodegroup $CLUSTER_NAME-nodegroup-runtime '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'
+        else
+            setupClusterNodegroup $CLUSTER_NAME-nodegroup-runtime '{"cloud.google.com/gke-nodepool": "apigee-runtime"}'
+            setupClusterNodegroup $CLUSTER_NAME-nodegroup-data '{"cloud.google.com/gke-nodepool": "apigee-data"}'
+        fi
     fi
 
     banner_info "Step- Enable CSI Driver Addon for Cluster";
