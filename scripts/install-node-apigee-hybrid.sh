@@ -22,12 +22,30 @@ function installTools() {
     curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 }
 
+function createStorageClass() {
+
+    kubectl apply -f - <<EOF
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp2
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+EOF
+
+    kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+    kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+}
+
 function installCluster() {
     k3d cluster create -p "443:443" -p "30080:30080" $CLUSTER_NAME --registry-create docker-registry
     K3D_NODE=$(kubectl get nodes -o json | jq '.items[0].metadata.name' | cut -d '"' -f 2)
     kubectl label nodes $K3D_NODE cloud.google.com/gke-nodepool=apigee-runtime
 
     kubectl create namespace apigee
+
+    banner_info "Step- Create StorageClass";
+    createStorageClass;
 }
 
 function deleteCluster() {
