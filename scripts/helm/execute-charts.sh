@@ -50,8 +50,7 @@ function deployApigeeOperator() {
 
     helm upgrade operator apigee-operator/ \
         --install \
-        --create-namespace \
-        --namespace apigee-system \
+        --namespace apigee \
         --atomic \
         -f overrides.yaml \
         --dry-run
@@ -66,8 +65,7 @@ function deployApigeeOperator() {
 
     helm upgrade operator apigee-operator/ \
         --install \
-        --create-namespace \
-        --namespace apigee-system \
+        --namespace apigee \
         --atomic \
         -f overrides.yaml
 
@@ -81,7 +79,7 @@ function deployApigeeOperator() {
 
     echo "Waiting max 120s for helm apigee-operator install to take into effect! "
 
-    #deployed_status=$(helm ls -n apigee-system -o json | jq ".[].status" | cut -d '"' -f 2) 
+    #deployed_status=$(helm ls -n apigee -o json | jq ".[].status" | cut -d '"' -f 2) 
     #echo $deployed_status
     #if [[ $deployed_status == "deployed" ]]; then
     #    echo "helm chart apigee-operator post apply, success"
@@ -90,7 +88,7 @@ function deployApigeeOperator() {
     #    exit 1;
     #fi
     
-    kubectl wait deploy apigee-controller-manager -n apigee-system --for="jsonpath=.status.readyReplicas=1" --timeout=120s
+    kubectl wait deploy apigee-controller-manager -n apigee --for="jsonpath=.status.readyReplicas=1" --timeout=120s
     exec_code=$?
     if (( $exec_code == 0 )); then
         echo "helm chart apigee-controller-manager post apply, success"
