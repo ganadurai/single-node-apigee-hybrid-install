@@ -181,8 +181,8 @@ function setEnvironmentVariables() {
   export RUNTIMETYPE=HYBRID
 
   export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
-  export CHART_VERSION=1.12.0
-  export CERT_MGR_DWNLD_YAML=https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+  export CHART_VERSION=1.13.0
+  export CERT_MGR_DWNLD_YAML=https://github.com/cert-manager/cert-manager/releases/download/v1.15.1/cert-manager.yaml
 
   export APIGEE_HYBRID_BASE=$WORK_DIR/../APIGEE_HYBRID_BASE_$PROJECT_ID
   export APIGEE_HELM_CHARTS_HOME=$APIGEE_HYBRID_BASE/EDIT_APIGEE_HELM_CHARTS_HOME
