@@ -203,6 +203,12 @@ function setEnvironmentVariables() {
 
   export PATH_TO_CERT_FILE=certs/keystore_$ENV_GROUP.pem
   export PATH_TO_KEY_FILE=certs/keystore_$ENV_GROUP.key
+
+
+  if [[ -z "$IMAGE_REPO_DOMAIN" ]]; then
+    IMAGE_REPO_DOMAIN="gcr.io/apigee-release/hybrid";export IMAGE_REPO_DOMAIN;
+  fi
+  
 }
 
 function installDeleteProject() {

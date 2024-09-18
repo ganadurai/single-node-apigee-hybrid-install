@@ -19,6 +19,10 @@ function fixOverridesFile() {
     echo PATH_TO_CERT_FILE = $PATH_TO_CERT_FILE
     echo PATH_TO_KEY_FILE = $PATH_TO_KEY_FILE
 
+    if [[ -z IMAGE_REPO_DOMAIN ]]; then
+        echo "IMAGE_REPO_DOMAIN value is missing, refer to https://cloud.google.com/apigee/docs/hybrid/v1.13/container-images"
+        exit 1
+    fi
 
     if [[ -z $UNIQUE_INSTANCE_IDENTIFIER ]]; then
         echo "Unique identifier is missing, to generate the value $(echo $(uuidgen)| tr -d '-')"
@@ -97,6 +101,8 @@ function fixOverridesFile() {
 
     cp $WORK_DIR/scripts/helm/overrides-orig.yaml $APIGEE_HELM_CHARTS_HOME/overrides.yaml
     
+    yq e -i '.hub = env(IMAGE_REPO_DOMAIN)' $APIGEE_HELM_CHARTS_HOME/overrides.yaml
+
     yq e -i '.instanceID = env(UNIQUE_INSTANCE_IDENTIFIER)' $APIGEE_HELM_CHARTS_HOME/overrides.yaml
     yq e -i '.namespace = env(APIGEE_NAMESPACE)' $APIGEE_HELM_CHARTS_HOME/overrides.yaml
 

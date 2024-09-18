@@ -10,6 +10,8 @@ k8sCluster:
   region: $CLUSTER_LOCATION # Must be the closest Google Cloud region to your cluster.
 org: $ORG_NAME
 
+hub: $IMAGE_REPO_DOMAIN
+
 envs:
 - name: $ENVIRONMENT_NAME
   serviceAccountPaths:
